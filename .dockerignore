@@ -1,0 +1,13 @@
+**/bin
+**/obj
+.git
+.gitignore
+.vs
+.vscode
+.env
+TestResults
+coverage
+README.md
+instruccionesInicio.txt
+database
+TransPort.Api.Tests

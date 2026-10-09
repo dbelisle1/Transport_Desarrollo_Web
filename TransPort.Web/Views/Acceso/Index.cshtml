@@ -1,0 +1,20 @@
+@model LoginViewModel
+@{ ViewData["Title"] = "Acceso"; }
+<section class="auth-page">
+    <div class="auth-aside">
+        <a class="brand brand-light" href="/"><span class="brand-mark">T</span><span>TransPort</span></a>
+        <div><span class="eyebrow">Portal unificado</span><h1>Su operación,<br />en un solo lugar.</h1><p>Acceso seguro para clientes, colaboradores y administradores.</p></div>
+        <small>Credenciales exclusivas del entorno de demostración.</small>
+    </div>
+    <div class="auth-panel">
+        <form method="post" class="auth-form">
+            <div><span class="eyebrow">Bienvenido</span><h2>Iniciar sesión</h2><p>Use las credenciales asignadas a su cuenta.</p></div>
+            <div asp-validation-summary="ModelOnly" class="validation"></div>
+            <input asp-for="Retorno" type="hidden" />
+            <label asp-for="NombreUsuario"></label><input asp-for="NombreUsuario" autocomplete="username" autofocus /><span asp-validation-for="NombreUsuario" class="validation"></span>
+            <label asp-for="Clave"></label><input asp-for="Clave" autocomplete="current-password" /><span asp-validation-for="Clave" class="validation"></span>
+            <button class="button button-block" type="submit">Ingresar</button>
+            <a class="text-link centered" href="/">← Volver al sitio público</a>
+        </form>
+    </div>
+</section>

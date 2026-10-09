@@ -1,0 +1,50 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b2538" />
+    <meta name="description" content="TransPort: soluciones integradas para industria, transporte y construcción." />
+    <title>@ViewData["Title"] · TransPort</title>
+    <link rel="manifest" href="~/manifest.webmanifest" />
+    <link rel="icon" href="~/images/icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header class="site-header">
+        <nav class="nav-shell" aria-label="Navegación principal">
+            <a class="brand" href="/"><span class="brand-mark">T</span><span>TransPort</span></a>
+            <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-menu"><span></span><span></span><span></span><span class="sr-only">Abrir menú</span></button>
+            <div id="main-menu" class="main-menu">
+                <a href="/#servicios">Servicios</a><a href="/#empresa">Empresa</a><a href="/#contacto">Contacto</a>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    @if (User.IsInRole("AdministradorGeneral")) { <a href="/portal/cambiar/admin">Administración</a> }
+                    @if (User.IsInRole("Cliente") || User.IsInRole("AdministradorGeneral")) { <a href="/portal/cambiar/cliente">Cliente</a> }
+                    @if (User.IsInRole("AdministradorGeneral") || User.IsInRole("Gerente") || User.IsInRole("Empleado") || User.IsInRole("Operativo") || User.IsInRole("Vendedor")) { <a href="/portal/cambiar/gestion">Gestión</a> }
+                    <span class="nav-user">@User.Identity.Name</span>
+                    <form asp-area="" asp-controller="Acceso" asp-action="Salir" method="post" asp-antiforgery="true">
+                        <button class="link-button" type="submit">Cerrar sesión</button>
+                    </form>
+                }
+                else { <a class="button button-small" href="/acceso">Acceder</a> }
+            </div>
+        </nav>
+    </header>
+    <div>
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="site-footer">
+        <div class="container footer-grid">
+            <div><strong>TransPort</strong><p>Industria, movimiento y construcción conectados.</p></div>
+            <div><span class="eyebrow">Fase 1</span><p>Plataforma académica de demostración.</p></div>
+            <div><p>&copy; @DateTime.Now.Year TransPort</p><a href="/#contacto">Contacto</a></div>
+        </div>
+    </footer>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

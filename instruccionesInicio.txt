@@ -1,0 +1,103 @@
+TRANSPORT - INSTRUCCIONES PARA INICIAR EL PROYECTO
+=================================================
+
+REQUISITOS
+1. Git.
+2. .NET SDK 8.
+3. SQL Server 2019 o posterior (Express funciona).
+4. SQLCMD o SQL Server Management Studio (SSMS).
+5. Docker Desktop, solamente si se ejecutará con contenedores.
+
+PASO 1 - CLONAR Y ENTRAR
+git clone URL_DEL_REPOSITORIO
+cd Transport
+
+PASO 2 - CREAR LA BASE DE DATOS
+Abra PowerShell en la carpeta database y ejecute, para SQLEXPRESS con Windows Authentication:
+
+  sqlcmd -S ".\SQLEXPRESS" -E -i .\000_instalar_todo.sql
+
+Si utiliza un login de SQL Server, no escriba la contraseña en un archivo ni en Git. Puede solicitarla sin mostrarla:
+
+  $env:SQLCMDPASSWORD = Read-Host "Contraseña SQL"
+  sqlcmd -S ".\SQLEXPRESS" -U SU_USUARIO -i .\000_instalar_todo.sql
+  Remove-Item Env:SQLCMDPASSWORD
+
+El usuario SQL debe tener una contraseña definitiva. Si SQL Server indica que debe cambiarla, inicie sesión en SSMS y complete el cambio antes de continuar.
+
+Alternativa SSMS: ejecute estos archivos en orden:
+  000_crear_base.sql
+  001_tablas.sql
+  002_indices_relaciones.sql
+  003_procedimientos.sql
+  004_datos_iniciales.sql
+
+Los scripts son idempotentes: pueden volver a ejecutarse sin duplicar roles, sedes, giros ni usuarios demo.
+
+PASO 2.1 - CREAR LA CLAVE TRANSPORT_JWT_KEY
+TRANSPORT_JWT_KEY es la clave secreta que la API utiliza para firmar y validar los tokens JWT del inicio de sesión. Permite comprobar que los tokens fueron creados por TransPort y que sus roles o permisos no fueron modificados.
+
+No es una contraseña de usuario ni de SQL Server. Debe ser privada, aleatoria y tener por lo menos 32 caracteres.
+
+Para generar una clave segura, ejecute en PowerShell:
+
+  $bytes = New-Object byte[] 48
+  $rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+  $rng.GetBytes($bytes)
+  $key = [Convert]::ToBase64String($bytes)
+  $rng.Dispose()
+  $key
+
+Copie el valor mostrado y colóquelo en el archivo .env:
+
+  TRANSPORT_JWT_KEY=PEGUE_AQUI_EL_VALOR_GENERADO
+
+No suba el archivo .env a GitHub ni comparta esta clave. Cada compañero puede generar su propia clave para desarrollo. Si la clave cambia, los tokens emitidos anteriormente dejarán de funcionar y los usuarios deberán iniciar sesión nuevamente.
+
+PASO 3A - INICIAR CON DOCKER (RECOMENDADO PARA EL EQUIPO)
+1. Copie .env.example y llame a la copia .env.
+2. En .env reemplace SU_USUARIO_SQL, SU_CLAVE_SQL y TRANSPORT_JWT_KEY.
+3. Habilite TCP/IP para SQL Server. Desde Docker, el host es host.docker.internal, no localhost.
+4. Ejecute uno de estos comandos desde la raíz:
+
+  docker compose up --build
+
+Si su instalación usa Compose clásico:
+
+  docker-compose up --build
+
+Direcciones:
+  Web: http://localhost:8080
+  Salud API: http://localhost:8081/salud
+
+PASO 3B - INICIAR SIN DOCKER
+Terminal 1 (API):
+
+  $env:ConnectionStrings__TransPort='Server=localhost\SQLEXPRESS;Database=TransPortDB;Integrated Security=True;Encrypt=True;TrustServerCertificate=True'
+  $env:Jwt__SigningKey='COLOQUE_UNA_CLAVE_ALEATORIA_DE_32_CARACTERES_O_MAS'
+  dotnet run --project .\TransPort.Api --urls http://localhost:8081
+
+Terminal 2 (web):
+
+  $env:Api__BaseUrl='http://localhost:8081/'
+  dotnet run --project .\TransPort.Web --urls http://localhost:8080
+
+PASO 4 - CUENTAS DE DEMOSTRACION
+Administrador: admin.demo / TransPortAdmin2026!
+Empleado:      empleado.demo / TransPortEmpleado2026!
+Cliente:       cliente.demo / TransPortCliente2026!
+
+IMPORTANTE: estas claves son inseguras, están en texto plano y solo son para el prototipo universitario local. Nunca deben usarse en un sistema real.
+
+PASO 5 - COMPILAR Y PROBAR
+  dotnet restore TransPort.sln
+  dotnet build TransPort.sln --no-restore
+  dotnet test .\TransPort.Api.Tests\TransPort.Api.Tests.csproj --no-restore
+
+SOLUCION DE PROBLEMAS
+- Si Docker no conecta a SQL Server: confirme TCP/IP, el puerto, el firewall y la autenticación mixta.
+- Si el login SQL exige cambio de contraseña: establezca primero una contraseña definitiva en SSMS.
+- El volumen Docker transport-web-keys conserva las llaves de cookies y antiforgery cuando se recrea el contenedor web. No elimine este volumen durante el uso normal.
+- Si se elimina ese volumen, borre las cookies de localhost o abra una ventana privada antes de volver a enviar un formulario.
+- Si la web no abre: verifique que los puertos 8080 y 8081 estén libres.
+- Nunca suba .env, bin, obj, archivos .mdf/.ldf ni contraseñas. El .gitignore ya los excluye.

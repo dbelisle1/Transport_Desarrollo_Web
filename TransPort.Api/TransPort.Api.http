@@ -1,0 +1,23 @@
+@TransPort.Api_HostAddress = http://localhost:8081
+@token = REEMPLAZAR_CON_TOKEN_DEVUELTO_POR_LOGIN
+
+GET {{TransPort.Api_HostAddress}}/salud
+Accept: application/json
+
+###
+
+POST {{TransPort.Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "nombreUsuario": "admin.demo",
+  "clave": "TransPortAdmin2026!"
+}
+
+###
+
+GET {{TransPort.Api_HostAddress}}/api/administracion/resumen
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###

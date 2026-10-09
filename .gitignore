@@ -1,0 +1,44 @@
+# .NET
+**/bin/
+**/obj/
+artifacts/
+TestResults/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# IDE
+.vs/
+.vscode/
+.idea/
+_ReSharper*/
+*.DotSettings.user
+
+# Configuración local y secretos
+.env
+.env.*
+!.env.example
+appsettings.Local.json
+appsettings.*.local.json
+secrets.json
+
+# Sistema operativo y registros
+.DS_Store
+Thumbs.db
+*.log
+logs/
+
+# Docker y SQL Server locales
+docker-data/
+sql-data/
+*.bak
+*.mdf
+*.ldf
+
+# Cobertura y paquetes
+coverage/
+*.coverage
+*.coveragexml
+packages/
+*.nupkg
