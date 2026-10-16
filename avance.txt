@@ -2,8 +2,8 @@ TRANSPORT - CONTROL DE AVANCE DE MÓDULOS
 ========================================
 
 Última actualización: 15 de octubre de 2026
-Etapa actual: Fase 1 terminada en su alcance principal
-Módulo activo: Ninguno; pendiente seleccionar el siguiente módulo obligatorio.
+Etapa actual: Fase 2 - completar administración y flujo comercial
+Módulo activo: Ninguno. C02 quedó implementado y verificado; el siguiente módulo requiere confirmación del usuario.
 
 
 1. PROPÓSITO DE ESTE ARCHIVO
@@ -153,7 +153,9 @@ M11. Pruebas automatizadas iniciales                           [BASE IMPLEMENTAD
 - Rechazo de JWT alterado y clave insegura.
 - Login válido y auditoría segura de intento fallido.
 - Prueba del cierre de sesión MVC.
-- Resultado registrado: 6 pruebas aprobadas.
+- Pruebas del controlador API de clientes para creación, eliminación y
+  protección de asignaciones inexistentes.
+- Resultado registrado: 9 pruebas aprobadas y 0 fallidas.
 - Falta cobertura de integración, autorización, controladores, repositorios y
   operaciones CRUD completas.
 
@@ -169,11 +171,16 @@ C01. Administración visual de roles, giros y sedes             [PENDIENTE]
 - Pantallas MVC de listado, creación, edición y eliminación lógica.
 - Validaciones y auditoría desde la API.
 
-C02. Administración de clientes                                [PENDIENTE]
+C02. Administración de clientes                                [IMPLEMENTADO]
 
 - CRUD de empresas cliente.
 - Asociación de usuarios y giros contratados.
 - Permisos para que cada cliente vea únicamente sus relaciones.
+- Implementados SQL, API, MVC, autorización, auditoría y pruebas unitarias.
+- Procedimientos aplicados a TransPortDB y flujo verificado en contenedores:
+  crear, consultar, listar, actualizar y eliminar lógicamente.
+- Verificadas las asignaciones transaccionales de usuarios y giros, su
+  eliminación lógica y cinco registros de auditoría del recorrido de prueba.
 
 C03. Visor administrativo de auditoría                         [PENDIENTE]
 
@@ -381,4 +388,13 @@ OXX. Nombre del módulo                                          [OPCIONAL]
 - Se separaron bases implementadas, componentes incompletos, módulos obligatorios
   futuros, pendientes técnicos y módulos opcionales.
 - Se dejó explícito que los módulos opcionales requieren decisión del usuario.
+- Se implementó C02 Administración de clientes en SQL, API y MVC.
+- Se agregaron filtros, eliminación lógica, asociaciones transaccionales de
+  usuarios/giros, auditoría, acceso desde el dashboard y conteo de clientes.
+- Se agregaron 3 pruebas del controlador API; el total pasó de 6 a 9 pruebas.
+- Se aplicaron los procedimientos en SQL Server y se corrigió el instalador para
+  crear todos los SP con ANSI_NULLS y QUOTED_IDENTIFIER habilitados.
+- Se reconstruyeron los contenedores y se completó el smoke test de API, MVC y
+  SQL Server: CRUD, filtros, asociaciones, auditoría y eliminación lógica.
+- C02 se marcó Implementado y no quedó ningún registro de prueba visible.
 

@@ -1,7 +1,7 @@
 # Estado actual del proyecto TransPort
 
 **Fecha de revisión:** 15 de octubre de 2026  
-**Etapa evaluada:** Fase 1 — base técnica, organización, seguridad y administración de usuarios
+**Etapa evaluada:** Fase 2 — administración de clientes completada
 
 ## 1. Resumen ejecutivo
 
@@ -21,6 +21,8 @@ La Fase 1 está implementada en sus componentes principales:
 - Pruebas unitarias iniciales para seguridad y cierre de sesión.
 
 Los módulos comerciales del sistema completo todavía no están implementados. Pedidos, producción, abastecimiento, transporte, GPS, maquinaria, construcción, inventarios, alertas, comunicación, integraciones y reportes consolidados corresponden a fases posteriores.
+
+Después del cierre de la Fase 1 se implementó y verificó el módulo administrativo de clientes: CRUD, filtros, asociaciones transaccionales de usuarios y giros, eliminación lógica, auditoría, API, vistas MVC y pruebas. El recorrido MVC–API–SQL Server se validó con ambos contenedores activos.
 
 ## 2. Arquitectura actual
 
@@ -65,7 +67,7 @@ Leyenda:
 | Solución .NET 8 con MVC y API | Completo | Dos proyectos principales y dos proyectos de pruebas en `TransPort.sln`. |
 | Separación MVC → API → SQL Server | Completo | El MVC no accede directamente a la base. |
 | ADO.NET y procedimientos almacenados | Completo | Repositorios con `Microsoft.Data.SqlClient`; no se utiliza Entity Framework. |
-| Base de datos inicial | Completo | 12 tablas, 13 claves foráneas, 13 índices y 38 procedimientos. |
+| Base de datos inicial | Completo | 12 tablas, 13 claves foráneas, 13 índices y 47 procedimientos definidos. |
 | Datos de demostración | Completo | Script idempotente con giros, sedes, roles y usuarios demo. |
 | Login único `/acceso` | Completo | Credenciales validadas por la API y SQL Server. |
 | JWT MVC–API | Completo | Firma configurable, expiración y envío como Bearer. |
@@ -78,12 +80,13 @@ Leyenda:
 | Panel de gestión | Completo como bienvenida | Muestra roles, giros y sedes; las operaciones comerciales siguen pendientes. |
 | Panel del cliente | Completo como bienvenida | Muestra empresas vinculadas; pedidos, seguimiento y comunicación siguen pendientes. |
 | CRUD de usuarios | Completo | Lista, filtra, crea, edita, activa/desactiva, elimina lógicamente y asigna permisos. |
+| CRUD de clientes | Completo | SQL/API/MVC verificados con filtros, asociaciones, auditoría y eliminación lógica. |
 | Catálogos de roles, giros y sedes | Parcial | CRUD disponible en SQL/API; no hay pantallas MVC dedicadas para administrarlos. |
 | Auditoría | Parcial a nivel de producto | Se registra y puede consultar por API; no existe vista administrativa de auditoría. |
 | PWA y responsive | Completo para Fase 1 | Manifest, ícono, service worker público y breakpoints 768/1100/1920 px. |
 | Docker | Completo en configuración | Dos Dockerfiles multietapa, red interna, volumen de claves y Compose válido. |
 | Documentación de inicio | Completo | `README.md`, `.env.example`, `.gitignore` e `instruccionesInicio.txt`. |
-| Pruebas automatizadas | Parcial | 6 pruebas aprobadas; faltan pruebas amplias de integración, autorización y CRUD. |
+| Pruebas automatizadas | Parcial | 9 pruebas aprobadas; faltan pruebas amplias de integración, autorización y CRUD. |
 
 ## 4. Módulos desarrollados
 
@@ -155,13 +158,27 @@ Incluye el modelo y los procedimientos para:
 
 La API expone CRUD genérico para roles, giros y sedes. La interfaz actual utiliza esos catálogos al administrar usuarios, pero no ofrece todavía pantallas separadas para crear o editar dichos catálogos.
 
-### 4.4 Administración general y auditoría
+### 4.4 Administración de clientes
+
+**Estado: implementado y verificado**
+
+Incluye:
+
+- Listado, búsqueda y filtro por estado.
+- Creación, edición, activación/desactivación y eliminación lógica.
+- Asociación transaccional de usuarios y giros contratados.
+- Validaciones, autorización exclusiva de AdministradorGeneral y auditoría.
+- Procedimientos almacenados, repositorio, controlador API, cliente HTTP, controlador MVC y vistas.
+- Conteo de clientes en el dashboard administrativo.
+- Tres pruebas unitarias nuevas del controlador API.
+
+### 4.5 Administración general y auditoría
 
 **Estado: implementado para el alcance inicial**
 
 Incluye:
 
-- Dashboard con conteos reales de usuarios, giros y sedes.
+- Dashboard con conteos reales de usuarios, clientes, giros y sedes.
 - Endpoint de resumen administrativo.
 - Tabla y procedimiento de auditoría.
 - Endpoint para consultar los últimos eventos de auditoría.
@@ -172,7 +189,7 @@ Pendiente dentro de la experiencia administrativa:
 - Pantalla para consultar y filtrar la auditoría.
 - Reportes operativos, gerenciales y financieros consolidados.
 
-### 4.5 Sitio público y portales
+### 4.6 Sitio público y portales
 
 **Estado: implementado para la bienvenida de Fase 1**
 
@@ -187,7 +204,7 @@ Incluye:
 - Mecanismo `/portal/cambiar/{destino}`.
 - Módulos futuros visibles como pendientes, sin simular transacciones.
 
-### 4.6 PWA y experiencia responsive
+### 4.7 PWA y experiencia responsive
 
 **Estado: PWA básica implementada**
 
@@ -205,7 +222,7 @@ Incluye:
 
 No se implementó funcionamiento offline para operaciones administrativas, de acuerdo con el alcance definido.
 
-### 4.7 Infraestructura y ejecución
+### 4.8 Infraestructura y ejecución
 
 **Estado: implementado para desarrollo**
 
@@ -246,7 +263,7 @@ También se implementaron:
 - Eliminación lógica en entidades y relaciones.
 - Fechas UTC mediante `DATETIME2`/`SYSUTCDATETIME()`.
 - Transacciones y `XACT_ABORT` en operaciones compuestas.
-- 38 procedimientos almacenados para usuarios, catálogos, asociaciones, clientes, dashboard y auditoría.
+- 47 procedimientos almacenados para usuarios, catálogos, asociaciones, clientes, dashboard y auditoría.
 
 ## 6. Rutas y endpoints disponibles
 
@@ -261,6 +278,7 @@ También se implementaron:
 | `/gestion` | Portal interno | Roles internos o AdministradorGeneral |
 | `/admin` | Dashboard administrativo | AdministradorGeneral |
 | `/admin/usuarios` | Administración de usuarios | AdministradorGeneral |
+| `/admin/clientes` | Administración de empresas cliente | AdministradorGeneral |
 | `/portal/cambiar/{destino}` | Cambio de portal | Según roles |
 
 ### Endpoints API principales
@@ -273,6 +291,9 @@ También se implementaron:
 | `GET/POST` | `/api/usuarios` | Listar o crear usuarios |
 | `GET/PUT/DELETE` | `/api/usuarios/{id}` | Consultar, actualizar o eliminar lógicamente |
 | `PUT` | `/api/usuarios/{id}/asignaciones` | Administrar roles, giros y sedes |
+| `GET/POST` | `/api/clientes` | Listar, filtrar o crear clientes |
+| `GET/PUT/DELETE` | `/api/clientes/{id}` | Consultar, actualizar o eliminar lógicamente |
+| `PUT` | `/api/clientes/{id}/asignaciones` | Administrar usuarios y giros del cliente |
 | `GET/POST` | `/api/catalogos/{tipo}` | Listar o crear roles, giros y sedes |
 | `GET/PUT/DELETE` | `/api/catalogos/{tipo}/{id}` | CRUD de un catálogo |
 | `GET` | `/api/administracion/resumen` | Conteos administrativos |
@@ -290,8 +311,7 @@ Estos puntos mejoran la plataforma actual, aunque varios no eran obligatorios pa
 6. **Agregar health checks de contenedores.** Existe `/salud`, pero Compose no define comprobaciones ni dependencias condicionadas por salud.
 7. **Endurecer producción.** Cambiar contraseñas en texto plano por hashes, usar HTTPS obligatorio, secretos administrados y entorno `Production`.
 8. **Mejorar observabilidad.** Agregar métricas, trazas, correlación de solicitudes y almacenamiento central de logs.
-9. **Completar administración de clientes.** La base y las relaciones existen, pero no hay CRUD de empresas cliente.
-10. **Revisar autorización por alcance en futuros módulos.** Los giros, sedes y clientes ya forman parte de la identidad; cada endpoint comercial futuro deberá filtrar y validar esos alcances en la API.
+9. **Revisar autorización por alcance en futuros módulos.** Los giros, sedes y clientes ya forman parte de la identidad; cada endpoint comercial futuro deberá filtrar y validar esos alcances en la API.
 
 ## 8. Módulos pendientes para fases posteriores
 
@@ -395,11 +415,12 @@ Revisión del 15 de octubre de 2026:
 | Validación | Resultado |
 |---|---|
 | Compilación durante `dotnet test TransPort.sln --no-restore` | Correcta |
-| Pruebas de API | 5 aprobadas, 0 fallidas |
+| Pruebas de API | 8 aprobadas, 0 fallidas |
 | Pruebas de MVC | 1 aprobada, 0 fallidas |
-| Total | **6 aprobadas, 0 fallidas** |
+| Total | **9 aprobadas, 0 fallidas** |
 | `docker-compose config -q` | Configuración válida |
-| Contenedores activos durante esta revisión | No estaban activos |
+| Contenedores activos durante esta revisión | API y Web activos; `/salud`, `/` y `/admin/clientes` respondieron 200 |
+| Smoke test de clientes | CRUD, filtro, asignaciones, auditoría y eliminación lógica correctos |
 
 Cobertura actual:
 
@@ -409,8 +430,9 @@ Cobertura actual:
 - Login válido y carga de alcances.
 - Auditoría segura de login fallido.
 - Limpieza de sesión y autenticación al cerrar sesión.
+- Creación, eliminación y protección de asignaciones del controlador API de clientes.
 
-La ausencia de contenedores activos durante esta revisión significa que no se ejecutó un nuevo smoke test en vivo de MVC–API–SQL Server en esta fecha. Esto no afecta el resultado de compilación ni las pruebas unitarias indicadas.
+El smoke test creó un cliente temporal, consultó y actualizó sus datos, validó el filtro y las asignaciones de usuario/giro, y ejecutó su eliminación lógica. SQL Server confirmó cero relaciones activas, cinco eventos de auditoría y ningún cliente de prueba visible al finalizar.
 
 ## 10. Riesgos y deuda técnica conocida
 
@@ -428,7 +450,7 @@ La ausencia de contenedores activos durante esta revisión significa que no se e
 ## 11. Orden recomendado para la siguiente etapa
 
 1. Aumentar pruebas de integración para usuarios, autorización, SQL Server y flujos HTTP.
-2. Crear pantallas administrativas de roles, giros, sedes, clientes y auditoría.
+2. Crear pantallas administrativas de roles, giros, sedes y auditoría.
 3. Sustituir contraseñas en texto plano por hashes antes de usar datos reales.
 4. Definir el primer flujo comercial transversal: cliente → pedido → abastecimiento/operación → seguimiento.
 5. Implementar inventario y producción como soporte del flujo de pedidos.

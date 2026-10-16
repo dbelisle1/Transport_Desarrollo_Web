@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication;
 using TransPort.Api.Authorization;
 using TransPort.Api.Configuration;
 using TransPort.Api.Middleware;
+using TransPort.Api.Modules.Clientes.Repositories;
 using TransPort.Api.Modules.Organizacion.Repositories;
 using TransPort.Api.Modules.Seguridad.Repositories;
 using TransPort.Api.Modules.Seguridad.Services;
@@ -14,6 +15,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
 builder.Services.AddSingleton<ISqlConnectionFactory, SqlConnectionFactory>();
+builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<ICatalogoRepository, CatalogoRepository>();
 builder.Services.AddScoped<IOperacionesRepository, OperacionesRepository>();

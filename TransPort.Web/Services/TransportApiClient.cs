@@ -78,6 +78,55 @@ public sealed class TransportApiClient(HttpClient http, IHttpContextAccessor con
         await EnsureAsync(response, ct);
     }
 
+    public async Task<IReadOnlyList<ClienteListadoModel>> ClientesAsync(
+        string? busqueda, bool? esActivo, CancellationToken ct)
+    {
+        var query = new List<string>();
+        if (!string.IsNullOrWhiteSpace(busqueda)) query.Add($"busqueda={Uri.EscapeDataString(busqueda)}");
+        if (esActivo.HasValue) query.Add($"esActivo={esActivo.Value.ToString().ToLowerInvariant()}");
+        return await GetRequiredAsync<List<ClienteListadoModel>>(
+            "api/clientes" + (query.Count > 0 ? "?" + string.Join('&', query) : ""), ct);
+    }
+
+    public async Task<ClienteDetalleModel?> ClienteAsync(int id, CancellationToken ct)
+    {
+        using var request = Request(HttpMethod.Get, $"api/clientes/{id}");
+        using var response = await http.SendAsync(request, ct);
+        if (response.StatusCode == HttpStatusCode.NotFound) return null;
+        await EnsureAsync(response, ct);
+        return await response.Content.ReadFromJsonAsync<ClienteDetalleModel>(_json, ct);
+    }
+
+    public async Task<int> CrearClienteAsync(ClienteFormViewModel model, CancellationToken ct)
+    {
+        using var request = Request(HttpMethod.Post, "api/clientes", new
+        {
+            model.Nombre, model.Nit, model.CorreoContacto, model.EsActivo,
+            Usuarios = model.UsuariosSeleccionados, Giros = model.GirosSeleccionados
+        });
+        using var response = await http.SendAsync(request, ct);
+        await EnsureAsync(response, ct);
+        return (await response.Content.ReadFromJsonAsync<ResultadoIdModel>(_json, ct))!.Id;
+    }
+
+    public async Task ActualizarClienteAsync(ClienteFormViewModel model, CancellationToken ct)
+    {
+        using var request = Request(HttpMethod.Put, $"api/clientes/{model.ClienteId}", new
+        {
+            model.Nombre, model.Nit, model.CorreoContacto, model.EsActivo,
+            Usuarios = model.UsuariosSeleccionados, Giros = model.GirosSeleccionados
+        });
+        using var response = await http.SendAsync(request, ct);
+        await EnsureAsync(response, ct);
+    }
+
+    public async Task EliminarClienteAsync(int id, CancellationToken ct)
+    {
+        using var request = Request(HttpMethod.Delete, $"api/clientes/{id}");
+        using var response = await http.SendAsync(request, ct);
+        await EnsureAsync(response, ct);
+    }
+
     public async Task<IReadOnlyList<EntidadCatalogoModel>> CatalogoAsync(string tipo, CancellationToken ct) =>
         await GetRequiredAsync<List<EntidadCatalogoModel>>($"api/catalogos/{tipo}", ct);
 

@@ -14,8 +14,9 @@ public sealed class OperacionesRepository(ISqlConnectionFactory connections) : I
         await connection.OpenAsync(ct);
         await using var command = Procedure(connection, "sp_dashboard_leer_resumen");
         await using var reader = await command.ExecuteReaderAsync(ct);
-        if (!await reader.ReadAsync(ct)) return new DashboardDto(0, 0, 0);
-        return new DashboardDto(reader.Int32("Usuarios"), reader.Int32("Giros"), reader.Int32("Sedes"));
+        if (!await reader.ReadAsync(ct)) return new DashboardDto(0, 0, 0, 0);
+        return new DashboardDto(
+            reader.Int32("Usuarios"), reader.Int32("Clientes"), reader.Int32("Giros"), reader.Int32("Sedes"));
     }
 
     public async Task CrearAuditoriaAsync(CrearAuditoriaDto evento, CancellationToken ct)

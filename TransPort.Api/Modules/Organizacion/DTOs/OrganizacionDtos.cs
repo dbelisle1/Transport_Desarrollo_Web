@@ -1,6 +1,6 @@
 namespace TransPort.Api.Modules.Organizacion.DTOs;
 
-public sealed record DashboardDto(int Usuarios, int Giros, int Sedes);
+public sealed record DashboardDto(int Usuarios, int Clientes, int Giros, int Sedes);
 
 public sealed record AuditoriaDto(
     long AuditoriaId, int? UsuarioId, string? NombreUsuario, DateTime Fecha,

@@ -56,7 +56,7 @@ public sealed class AuthServiceTests
     {
         public List<CrearAuditoriaDto> Eventos { get; } = [];
         public Task CrearAuditoriaAsync(CrearAuditoriaDto evento, CancellationToken ct) { Eventos.Add(evento); return Task.CompletedTask; }
-        public Task<DashboardDto> ObtenerResumenAsync(CancellationToken ct) => Task.FromResult(new DashboardDto(0,0,0));
+        public Task<DashboardDto> ObtenerResumenAsync(CancellationToken ct) => Task.FromResult(new DashboardDto(0,0,0,0));
         public Task<IReadOnlyList<AuditoriaDto>> ListarAuditoriaAsync(int cantidad, CancellationToken ct) => Task.FromResult<IReadOnlyList<AuditoriaDto>>([]);
     }
 

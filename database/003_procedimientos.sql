@@ -1,6 +1,11 @@
 USE [TransPortDB];
 GO
 
+SET ANSI_NULLS ON;
+GO
+SET QUOTED_IDENTIFIER ON;
+GO
+
 CREATE OR ALTER PROCEDURE dbo.sp_auditoria_crear_evento
     @UsuarioId INT = NULL,
     @Modulo NVARCHAR(80),
@@ -196,6 +201,7 @@ AS
 BEGIN
     SET NOCOUNT ON;
     SELECT (SELECT COUNT(*) FROM dbo.Usuario WHERE Eliminado = 0) AS Usuarios,
+           (SELECT COUNT(*) FROM dbo.Cliente WHERE Eliminado = 0) AS Clientes,
            (SELECT COUNT(*) FROM dbo.GiroNegocio WHERE Eliminado = 0) AS Giros,
            (SELECT COUNT(*) FROM dbo.Sede WHERE Eliminado = 0) AS Sedes;
 END;
@@ -430,4 +436,214 @@ AS BEGIN SET NOCOUNT ON; SELECT u.UsuarioId AS Id,u.NombreUsuario AS Nombre FROM
 GO
 CREATE OR ALTER PROCEDURE dbo.sp_cliente_leer_giros @ClienteId INT
 AS BEGIN SET NOCOUNT ON; SELECT g.GiroNegocioId AS Id,g.Nombre FROM dbo.ClienteGiroNegocio cg INNER JOIN dbo.GiroNegocio g ON g.GiroNegocioId=cg.GiroNegocioId WHERE cg.ClienteId=@ClienteId AND cg.Eliminado=0 AND g.Eliminado=0; END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_cliente_crear_registro
+    @Nombre NVARCHAR(200),
+    @Nit NVARCHAR(30) = NULL,
+    @CorreoContacto NVARCHAR(200) = NULL,
+    @EsActivo BIT = 1,
+    @UsuarioResponsableId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET XACT_ABORT ON;
+    DECLARE @TransaccionPropia BIT=0;
+    BEGIN TRY
+        IF @@TRANCOUNT=0
+        BEGIN
+            BEGIN TRANSACTION;
+            SET @TransaccionPropia=1;
+        END;
+        IF @Nit IS NOT NULL AND EXISTS (SELECT 1 FROM dbo.Cliente WHERE Nit=@Nit AND Eliminado=0)
+            THROW 50001, N'Ya existe un cliente con el NIT indicado.', 1;
+
+        INSERT dbo.Cliente (Nombre,Nit,CorreoContacto,EsActivo)
+        VALUES (@Nombre,@Nit,@CorreoContacto,@EsActivo);
+
+        DECLARE @Id INT=CONVERT(INT,SCOPE_IDENTITY());
+        INSERT dbo.Auditoria (UsuarioId,Modulo,TipoOperacion,IdentificadorRegistro,Resultado)
+        VALUES (@UsuarioResponsableId,N'Clientes',N'Crear',CONVERT(NVARCHAR(100),@Id),N'Exitoso');
+        IF @TransaccionPropia=1 COMMIT TRANSACTION;
+        SELECT @Id;
+    END TRY
+    BEGIN CATCH
+        IF @TransaccionPropia=1 AND XACT_STATE()<>0 ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_cliente_leer_por_id @ClienteId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT ClienteId,Nombre,Nit,CorreoContacto,EsActivo,FechaCreacion,FechaModificacion
+    FROM dbo.Cliente
+    WHERE ClienteId=@ClienteId AND Eliminado=0;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_cliente_leer_listado
+    @Busqueda NVARCHAR(200) = NULL,
+    @EsActivo BIT = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT
+        c.ClienteId,c.Nombre,c.Nit,c.CorreoContacto,c.EsActivo,c.FechaCreacion,
+        COALESCE((
+            SELECT STRING_AGG(CONVERT(NVARCHAR(MAX),u.NombreUsuario),N', ') WITHIN GROUP (ORDER BY u.NombreUsuario)
+            FROM dbo.ClienteUsuario cu
+            INNER JOIN dbo.Usuario u ON u.UsuarioId=cu.UsuarioId
+            WHERE cu.ClienteId=c.ClienteId AND cu.Eliminado=0 AND u.Eliminado=0
+        ),N'') AS Usuarios,
+        COALESCE((
+            SELECT STRING_AGG(CONVERT(NVARCHAR(MAX),g.Nombre),N', ') WITHIN GROUP (ORDER BY g.Nombre)
+            FROM dbo.ClienteGiroNegocio cg
+            INNER JOIN dbo.GiroNegocio g ON g.GiroNegocioId=cg.GiroNegocioId
+            WHERE cg.ClienteId=c.ClienteId AND cg.Eliminado=0 AND g.Eliminado=0
+        ),N'') AS Giros
+    FROM dbo.Cliente c
+    WHERE c.Eliminado=0
+      AND (@EsActivo IS NULL OR c.EsActivo=@EsActivo)
+      AND (@Busqueda IS NULL OR c.Nombre LIKE N'%'+@Busqueda+N'%'
+           OR c.Nit LIKE N'%'+@Busqueda+N'%'
+           OR c.CorreoContacto LIKE N'%'+@Busqueda+N'%')
+    ORDER BY c.Nombre;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_cliente_actualizar_datos
+    @ClienteId INT,
+    @Nombre NVARCHAR(200),
+    @Nit NVARCHAR(30) = NULL,
+    @CorreoContacto NVARCHAR(200) = NULL,
+    @EsActivo BIT,
+    @UsuarioResponsableId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET XACT_ABORT ON;
+    DECLARE @TransaccionPropia BIT=0;
+    BEGIN TRY
+        IF @@TRANCOUNT=0
+        BEGIN
+            BEGIN TRANSACTION;
+            SET @TransaccionPropia=1;
+        END;
+        IF @Nit IS NOT NULL AND EXISTS (
+            SELECT 1 FROM dbo.Cliente WHERE ClienteId<>@ClienteId AND Nit=@Nit AND Eliminado=0)
+            THROW 50001, N'Ya existe un cliente con el NIT indicado.', 1;
+
+        UPDATE dbo.Cliente
+        SET Nombre=@Nombre,Nit=@Nit,CorreoContacto=@CorreoContacto,EsActivo=@EsActivo,
+            FechaModificacion=SYSUTCDATETIME()
+        WHERE ClienteId=@ClienteId AND Eliminado=0;
+
+        DECLARE @Filas INT=@@ROWCOUNT;
+        IF @Filas>0
+            INSERT dbo.Auditoria (UsuarioId,Modulo,TipoOperacion,IdentificadorRegistro,Resultado)
+            VALUES (@UsuarioResponsableId,N'Clientes',N'Actualizar',CONVERT(NVARCHAR(100),@ClienteId),N'Exitoso');
+        IF @TransaccionPropia=1 COMMIT TRANSACTION;
+        SELECT @Filas;
+    END TRY
+    BEGIN CATCH
+        IF @TransaccionPropia=1 AND XACT_STATE()<>0 ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_cliente_eliminar_logico
+    @ClienteId INT,
+    @UsuarioResponsableId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET XACT_ABORT ON;
+    BEGIN TRY
+        BEGIN TRANSACTION;
+        UPDATE dbo.Cliente
+        SET Eliminado=1,EsActivo=0,FechaModificacion=SYSUTCDATETIME()
+        WHERE ClienteId=@ClienteId AND Eliminado=0;
+
+        DECLARE @Filas INT=@@ROWCOUNT;
+        IF @Filas>0
+        BEGIN
+            UPDATE dbo.ClienteUsuario SET Eliminado=1,FechaModificacion=SYSUTCDATETIME()
+            WHERE ClienteId=@ClienteId AND Eliminado=0;
+            UPDATE dbo.ClienteGiroNegocio SET Eliminado=1,FechaModificacion=SYSUTCDATETIME()
+            WHERE ClienteId=@ClienteId AND Eliminado=0;
+            INSERT dbo.Auditoria (UsuarioId,Modulo,TipoOperacion,IdentificadorRegistro,Resultado)
+            VALUES (@UsuarioResponsableId,N'Clientes',N'EliminarLogico',CONVERT(NVARCHAR(100),@ClienteId),N'Exitoso');
+        END;
+        COMMIT TRANSACTION;
+        SELECT @Filas;
+    END TRY
+    BEGIN CATCH
+        IF XACT_STATE()<>0 ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_clienteusuario_crear_asignacion
+    @ClienteId INT,@UsuarioId INT,@UsuarioResponsableId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    IF NOT EXISTS(SELECT 1 FROM dbo.Cliente WHERE ClienteId=@ClienteId AND Eliminado=0)
+        THROW 50002,N'El cliente no existe.',1;
+    IF NOT EXISTS(SELECT 1 FROM dbo.Usuario WHERE UsuarioId=@UsuarioId AND Eliminado=0)
+        THROW 50002,N'El usuario no existe.',1;
+    IF EXISTS(SELECT 1 FROM dbo.ClienteUsuario WHERE ClienteId=@ClienteId AND UsuarioId=@UsuarioId)
+        UPDATE dbo.ClienteUsuario SET Eliminado=0,FechaModificacion=SYSUTCDATETIME()
+        WHERE ClienteId=@ClienteId AND UsuarioId=@UsuarioId;
+    ELSE
+        INSERT dbo.ClienteUsuario(ClienteId,UsuarioId) VALUES(@ClienteId,@UsuarioId);
+    EXEC dbo.sp_auditoria_crear_evento @UsuarioResponsableId,N'Clientes',N'AsignarUsuario',@ClienteId,N'Exitoso',NULL;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_clienteusuario_eliminar_asignacion
+    @ClienteId INT,@UsuarioId INT,@UsuarioResponsableId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE dbo.ClienteUsuario SET Eliminado=1,FechaModificacion=SYSUTCDATETIME()
+    WHERE ClienteId=@ClienteId AND UsuarioId=@UsuarioId AND Eliminado=0;
+    IF @@ROWCOUNT>0
+        EXEC dbo.sp_auditoria_crear_evento @UsuarioResponsableId,N'Clientes',N'RetirarUsuario',@ClienteId,N'Exitoso',NULL;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_clientegironegocio_crear_asignacion
+    @ClienteId INT,@GiroNegocioId INT,@UsuarioResponsableId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    IF NOT EXISTS(SELECT 1 FROM dbo.Cliente WHERE ClienteId=@ClienteId AND Eliminado=0)
+        THROW 50002,N'El cliente no existe.',1;
+    IF NOT EXISTS(SELECT 1 FROM dbo.GiroNegocio WHERE GiroNegocioId=@GiroNegocioId AND Eliminado=0)
+        THROW 50002,N'El giro de negocio no existe.',1;
+    IF EXISTS(SELECT 1 FROM dbo.ClienteGiroNegocio WHERE ClienteId=@ClienteId AND GiroNegocioId=@GiroNegocioId)
+        UPDATE dbo.ClienteGiroNegocio SET Eliminado=0,FechaModificacion=SYSUTCDATETIME()
+        WHERE ClienteId=@ClienteId AND GiroNegocioId=@GiroNegocioId;
+    ELSE
+        INSERT dbo.ClienteGiroNegocio(ClienteId,GiroNegocioId) VALUES(@ClienteId,@GiroNegocioId);
+    EXEC dbo.sp_auditoria_crear_evento @UsuarioResponsableId,N'Clientes',N'AsignarGiro',@ClienteId,N'Exitoso',NULL;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_clientegironegocio_eliminar_asignacion
+    @ClienteId INT,@GiroNegocioId INT,@UsuarioResponsableId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE dbo.ClienteGiroNegocio SET Eliminado=1,FechaModificacion=SYSUTCDATETIME()
+    WHERE ClienteId=@ClienteId AND GiroNegocioId=@GiroNegocioId AND Eliminado=0;
+    IF @@ROWCOUNT>0
+        EXEC dbo.sp_auditoria_crear_evento @UsuarioResponsableId,N'Clientes',N'RetirarGiro',@ClienteId,N'Exitoso',NULL;
+END;
 GO

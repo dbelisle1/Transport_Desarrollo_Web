@@ -1,6 +1,6 @@
-# TransPort — Fase 1
+# TransPort — Base técnica y administración
 
-Base técnica del sistema TransPort construida con .NET 8, ASP.NET Core MVC, Web API, ADO.NET, SQL Server y Docker. Esta fase incluye organización, autenticación/autorización, paneles iniciales, auditoría y CRUD administrativo de usuarios. Los módulos comerciales todavía no están implementados.
+Base técnica del sistema TransPort construida con .NET 8, ASP.NET Core MVC, Web API, ADO.NET, SQL Server y Docker. Incluye organización, autenticación/autorización, paneles iniciales, auditoría y CRUD administrativos de usuarios y empresas cliente. Los módulos comerciales todavía no están implementados.
 
 ## Arquitectura
 
@@ -103,8 +103,8 @@ Procedimientos principales:
 - Roles, giros y sedes: CRUD con eliminación lógica.
 - Asignaciones: usuario-rol, usuario-giro, usuario-sede y sede-giro.
 - Auditoría: crear evento y leer listado.
-- Administración: resumen real de usuarios, giros y sedes.
-- Clientes: lectura de usuarios y giros asociados.
+- Administración: resumen real de usuarios, clientes, giros y sedes.
+- Clientes: CRUD, filtros, eliminación lógica y asignación de usuarios y giros.
 
 Los repositorios no consultan tablas directamente cuando existe un procedimiento para la operación. La contraseña no aparece en listados, DTOs, tokens, auditoría ni logs.
 
@@ -118,6 +118,9 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 | `GET/POST` | `/api/usuarios` | AdministradorGeneral |
 | `GET/PUT/DELETE` | `/api/usuarios/{id}` | AdministradorGeneral |
 | `PUT` | `/api/usuarios/{id}/asignaciones` | AdministradorGeneral |
+| `GET/POST` | `/api/clientes` | AdministradorGeneral |
+| `GET/PUT/DELETE` | `/api/clientes/{id}` | AdministradorGeneral |
+| `PUT` | `/api/clientes/{id}/asignaciones` | AdministradorGeneral |
 | `GET/POST` | `/api/catalogos/{roles|giros|sedes}` | AdministradorGeneral |
 | `GET/PUT/DELETE` | `/api/catalogos/{tipo}/{id}` | AdministradorGeneral |
 | `GET` | `/api/administracion/resumen` | AdministradorGeneral |
@@ -131,6 +134,7 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 - `/gestion`: panel interno según roles, giros y sedes.
 - `/admin`: panel general con conteos reales.
 - `/admin/usuarios`: CRUD y filtros de usuarios.
+- `/admin/clientes`: CRUD, filtros y asociaciones de empresas cliente.
 - `/portal/cambiar/{admin|cliente|gestion}`: cambio de área sin reiniciar sesión.
 
 ## Pruebas
@@ -138,10 +142,10 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 ```powershell
 dotnet restore TransPort.sln
 dotnet build TransPort.sln --no-restore
-dotnet test .\TransPort.Api.Tests\TransPort.Api.Tests.csproj --no-restore
+dotnet test TransPort.sln --no-restore
 ```
 
-Las pruebas cubren firma y validación de JWT, rechazo de token alterado, requisito mínimo de clave de firma, login válido y auditoría segura del login fallido.
+Las 9 pruebas actuales cubren firma y validación de JWT, rechazo de token alterado, requisito mínimo de clave de firma, login válido, auditoría segura del login fallido, cierre de sesión y comportamiento básico del controlador API de clientes.
 
 ## Pendiente para fases posteriores
 

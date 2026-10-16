@@ -17,7 +17,7 @@ public sealed class InicioController(ITransportApiClient api, ILogger<InicioCont
         {
             logger.LogError(ex, "No fue posible cargar el resumen administrativo.");
             ViewBag.Error = "No fue posible consultar el resumen en este momento.";
-            return View(new Models.DashboardModel(0, 0, 0));
+            return View(new Models.DashboardModel(0, 0, 0, 0));
         }
     }
 }
