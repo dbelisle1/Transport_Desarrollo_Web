@@ -1,0 +1,384 @@
+TRANSPORT - CONTROL DE AVANCE DE MÓDULOS
+========================================
+
+Última actualización: 15 de octubre de 2026
+Etapa actual: Fase 1 terminada en su alcance principal
+Módulo activo: Ninguno; pendiente seleccionar el siguiente módulo obligatorio.
+
+
+1. PROPÓSITO DE ESTE ARCHIVO
+----------------------------
+
+Este archivo es la fuente de verdad persistente para recordar qué módulos del
+proyecto TransPort están desarrollados, cuáles están incompletos y cuáles deben
+implementarse después.
+
+Debe actualizarse cuando:
+
+- Se apruebe el inicio de un módulo.
+- Cambie el alcance de un módulo.
+- Un módulo pase de Pendiente a En desarrollo.
+- Se complete y verifique un módulo.
+- Se identifique una dependencia o deuda técnica relevante.
+- El usuario apruebe o rechace un módulo opcional.
+
+No se marcará un módulo como Implementado solamente porque existan tablas,
+pantallas de demostración o tarjetas visuales. Debe existir el flujo funcional
+requerido entre MVC, API, lógica/repositorio y SQL Server, junto con una
+verificación proporcional al riesgo.
+
+
+2. FUENTES DE REQUISITOS Y REGLAS DE ALCANCE
+--------------------------------------------
+
+El avance debe mantenerse alineado, en este orden, con:
+
+1. Las decisiones explícitas más recientes del usuario.
+2. El alcance técnico de "PROMPT PARA CODEX - TRANSPORT / FASE 1".
+3. El caso y los requisitos generales de "Proyecto final.pdf".
+4. ESTADO_PROYECTO.md, README.md y el código realmente disponible.
+
+Reglas obligatorias:
+
+- El frontend MVC nunca accede directamente a SQL Server.
+- Los datos pasan por TransPort.Api.
+- La persistencia utiliza ADO.NET y procedimientos almacenados.
+- No se agregan microservicios o infraestructura sin necesidad aprobada.
+- Los permisos se validan tanto en MVC como en la API.
+- Los alcances por rol, giro, sede y cliente deben aplicarse en cada módulo.
+- Los módulos futuros no deben mostrar datos falsos como si fueran reales.
+- Cualquier módulo no exigido por los requisitos se registra únicamente en la
+  última sección "MÓDULOS OPCIONALES" y no se implementa sin decisión del
+  usuario.
+
+
+3. LEYENDA DE ESTADOS
+---------------------
+
+[IMPLEMENTADO]       Flujo requerido desarrollado y verificado.
+[BASE IMPLEMENTADA]  Fundamentos listos, pero falta operación funcional completa.
+[PARCIAL]             Existe una parte utilizable; faltan piezas requeridas.
+[EN DESARROLLO]       Trabajo autorizado y actualmente activo.
+[PENDIENTE]           Requerido para el proyecto completo, todavía sin desarrollar.
+[OPCIONAL]            Expansión no requerida; necesita decisión expresa del usuario.
+
+
+4. MÓDULOS YA DESARROLLADOS
+---------------------------
+
+M01. Base técnica y arquitectura                               [IMPLEMENTADO]
+
+- Solución .NET 8 con TransPort.Web y TransPort.Api.
+- MVC y API en proyectos y contenedores separados.
+- SQL Server externo y conexión configurable.
+- ADO.NET, procedimientos almacenados e inyección de dependencias.
+- Organización modular inicial: Seguridad, Organización y Shared.
+
+M02. Base de datos organizacional inicial                      [IMPLEMENTADO]
+
+- Tablas de usuarios, roles, giros, sedes, clientes, relaciones y auditoría.
+- Claves foráneas, índices, eliminación lógica y fechas UTC.
+- Instalador SQL idempotente y datos iniciales.
+- Procedimientos almacenados iniciales para usuarios, catálogos, asociaciones,
+  clientes, resumen y auditoría.
+
+M03. Seguridad, autenticación y autorización                   [IMPLEMENTADO]
+
+- Login único en /acceso.
+- Validación de credenciales mediante procedimiento almacenado.
+- JWT firmado y de duración limitada para comunicación MVC-API.
+- Cookie HttpOnly y Claims para autenticación del navegador.
+- JWT almacenado únicamente en la sesión del servidor MVC.
+- Envío Bearer y validación independiente en la API.
+- Roles y asociaciones de giro, sede y cliente incluidos en la identidad.
+- Acceso denegado, cambio entre portales y cierre completo de sesión.
+- Protección antiforgery para formularios MVC que modifican información.
+
+M04. Administración de usuarios                               [IMPLEMENTADO]
+
+- Listar, buscar y filtrar usuarios.
+- Crear y editar usuarios.
+- Activar, desactivar y eliminar lógicamente.
+- Asignar y retirar roles, giros y sedes.
+- Validaciones y restricciones para proteger la cuenta administradora activa.
+- Flujo MVC -> API -> repositorio -> procedimiento almacenado.
+
+M05. Sitio público                                             [IMPLEMENTADO]
+
+- Página principal responsive.
+- Identidad visual y presentación de TransPort.
+- Presentación de los seis giros de negocio.
+- Navegación, contacto demostrativo, login y pie de página.
+
+M06. Portales iniciales                                        [IMPLEMENTADO]
+
+- Portal administrativo /admin con resumen real.
+- Portal interno /gestion con roles, giros y sedes autorizados.
+- Portal /cliente con empresas cliente asociadas.
+- Navegación condicionada por permisos.
+- Los módulos futuros aparecen como pendientes, sin transacciones simuladas.
+
+M07. Auditoría básica                                          [BASE IMPLEMENTADA]
+
+- Tabla y procedimientos de auditoría.
+- Registro de login exitoso y fallido sin almacenar contraseñas.
+- Registro de operaciones críticas iniciales.
+- Endpoint administrativo de consulta.
+- Falta una pantalla MVC para consultar y filtrar los eventos.
+
+M08. Organización y catálogos                                 [BASE IMPLEMENTADA]
+
+- Roles, giros y sedes disponibles en SQL y API.
+- Relaciones usuario-rol, usuario-giro, usuario-sede y sede-giro.
+- Los catálogos se utilizan en el CRUD de usuarios.
+- Faltan pantallas MVC dedicadas para administrar roles, giros y sedes.
+
+M09. PWA y diseño responsive                                   [IMPLEMENTADO]
+
+- Manifest, icono y service worker básico.
+- Caché limitada a recursos públicos.
+- Interfaz Mobile First, menú móvil y tablas/formularios adaptables.
+- No incluye operaciones offline, conforme al alcance de Fase 1.
+
+M10. Docker, configuración y documentación                     [IMPLEMENTADO]
+
+- Dockerfile para MVC y API.
+- Docker Compose con web, api, red interna y volumen de Data Protection.
+- Variables de entorno para SQL Server y JWT.
+- README, instruccionesInicio.txt, .env.example y .gitignore.
+
+M11. Pruebas automatizadas iniciales                           [BASE IMPLEMENTADA]
+
+- Pruebas de creación y validación JWT.
+- Rechazo de JWT alterado y clave insegura.
+- Login válido y auditoría segura de intento fallido.
+- Prueba del cierre de sesión MVC.
+- Resultado registrado: 6 pruebas aprobadas.
+- Falta cobertura de integración, autorización, controladores, repositorios y
+  operaciones CRUD completas.
+
+
+5. COMPONENTES OBLIGATORIOS QUE FALTA COMPLETAR
+------------------------------------------------
+
+Estos componentes amplían bases ya existentes y deben completarse cuando el
+módulo funcional que los necesite sea priorizado.
+
+C01. Administración visual de roles, giros y sedes             [PENDIENTE]
+
+- Pantallas MVC de listado, creación, edición y eliminación lógica.
+- Validaciones y auditoría desde la API.
+
+C02. Administración de clientes                                [PENDIENTE]
+
+- CRUD de empresas cliente.
+- Asociación de usuarios y giros contratados.
+- Permisos para que cada cliente vea únicamente sus relaciones.
+
+C03. Visor administrativo de auditoría                         [PENDIENTE]
+
+- Listado, búsqueda y filtros por fecha, módulo, operación, usuario y resultado.
+- Paginación y acceso exclusivo para administración autorizada.
+
+C04. Cobertura de pruebas de la plataforma                      [PENDIENTE]
+
+- Pruebas HTTP de autenticación y autorización.
+- Pruebas de CRUD, asociaciones y eliminación lógica.
+- Pruebas de integración con SQL Server y procedimientos almacenados.
+- Pruebas de aislamiento por rol, giro, sede y cliente.
+
+
+6. MÓDULOS OBLIGATORIOS POR DESARROLLAR
+---------------------------------------
+
+Los siguientes módulos corresponden al sistema completo descrito por el
+proyecto. No formaban parte del alcance funcional de la Fase 1, pero sí son el
+trabajo pendiente principal.
+
+M12. Pedidos y gestión comercial                               [PENDIENTE]
+
+- Pedidos en línea de clientes.
+- Estados, aprobaciones y seguimiento.
+- Cotizaciones, reuniones y asignación de vendedores.
+- Historial y documentos asociados.
+
+M13. Abastecimiento entre giros                                [PENDIENTE]
+
+- Pedidos internos entre unidades de negocio.
+- Solicitud, aprobación, preparación, despacho y recepción.
+- Programación oportuna para evitar retrasos de producción.
+- Trazabilidad entre giro solicitante y giro proveedor.
+
+M14. Inventarios y bodegas                                     [PENDIENTE]
+
+- Existencias por sede y giro.
+- Entradas, salidas, transferencias y reservas.
+- Materia prima, productos terminados y repuestos.
+- Niveles mínimos y alertas de reposición.
+
+M15. Extracción minera                                         [PENDIENTE]
+
+- Control operativo de extracción por planta y sede.
+- Producción, movimientos y disponibilidad de materia prima.
+- Entrega a procesamiento, transporte o terceros.
+
+M16. Producción y procesamiento de materia prima               [PENDIENTE]
+
+- Ingreso y consumo de materia prima.
+- Órdenes y etapas de producción.
+- Rendimiento, productos terminados, costos y trazabilidad.
+
+M17. Venta y alquiler de maquinaria                            [PENDIENTE]
+
+- Catálogo y disponibilidad de maquinaria.
+- Venta, alquiler, reservas, contratos y devoluciones.
+- Asignación por sede, mantenimiento y tiempo de uso.
+
+M18. Transporte y logística                                   [PENDIENTE]
+
+- Flota, unidades de carga, conductores y asignaciones.
+- Viajes, rutas, cargas, entregas e incidencias.
+- Transporte de materia prima.
+- Transporte nacional e internacional entre puertos, fronteras y bodegas.
+
+M19. GPS y monitoreo                                           [PENDIENTE]
+
+- Integración con el servicio de GPS-Inversiones.
+- Posición, recorridos, velocidad y tiempo de uso.
+- Asociación de dispositivos con camiones y maquinaria.
+- Generación de alertas a partir de los datos recibidos.
+
+M20. Servicios de construcción                                [PENDIENTE]
+
+- Proyectos y obras de puentes, carreteras y edificios.
+- Planificación, responsables, actividades y avances.
+- Materiales, maquinaria, costos y presupuesto del proyecto.
+
+M21. Presupuestos y control de gastos                          [PENDIENTE]
+
+- Presupuesto independiente por giro de negocio.
+- Registro y clasificación de gastos.
+- Comparación presupuesto-real y consolidación administrativa.
+- Integración con pedidos, producción, transporte y construcción.
+
+M22. Alertas y recordatorios                                   [PENDIENTE]
+
+- Alertas según rol, giro, sede e interés operativo.
+- Recordatorios para empleados, vendedores, gerentes y propietarios.
+- Confirmación de lectura y seguimiento de eventos críticos.
+
+M23. Comunicación con clientes y personal                      [PENDIENTE]
+
+- Comunicación vinculada con pedidos, operaciones y reuniones.
+- Seguimiento de solicitudes y responsables.
+- Acceso limitado según empresa cliente y permisos internos.
+
+M24. Portal operativo del cliente                              [PENDIENTE]
+
+- Consulta real de pedidos, operaciones y servicios contratados.
+- Seguimiento de transporte y otros trabajos autorizados.
+- Documentos, reportes y comunicación.
+- Separación estricta de información entre clientes.
+
+M25. Integraciones externas                                    [PENDIENTE]
+
+- API REST y webhooks para clientes, proveedores y socios.
+- Intercambio de archivos EDI/CSV cuando corresponda.
+- Autenticación, reintentos, trazabilidad y manejo de errores.
+- Incluye la integración GPS específica, aunque su dominio se controla en M19.
+
+M26. Reportes operativos, financieros y consolidados           [PENDIENTE]
+
+- Reportes independientes por giro de negocio.
+- Reportes consolidados para administración general.
+- Indicadores operativos, presupuestarios y financieros.
+- Reportes para clientes limitados a sus empresas y operaciones.
+
+
+7. ORDEN PROPUESTO DE IMPLEMENTACIÓN
+------------------------------------
+
+El orden debe confirmarse con el usuario antes de comenzar una nueva fase.
+
+Fase 2 - Completar administración y flujo comercial
+
+1. C02 Administración de clientes.
+2. C01 Administración visual de roles, giros y sedes.
+3. C03 Visor de auditoría.
+4. M12 Pedidos y gestión comercial.
+5. M24 Portal operativo del cliente, inicialmente sobre pedidos.
+
+Fase 3 - Operación interna
+
+6. M14 Inventarios y bodegas.
+7. M13 Abastecimiento entre giros.
+8. M15 Extracción minera.
+9. M16 Producción y procesamiento.
+
+Fase 4 - Servicios operativos
+
+10. M17 Maquinaria.
+11. M18 Transporte y logística.
+12. M19 GPS y monitoreo.
+13. M20 Construcción.
+
+Fase 5 - Capacidades transversales
+
+14. M21 Presupuestos y gastos.
+15. M22 Alertas y recordatorios.
+16. M23 Comunicación.
+17. M25 Integraciones externas.
+18. M26 Reportes consolidados.
+
+C04 Pruebas no debe dejarse para el final: cada fase debe agregar las pruebas de
+sus flujos, permisos y procedimientos almacenados.
+
+
+8. PENDIENTES TÉCNICOS TRANSVERSALES
+------------------------------------
+
+No son módulos comerciales independientes, pero deben atenderse antes de una
+puesta en producción o cuando el crecimiento los haga necesarios:
+
+- Diferenciar cancelaciones HTTP normales de errores 500 en el middleware.
+- Reemplazar contraseñas en texto plano por hashes seguros antes de usar datos
+  reales; el texto plano existe únicamente por la condición académica inicial.
+- Agregar HTTPS estricto y administración real de secretos.
+- Incorporar health checks y mejor observabilidad.
+- Migrar la sesión MVC a Redis o SQL Server Distributed Cache antes de escalar
+  horizontalmente el frontend.
+- Definir respaldo y alta disponibilidad para SQL Server.
+- Aplicar autorización por rol, giro, sede y cliente en cada endpoint futuro.
+
+
+9. MÓDULOS OPCIONALES
+---------------------
+
+Esta sección es exclusivamente para ideas que no sean requeridas por el caso,
+la Fase 1 o decisiones posteriores del usuario.
+
+Regla: ningún elemento de esta sección se implementará, se mezclará con módulos
+obligatorios ni se moverá al plan principal sin aprobación expresa del usuario.
+
+Estado actual: no hay módulos opcionales aprobados ni autorizados.
+
+Cuando aparezca una propuesta opcional se registrará con este formato:
+
+OXX. Nombre del módulo                                          [OPCIONAL]
+- Motivo de la propuesta.
+- Beneficio esperado.
+- Dependencias y costo aproximado.
+- Decisión del usuario: Pendiente / Aprobado / Rechazado.
+
+
+10. HISTORIAL DE ACTUALIZACIONES
+--------------------------------
+
+15 de octubre de 2026
+
+- Se creó avance.txt.
+- Se registró la Fase 1 como terminada en su alcance principal.
+- Se separaron bases implementadas, componentes incompletos, módulos obligatorios
+  futuros, pendientes técnicos y módulos opcionales.
+- Se dejó explícito que los módulos opcionales requieren decisión del usuario.
+
