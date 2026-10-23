@@ -1,16 +1,9 @@
-using TransPort.Web.Models;
+using TransPort.Web.Models.Clientes;
 
-namespace TransPort.Web.Services;
-
-public interface ITransportApiClient
-{
-    Task<LoginResponseModel?> LoginAsync(LoginViewModel model, CancellationToken ct);
-    Task<DashboardModel> ResumenAsync(CancellationToken ct);
-    Task<IReadOnlyList<UsuarioListadoModel>> UsuariosAsync(string? busqueda, bool? esActivo, int? rolId, CancellationToken ct);
-    Task<UsuarioDetalleModel?> UsuarioAsync(int id, CancellationToken ct);
-    Task<int> CrearUsuarioAsync(UsuarioFormViewModel model, CancellationToken ct);
-    Task ActualizarUsuarioAsync(UsuarioFormViewModel model, CancellationToken ct);
-    Task ActualizarAsignacionesAsync(UsuarioFormViewModel model, CancellationToken ct);
-    Task EliminarUsuarioAsync(int id, CancellationToken ct);
-    Task<IReadOnlyList<EntidadCatalogoModel>> CatalogoAsync(string tipo, CancellationToken ct);
-}
+// ... dentro de public interface ITransportApiClient { ...
+Task<IReadOnlyList<ClienteListadoWebDto>> ListarClientesAsync(string? busqueda, bool? esActivo, CancellationToken ct = default);
+Task<ClienteDetalleWebDto?> ObtenerClienteAsync(int id, CancellationToken ct = default);
+Task CrearClienteAsync(CrearClienteWebRequest request, CancellationToken ct = default);
+Task ActualizarClienteAsync(int id, ActualizarClienteWebRequest request, CancellationToken ct = default);
+Task EliminarClienteAsync(int id, CancellationToken ct = default);
+Task ActualizarAsociacionesClienteAsync(int id, AsociacionesClienteWebRequest request, CancellationToken ct = default);
