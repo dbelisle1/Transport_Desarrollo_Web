@@ -1,7 +1,7 @@
 # Estado actual del proyecto TransPort
 
-**Fecha de revisión:** 16 de octubre de 2026
-**Etapa evaluada:** Fase 2 — administración de clientes y catálogos completada
+**Fecha de revisión:** 27 de octubre de 2026
+**Etapa evaluada:** Fase 2 — administración de clientes, catálogos y auditoría completada
 
 ## 1. Resumen ejecutivo
 
@@ -25,6 +25,8 @@ Los módulos comerciales del sistema completo todavía no están implementados. 
 Después del cierre de la Fase 1 se implementó y verificó el módulo administrativo de clientes: CRUD, filtros, asociaciones transaccionales de usuarios y giros, eliminación lógica, auditoría, API, vistas MVC y pruebas. El recorrido MVC–API–SQL Server se validó con ambos contenedores activos.
 
 También se completó la administración visual de roles, giros y sedes con búsqueda, filtros, formularios, estados, eliminación lógica, auditoría y protección del rol `AdministradorGeneral`.
+
+El visor administrativo de auditoría permite consultar el historial con filtros combinables, fechas en horario de Guatemala, paginación ejecutada en SQL Server y acceso exclusivo para `AdministradorGeneral`.
 
 ## 2. Arquitectura actual
 
@@ -84,11 +86,11 @@ Leyenda:
 | CRUD de usuarios | Completo | Lista, filtra, crea, edita, activa/desactiva, elimina lógicamente y asigna permisos. |
 | CRUD de clientes | Completo | SQL/API/MVC verificados con filtros, asociaciones, auditoría y eliminación lógica. |
 | Catálogos de roles, giros y sedes | Completo | CRUD SQL/API/MVC, filtros, auditoría, eliminación lógica y protección del rol administrador. |
-| Auditoría | Parcial a nivel de producto | Se registra y puede consultar por API; no existe vista administrativa de auditoría. |
+| Auditoría | Completo para la base actual | Registro, endpoint paginado, filtros, vista MVC y autorización administrativa. |
 | PWA y responsive | Completo para Fase 1 | Manifest, ícono, service worker público y breakpoints 768/1100/1920 px. |
 | Docker | Completo en configuración | Dos Dockerfiles multietapa, red interna, volumen de claves y Compose válido. |
 | Documentación de inicio | Completo | `README.md`, `.env.example`, `.gitignore` e `instruccionesInicio.txt`. |
-| Pruebas automatizadas | Parcial | 14 pruebas aprobadas; faltan pruebas amplias de integración, autorización y CRUD. |
+| Pruebas automatizadas | Parcial | 16 pruebas aprobadas; faltan pruebas amplias de integración, autorización y CRUD. |
 
 ## 4. Módulos desarrollados
 
@@ -176,20 +178,20 @@ Incluye:
 
 ### 4.5 Administración general y auditoría
 
-**Estado: implementado para el alcance inicial**
+**Estado: implementado y verificado**
 
 Incluye:
 
 - Dashboard con conteos reales de usuarios, clientes, giros y sedes.
 - Endpoint de resumen administrativo.
-- Tabla y procedimiento de auditoría.
-- Endpoint para consultar los últimos eventos de auditoría.
+- Tabla y procedimiento paginado de auditoría.
+- Endpoint con búsqueda y filtros por fecha, módulo, operación, usuario y resultado.
+- Vista MVC responsive con detalle expandible y fechas en horario de Guatemala.
+- Paginación configurable de 10, 25, 50 o 100 eventos.
+- Acceso exclusivo para AdministradorGeneral en MVC y API.
 - Auditoría integrada en login y operaciones críticas de usuarios/catálogos.
 
-Pendiente dentro de la experiencia administrativa:
-
-- Pantalla para consultar y filtrar la auditoría.
-- Reportes operativos, gerenciales y financieros consolidados.
+Pendiente dentro de la experiencia administrativa: reportes operativos, gerenciales y financieros consolidados.
 
 ### 4.6 Sitio público y portales
 
@@ -282,6 +284,7 @@ También se implementaron:
 | `/admin/usuarios` | Administración de usuarios | AdministradorGeneral |
 | `/admin/clientes` | Administración de empresas cliente | AdministradorGeneral |
 | `/admin/catalogos/{roles|giros|sedes}` | Administración de catálogos organizacionales | AdministradorGeneral |
+| `/admin/auditoria` | Visor filtrado y paginado de auditoría | AdministradorGeneral |
 | `/portal/cambiar/{destino}` | Cambio de portal | Según roles |
 
 ### Endpoints API principales
@@ -300,20 +303,19 @@ También se implementaron:
 | `GET/POST` | `/api/catalogos/{tipo}` | Listar o crear roles, giros y sedes |
 | `GET/PUT/DELETE` | `/api/catalogos/{tipo}/{id}` | CRUD de un catálogo |
 | `GET` | `/api/administracion/resumen` | Conteos administrativos |
-| `GET` | `/api/administracion/auditoria` | Últimos eventos de auditoría |
+| `GET` | `/api/administracion/auditoria` | Eventos filtrados y paginados de auditoría |
 
 ## 7. Componentes parciales y mejoras pendientes de la base
 
 Estos puntos mejoran la plataforma actual, aunque varios no eran obligatorios para cerrar la Fase 1:
 
 1. **Ampliar pruebas automatizadas.** Faltan pruebas de controladores API, repositorios con SQL Server, autorización por roles, CRUD completo y flujos HTTP de extremo a extremo.
-2. **Agregar interfaz de auditoría.** El backend existe, pero no hay consulta visual para el administrador.
-3. **Tratar cancelaciones HTTP por separado.** `ApiExceptionMiddleware` puede registrar una `OperationCanceledException` como error 500.
-4. **Preparar escalamiento horizontal del MVC.** La sesión utiliza memoria local; para varias réplicas debe migrarse a Redis o SQL Server Distributed Cache.
-5. **Agregar health checks de contenedores.** Existe `/salud`, pero Compose no define comprobaciones ni dependencias condicionadas por salud.
-6. **Endurecer producción.** Cambiar contraseñas en texto plano por hashes, usar HTTPS obligatorio, secretos administrados y entorno `Production`.
-7. **Mejorar observabilidad.** Agregar métricas, trazas, correlación de solicitudes y almacenamiento central de logs.
-8. **Revisar autorización por alcance en futuros módulos.** Los giros, sedes y clientes ya forman parte de la identidad; cada endpoint comercial futuro deberá filtrar y validar esos alcances en la API.
+2. **Tratar cancelaciones HTTP por separado.** `ApiExceptionMiddleware` puede registrar una `OperationCanceledException` como error 500.
+3. **Preparar escalamiento horizontal del MVC.** La sesión utiliza memoria local; para varias réplicas debe migrarse a Redis o SQL Server Distributed Cache.
+4. **Agregar health checks de contenedores.** Existe `/salud`, pero Compose no define comprobaciones ni dependencias condicionadas por salud.
+5. **Endurecer producción.** Cambiar contraseñas en texto plano por hashes, usar HTTPS obligatorio, secretos administrados y entorno `Production`.
+6. **Mejorar observabilidad.** Agregar métricas, trazas, correlación de solicitudes y almacenamiento central de logs.
+7. **Revisar autorización por alcance en futuros módulos.** Los giros, sedes y clientes ya forman parte de la identidad; cada endpoint comercial futuro deberá filtrar y validar esos alcances en la API.
 
 ## 8. Módulos pendientes para fases posteriores
 
@@ -412,18 +414,19 @@ Los siguientes módulos **no pertenecían al alcance funcional de la Fase 1** y 
 
 ## 9. Pruebas y validación realizadas
 
-Revisión del 16 de octubre de 2026:
+Revisión del 27 de octubre de 2026:
 
 | Validación | Resultado |
 |---|---|
 | Compilación durante `dotnet test TransPort.sln --no-restore` | Correcta |
-| Pruebas de API | 13 aprobadas, 0 fallidas |
+| Pruebas de API | 15 aprobadas, 0 fallidas |
 | Pruebas de MVC | 1 aprobada, 0 fallidas |
-| Total | **14 aprobadas, 0 fallidas** |
+| Total | **16 aprobadas, 0 fallidas** |
 | `docker-compose config -q` | Configuración válida |
-| Contenedores activos durante esta revisión | API y Web activos; `/salud`, `/` y `/admin/catalogos/*` respondieron correctamente |
+| Contenedores activos durante esta revisión | API y Web activos; `/salud`, `/` y `/admin/auditoria` respondieron correctamente |
 | Smoke test de clientes | CRUD, filtro, asignaciones, auditoría y eliminación lógica correctos |
 | Smoke test de catálogos | CRUD de roles, giros y sedes, MVC, auditoría y autorización correctos |
+| Smoke test de auditoría | Filtros, dos páginas sin duplicados, MVC y autorización correctos |
 
 Cobertura actual:
 
@@ -435,6 +438,8 @@ Cobertura actual:
 - Limpieza de sesión y autenticación al cerrar sesión.
 - Creación, eliminación y protección de asignaciones del controlador API de clientes.
 - Creación y eliminación de catálogos, rechazo de tipos inválidos y protección del rol administrador.
+- Paso de filtros y paginación del controlador de auditoría al repositorio.
+- Exigencia del rol AdministradorGeneral en el controlador administrativo.
 
 El smoke test creó un cliente temporal, consultó y actualizó sus datos, validó el filtro y las asignaciones de usuario/giro, y ejecutó su eliminación lógica. SQL Server confirmó cero relaciones activas, cinco eventos de auditoría y ningún cliente de prueba visible al finalizar.
 
@@ -447,21 +452,19 @@ El smoke test creó un cliente temporal, consultó y actualizó sus datos, valid
 | Alta antes de producción | Secretos y HTTPS | Deben administrarse fuera de archivos y desplegarse con HTTPS estricto. |
 | Media | Pruebas | La cobertura actual es pequeña frente al número de endpoints y SP. |
 | Media | Excepciones por cancelación | Conviene evitar registrar cancelaciones normales como fallos 500. |
-| Media | Auditoría | Backend disponible sin interfaz administrativa dedicada. |
 | Media | Disponibilidad SQL Server | Existe una única instancia externa; no hay estrategia documentada de respaldo/alta disponibilidad. |
 | Baja para Fase 1 | Escalamiento/orquestación | Compose cubre desarrollo, no balanceo o autoescalamiento de producción. |
 
 ## 11. Orden recomendado para la siguiente etapa
 
 1. Aumentar pruebas de integración para usuarios, autorización, SQL Server y flujos HTTP.
-2. Crear la pantalla administrativa de auditoría.
-3. Sustituir contraseñas en texto plano por hashes antes de usar datos reales.
-4. Definir el primer flujo comercial transversal: cliente → pedido → abastecimiento/operación → seguimiento.
-5. Implementar inventario y producción como soporte del flujo de pedidos.
-6. Implementar transporte, maquinaria y GPS.
-7. Agregar alertas, comunicación e integraciones externas.
-8. Construir reportes operativos, financieros y consolidados.
-9. Migrar la sesión a almacenamiento distribuido y agregar balanceo cuando se necesiten varias réplicas.
+2. Sustituir contraseñas en texto plano por hashes antes de usar datos reales.
+3. Definir el primer flujo comercial transversal: cliente → pedido → abastecimiento/operación → seguimiento.
+4. Implementar inventario y producción como soporte del flujo de pedidos.
+5. Implementar transporte, maquinaria y GPS.
+6. Agregar alertas, comunicación e integraciones externas.
+7. Construir reportes operativos, financieros y consolidados.
+8. Migrar la sesión a almacenamiento distribuido y agregar balanceo cuando se necesiten varias réplicas.
 
 ## 12. Conclusión
 

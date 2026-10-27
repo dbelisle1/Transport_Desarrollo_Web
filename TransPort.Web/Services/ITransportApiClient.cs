@@ -6,6 +6,7 @@ public interface ITransportApiClient
 {
     Task<LoginResponseModel?> LoginAsync(LoginViewModel model, CancellationToken ct);
     Task<DashboardModel> ResumenAsync(CancellationToken ct);
+    Task<AuditoriaPaginaModel> AuditoriaAsync(AuditoriaFiltroViewModel filtro, CancellationToken ct);
     Task<IReadOnlyList<UsuarioListadoModel>> UsuariosAsync(string? busqueda, bool? esActivo, int? rolId, CancellationToken ct);
     Task<UsuarioDetalleModel?> UsuarioAsync(int id, CancellationToken ct);
     Task<int> CrearUsuarioAsync(UsuarioFormViewModel model, CancellationToken ct);

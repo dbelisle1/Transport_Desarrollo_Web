@@ -6,6 +6,13 @@ public sealed record CatalogoModel(int Id, string Nombre);
 public sealed record EntidadCatalogoModel(int Id, string Nombre, string? Descripcion, bool EsActivo, DateTime FechaCreacion);
 public sealed record ResultadoIdModel(int Id);
 public sealed record DashboardModel(int Usuarios, int Clientes, int Giros, int Sedes);
+public sealed record AuditoriaModel(
+    long AuditoriaId, int? UsuarioId, string? NombreUsuario, DateTime Fecha,
+    string Modulo, string TipoOperacion, string? IdentificadorRegistro,
+    string Resultado, string? Detalle);
+public sealed record AuditoriaPaginaModel(
+    IReadOnlyList<AuditoriaModel> Elementos, long TotalRegistros,
+    int Pagina, int TamanoPagina, int TotalPaginas);
 
 public sealed record UsuarioSesionModel(
     int UsuarioId, string NombreUsuario, string NombreCompleto, string Correo,
@@ -133,4 +140,36 @@ public sealed class CatalogoFormViewModel
 
     [Display(Name = "Registro activo")]
     public bool EsActivo { get; set; } = true;
+}
+
+public sealed class AuditoriaFiltroViewModel
+{
+    [StringLength(200)]
+    public string? Busqueda { get; set; }
+
+    [DataType(DataType.Date)]
+    [Display(Name = "Desde")]
+    public DateTime? FechaDesde { get; set; }
+
+    [DataType(DataType.Date)]
+    [Display(Name = "Hasta")]
+    public DateTime? FechaHasta { get; set; }
+
+    [StringLength(80)]
+    public string? Modulo { get; set; }
+
+    [StringLength(80)]
+    [Display(Name = "Operación")]
+    public string? TipoOperacion { get; set; }
+
+    [StringLength(80)]
+    [Display(Name = "Usuario")]
+    public string? NombreUsuario { get; set; }
+
+    [StringLength(40)]
+    public string? Resultado { get; set; }
+
+    public int Pagina { get; set; } = 1;
+    public int TamanoPagina { get; set; } = 25;
+    public AuditoriaPaginaModel Resultados { get; set; } = new([], 0, 1, 25, 0);
 }

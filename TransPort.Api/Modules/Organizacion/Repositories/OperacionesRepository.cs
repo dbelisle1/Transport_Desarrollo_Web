@@ -33,14 +33,26 @@ public sealed class OperacionesRepository(ISqlConnectionFactory connections) : I
         await command.ExecuteNonQueryAsync(ct);
     }
 
-    public async Task<IReadOnlyList<AuditoriaDto>> ListarAuditoriaAsync(int cantidad, CancellationToken ct)
+    public async Task<AuditoriaPaginaDto> ListarAuditoriaAsync(AuditoriaConsultaDto consulta, CancellationToken ct)
     {
+        var pagina = Math.Max(consulta.Pagina, 1);
+        var tamanoPagina = Math.Clamp(consulta.TamanoPagina, 10, 100);
         var result = new List<AuditoriaDto>();
         await using var connection = connections.Create();
         await connection.OpenAsync(ct);
         await using var command = Procedure(connection, "sp_auditoria_leer_listado");
-        command.Parameters.Add("@Cantidad", SqlDbType.Int).Value = Math.Clamp(cantidad, 1, 500);
+        command.Parameters.Add("@Busqueda", SqlDbType.NVarChar, 200).Value = Db(Text(consulta.Busqueda));
+        command.Parameters.Add("@FechaDesdeUtc", SqlDbType.DateTime2).Value = Db(consulta.FechaDesdeUtc);
+        command.Parameters.Add("@FechaHastaUtc", SqlDbType.DateTime2).Value = Db(consulta.FechaHastaUtc);
+        command.Parameters.Add("@Modulo", SqlDbType.NVarChar, 80).Value = Db(Text(consulta.Modulo));
+        command.Parameters.Add("@TipoOperacion", SqlDbType.NVarChar, 80).Value = Db(Text(consulta.TipoOperacion));
+        command.Parameters.Add("@NombreUsuario", SqlDbType.NVarChar, 80).Value = Db(Text(consulta.NombreUsuario));
+        command.Parameters.Add("@Resultado", SqlDbType.NVarChar, 40).Value = Db(Text(consulta.Resultado));
+        command.Parameters.Add("@Pagina", SqlDbType.Int).Value = pagina;
+        command.Parameters.Add("@TamanoPagina", SqlDbType.Int).Value = tamanoPagina;
         await using var reader = await command.ExecuteReaderAsync(ct);
+        var totalRegistros = await reader.ReadAsync(ct) ? reader.GetInt64(reader.GetOrdinal("TotalRegistros")) : 0L;
+        await reader.NextResultAsync(ct);
         while (await reader.ReadAsync(ct))
         {
             result.Add(new AuditoriaDto(
@@ -48,10 +60,11 @@ public sealed class OperacionesRepository(ISqlConnectionFactory connections) : I
                 reader.Date("Fecha"), reader.Text("Modulo"), reader.Text("TipoOperacion"),
                 reader.NullableText("IdentificadorRegistro"), reader.Text("Resultado"), reader.NullableText("Detalle")));
         }
-        return result;
+        return new AuditoriaPaginaDto(result, totalRegistros, pagina, tamanoPagina);
     }
 
     private static SqlCommand Procedure(SqlConnection connection, string name) =>
         new(name, connection) { CommandType = CommandType.StoredProcedure };
     private static object Db(object? value) => value ?? DBNull.Value;
+    private static string? Text(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 }

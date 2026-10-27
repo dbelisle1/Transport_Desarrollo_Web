@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Globalization;
 using System.Text.Json;
 using TransPort.Web.Models;
 
@@ -20,6 +21,23 @@ public sealed class TransportApiClient(HttpClient http, IHttpContextAccessor con
 
     public Task<DashboardModel> ResumenAsync(CancellationToken ct) =>
         GetRequiredAsync<DashboardModel>("api/administracion/resumen", ct);
+
+    public Task<AuditoriaPaginaModel> AuditoriaAsync(AuditoriaFiltroViewModel filtro, CancellationToken ct)
+    {
+        var query = new List<string>();
+        Add(query, "busqueda", filtro.Busqueda);
+        Add(query, "modulo", filtro.Modulo);
+        Add(query, "tipoOperacion", filtro.TipoOperacion);
+        Add(query, "nombreUsuario", filtro.NombreUsuario);
+        Add(query, "resultado", filtro.Resultado);
+        if (filtro.FechaDesde.HasValue)
+            Add(query, "fechaDesdeUtc", GuatemalaDateToUtc(filtro.FechaDesde.Value.Date).ToString("O", CultureInfo.InvariantCulture));
+        if (filtro.FechaHasta.HasValue)
+            Add(query, "fechaHastaUtc", GuatemalaDateToUtc(filtro.FechaHasta.Value.Date.AddDays(1)).ToString("O", CultureInfo.InvariantCulture));
+        query.Add($"pagina={Math.Max(filtro.Pagina, 1)}");
+        query.Add($"tamanoPagina={Math.Clamp(filtro.TamanoPagina, 10, 100)}");
+        return GetRequiredAsync<AuditoriaPaginaModel>("api/administracion/auditoria?" + string.Join('&', query), ct);
+    }
 
     public async Task<IReadOnlyList<UsuarioListadoModel>> UsuariosAsync(
         string? busqueda, bool? esActivo, int? rolId, CancellationToken ct)
@@ -191,5 +209,22 @@ public sealed class TransportApiClient(HttpClient http, IHttpContextAccessor con
         throw new TransportApiException(
             string.IsNullOrWhiteSpace(body) ? "La API rechazó la operación." : body,
             (int)response.StatusCode);
+    }
+
+    private static void Add(List<string> query, string name, string? value)
+    {
+        if (!string.IsNullOrWhiteSpace(value)) query.Add($"{name}={Uri.EscapeDataString(value.Trim())}");
+    }
+
+    private static DateTime GuatemalaDateToUtc(DateTime value)
+    {
+        var unspecified = DateTime.SpecifyKind(value, DateTimeKind.Unspecified);
+        return TimeZoneInfo.ConvertTimeToUtc(unspecified, GuatemalaTimeZone());
+    }
+
+    private static TimeZoneInfo GuatemalaTimeZone()
+    {
+        try { return TimeZoneInfo.FindSystemTimeZoneById("America/Guatemala"); }
+        catch (TimeZoneNotFoundException) { return TimeZoneInfo.FindSystemTimeZoneById("Central America Standard Time"); }
     }
 }

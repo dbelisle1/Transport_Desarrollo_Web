@@ -1,9 +1,9 @@
 TRANSPORT - CONTROL DE AVANCE DE MÓDULOS
 ========================================
 
-Última actualización: 16 de octubre de 2026
+Última actualización: 27 de octubre de 2026
 Etapa actual: Fase 2 - completar administración y flujo comercial
-Módulo activo: Ninguno. C01 quedó implementado y verificado; el siguiente módulo requiere confirmación del usuario.
+Módulo activo: Ninguno. C03 quedó implementado y verificado; el siguiente módulo requiere confirmación del usuario.
 
 
 1. PROPÓSITO DE ESTE ARCHIVO
@@ -118,13 +118,15 @@ M06. Portales iniciales                                        [IMPLEMENTADO]
 - Navegación condicionada por permisos.
 - Los módulos futuros aparecen como pendientes, sin transacciones simuladas.
 
-M07. Auditoría básica                                          [BASE IMPLEMENTADA]
+M07. Auditoría                                                  [IMPLEMENTADO]
 
 - Tabla y procedimientos de auditoría.
 - Registro de login exitoso y fallido sin almacenar contraseñas.
 - Registro de operaciones críticas iniciales.
-- Endpoint administrativo de consulta.
-- Falta una pantalla MVC para consultar y filtrar los eventos.
+- Endpoint administrativo paginado con filtros combinables.
+- Pantalla MVC con búsqueda, fechas, módulo, operación, usuario, resultado y
+  tamaño de página.
+- Acceso exclusivo para AdministradorGeneral en MVC y API.
 
 M08. Organización y catálogos                                  [IMPLEMENTADO]
 
@@ -160,7 +162,8 @@ M11. Pruebas automatizadas iniciales                           [BASE IMPLEMENTAD
   protección de asignaciones inexistentes.
 - Pruebas del controlador API de catálogos para tipos válidos e inválidos,
   eliminación y protección del rol AdministradorGeneral.
-- Resultado registrado: 14 pruebas aprobadas y 0 fallidas.
+- Pruebas del visor de auditoría para filtros, paginación y autorización.
+- Resultado registrado: 16 pruebas aprobadas y 0 fallidas.
 - Falta cobertura de integración, autorización, controladores, repositorios y
   operaciones CRUD completas.
 
@@ -191,10 +194,16 @@ C02. Administración de clientes                                [IMPLEMENTADO]
 - Verificadas las asignaciones transaccionales de usuarios y giros, su
   eliminación lógica y cinco registros de auditoría del recorrido de prueba.
 
-C03. Visor administrativo de auditoría                         [PENDIENTE]
+C03. Visor administrativo de auditoría                         [IMPLEMENTADO]
 
 - Listado, búsqueda y filtros por fecha, módulo, operación, usuario y resultado.
 - Paginación y acceso exclusivo para administración autorizada.
+- Consulta paginada ejecutada por procedimiento almacenado, sin cargar el
+  historial completo en memoria.
+- Fechas mostradas y filtradas en horario de Guatemala; persistencia en UTC.
+- Acceso desde el dashboard administrativo y detalle expandible por evento.
+- Flujo MVC-API-SQL verificado con filtros, páginas sin duplicados y rechazo
+  de usuarios sin rol AdministradorGeneral.
 
 C04. Cobertura de pruebas de la plataforma                      [PENDIENTE]
 
@@ -418,4 +427,17 @@ OXX. Nombre del módulo                                          [OPCIONAL]
 - Se verificó el CRUD de los tres catálogos en MVC, API y SQL Server, la
   autorización negativa para empleados y el registro de auditoría.
 - C01 se marcó Implementado y no quedaron registros temporales visibles.
+
+27 de octubre de 2026
+
+- Se implementó C03 Visor administrativo de auditoría.
+- Se amplió sp_auditoria_leer_listado con filtros combinables, conteo total,
+  paginación y límites de tamaño de página.
+- Se agregó el endpoint paginado, el cliente HTTP, el controlador MVC y la
+  vista responsive disponible en /admin/auditoria.
+- Se agregaron 2 pruebas del controlador administrativo; el total pasó de 14
+  a 16 pruebas aprobadas y 0 fallidas.
+- Se verificaron dos páginas sin registros duplicados, filtros por módulo,
+  resultado, usuario y operación, además del rechazo de acceso a empleados.
+- C03 se marcó Implementado después del smoke test MVC-API-SQL Server.
 

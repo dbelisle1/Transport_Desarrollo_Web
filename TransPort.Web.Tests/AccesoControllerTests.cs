@@ -99,6 +99,7 @@ public sealed class AccesoControllerTests
 
         public Task<LoginResponseModel?> LoginAsync(LoginViewModel model, CancellationToken ct) => throw NotUsed();
         public Task<DashboardModel> ResumenAsync(CancellationToken ct) => throw NotUsed();
+        public Task<AuditoriaPaginaModel> AuditoriaAsync(AuditoriaFiltroViewModel filtro, CancellationToken ct) => throw NotUsed();
         public Task<IReadOnlyList<UsuarioListadoModel>> UsuariosAsync(string? busqueda, bool? esActivo, int? rolId, CancellationToken ct) => throw NotUsed();
         public Task<UsuarioDetalleModel?> UsuarioAsync(int id, CancellationToken ct) => throw NotUsed();
         public Task<int> CrearUsuarioAsync(UsuarioFormViewModel model, CancellationToken ct) => throw NotUsed();

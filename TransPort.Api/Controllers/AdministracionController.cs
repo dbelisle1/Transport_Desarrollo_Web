@@ -14,6 +14,6 @@ public sealed class AdministracionController(IOperacionesRepository operaciones)
     public Task<DashboardDto> Resumen(CancellationToken ct) => operaciones.ObtenerResumenAsync(ct);
 
     [HttpGet("auditoria")]
-    public Task<IReadOnlyList<AuditoriaDto>> Auditoria([FromQuery] int cantidad = 100, CancellationToken ct = default) =>
-        operaciones.ListarAuditoriaAsync(cantidad, ct);
+    public Task<AuditoriaPaginaDto> Auditoria([FromQuery] AuditoriaConsultaDto consulta, CancellationToken ct = default) =>
+        operaciones.ListarAuditoriaAsync(consulta, ct);
 }

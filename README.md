@@ -1,6 +1,6 @@
 # TransPort — Base técnica y administración
 
-Base técnica del sistema TransPort construida con .NET 8, ASP.NET Core MVC, Web API, ADO.NET, SQL Server y Docker. Incluye organización, autenticación/autorización, paneles iniciales, auditoría y CRUD administrativos de usuarios y empresas cliente. Los módulos comerciales todavía no están implementados.
+Base técnica del sistema TransPort construida con .NET 8, ASP.NET Core MVC, Web API, ADO.NET, SQL Server y Docker. Incluye organización, autenticación/autorización, paneles iniciales, visor de auditoría y CRUD administrativos de usuarios, clientes y catálogos. Los módulos comerciales todavía no están implementados.
 
 ## Arquitectura
 
@@ -102,7 +102,7 @@ Procedimientos principales:
 - Usuarios: crear, leer por id/listado, actualizar, eliminar lógico, validar credenciales y leer roles/giros/sedes/clientes.
 - Roles, giros y sedes: CRUD con eliminación lógica.
 - Asignaciones: usuario-rol, usuario-giro, usuario-sede y sede-giro.
-- Auditoría: crear evento y leer listado.
+- Auditoría: crear evento y consultar el historial con filtros y paginación.
 - Administración: resumen real de usuarios, clientes, giros y sedes.
 - Clientes: CRUD, filtros, eliminación lógica y asignación de usuarios y giros.
 
@@ -136,6 +136,7 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 - `/admin/usuarios`: CRUD y filtros de usuarios.
 - `/admin/clientes`: CRUD, filtros y asociaciones de empresas cliente.
 - `/admin/catalogos/{roles|giros|sedes}`: CRUD, filtros y estado de catálogos organizacionales.
+- `/admin/auditoria`: visor de auditoría con filtros por fecha, módulo, operación, usuario y resultado.
 - `/portal/cambiar/{admin|cliente|gestion}`: cambio de área sin reiniciar sesión.
 
 ## Pruebas
@@ -146,7 +147,7 @@ dotnet build TransPort.sln --no-restore
 dotnet test TransPort.sln --no-restore
 ```
 
-Las 14 pruebas actuales cubren firma y validación de JWT, rechazo de token alterado, requisito mínimo de clave de firma, login válido, auditoría segura del login fallido, cierre de sesión y comportamiento básico de los controladores API de clientes y catálogos, incluida la protección del rol administrador.
+Las 16 pruebas actuales cubren firma y validación de JWT, rechazo de token alterado, requisito mínimo de clave de firma, login válido, auditoría segura del login fallido, cierre de sesión, controladores API de clientes y catálogos, protección del rol administrador y filtros/paginación/autorización del visor de auditoría.
 
 ## Pendiente para fases posteriores
 

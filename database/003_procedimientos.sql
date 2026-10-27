@@ -21,16 +21,67 @@ BEGIN
 END;
 GO
 
-CREATE OR ALTER PROCEDURE dbo.sp_auditoria_leer_listado @Cantidad INT = 100
+CREATE OR ALTER PROCEDURE dbo.sp_auditoria_leer_listado
+    @Busqueda NVARCHAR(200) = NULL,
+    @FechaDesdeUtc DATETIME2(0) = NULL,
+    @FechaHastaUtc DATETIME2(0) = NULL,
+    @Modulo NVARCHAR(80) = NULL,
+    @TipoOperacion NVARCHAR(80) = NULL,
+    @NombreUsuario NVARCHAR(80) = NULL,
+    @Resultado NVARCHAR(40) = NULL,
+    @Pagina INT = 1,
+    @TamanoPagina INT = 25
 AS
 BEGIN
     SET NOCOUNT ON;
-    SET @Cantidad = CASE WHEN @Cantidad < 1 THEN 1 WHEN @Cantidad > 500 THEN 500 ELSE @Cantidad END;
-    SELECT TOP (@Cantidad) a.AuditoriaId, a.UsuarioId, u.NombreUsuario, a.Fecha, a.Modulo,
+
+    SET @Busqueda = NULLIF(LTRIM(RTRIM(@Busqueda)), N'');
+    SET @Modulo = NULLIF(LTRIM(RTRIM(@Modulo)), N'');
+    SET @TipoOperacion = NULLIF(LTRIM(RTRIM(@TipoOperacion)), N'');
+    SET @NombreUsuario = NULLIF(LTRIM(RTRIM(@NombreUsuario)), N'');
+    SET @Resultado = NULLIF(LTRIM(RTRIM(@Resultado)), N'');
+    SET @Pagina = CASE WHEN @Pagina < 1 THEN 1 ELSE @Pagina END;
+    SET @TamanoPagina = CASE WHEN @TamanoPagina < 10 THEN 10 WHEN @TamanoPagina > 100 THEN 100 ELSE @TamanoPagina END;
+
+    SELECT COUNT_BIG(*) AS TotalRegistros
+    FROM dbo.Auditoria a
+    LEFT JOIN dbo.Usuario u ON u.UsuarioId = a.UsuarioId
+    WHERE (@FechaDesdeUtc IS NULL OR a.Fecha >= @FechaDesdeUtc)
+      AND (@FechaHastaUtc IS NULL OR a.Fecha < @FechaHastaUtc)
+      AND (@Modulo IS NULL OR a.Modulo = @Modulo)
+      AND (@TipoOperacion IS NULL OR a.TipoOperacion = @TipoOperacion)
+      AND (@NombreUsuario IS NULL OR u.NombreUsuario LIKE N'%' + @NombreUsuario + N'%')
+      AND (@Resultado IS NULL OR a.Resultado = @Resultado)
+      AND (@Busqueda IS NULL OR
+           a.Modulo LIKE N'%' + @Busqueda + N'%' OR
+           a.TipoOperacion LIKE N'%' + @Busqueda + N'%' OR
+           a.IdentificadorRegistro LIKE N'%' + @Busqueda + N'%' OR
+           a.Resultado LIKE N'%' + @Busqueda + N'%' OR
+           a.Detalle LIKE N'%' + @Busqueda + N'%' OR
+           u.NombreUsuario LIKE N'%' + @Busqueda + N'%')
+    OPTION (RECOMPILE);
+
+    SELECT a.AuditoriaId, a.UsuarioId, u.NombreUsuario, a.Fecha, a.Modulo,
            a.TipoOperacion, a.IdentificadorRegistro, a.Resultado, a.Detalle
     FROM dbo.Auditoria a
     LEFT JOIN dbo.Usuario u ON u.UsuarioId = a.UsuarioId
-    ORDER BY a.Fecha DESC, a.AuditoriaId DESC;
+    WHERE (@FechaDesdeUtc IS NULL OR a.Fecha >= @FechaDesdeUtc)
+      AND (@FechaHastaUtc IS NULL OR a.Fecha < @FechaHastaUtc)
+      AND (@Modulo IS NULL OR a.Modulo = @Modulo)
+      AND (@TipoOperacion IS NULL OR a.TipoOperacion = @TipoOperacion)
+      AND (@NombreUsuario IS NULL OR u.NombreUsuario LIKE N'%' + @NombreUsuario + N'%')
+      AND (@Resultado IS NULL OR a.Resultado = @Resultado)
+      AND (@Busqueda IS NULL OR
+           a.Modulo LIKE N'%' + @Busqueda + N'%' OR
+           a.TipoOperacion LIKE N'%' + @Busqueda + N'%' OR
+           a.IdentificadorRegistro LIKE N'%' + @Busqueda + N'%' OR
+           a.Resultado LIKE N'%' + @Busqueda + N'%' OR
+           a.Detalle LIKE N'%' + @Busqueda + N'%' OR
+           u.NombreUsuario LIKE N'%' + @Busqueda + N'%')
+    ORDER BY a.Fecha DESC, a.AuditoriaId DESC
+    OFFSET (@Pagina - 1) * @TamanoPagina ROWS
+    FETCH NEXT @TamanoPagina ROWS ONLY
+    OPTION (RECOMPILE);
 END;
 GO
 

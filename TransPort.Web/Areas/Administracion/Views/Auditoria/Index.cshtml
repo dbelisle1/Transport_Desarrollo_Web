@@ -1,0 +1,87 @@
+@model AuditoriaFiltroViewModel
+@{
+    ViewData["Title"] = "Auditoría";
+    TimeZoneInfo zonaGuatemala;
+    try { zonaGuatemala = TimeZoneInfo.FindSystemTimeZoneById("America/Guatemala"); }
+    catch (TimeZoneNotFoundException) { zonaGuatemala = TimeZoneInfo.FindSystemTimeZoneById("Central America Standard Time"); }
+    string PaginaUrl(int pagina) => Url.Action("Index", new
+    {
+        Model.Busqueda,
+        Model.FechaDesde,
+        Model.FechaHasta,
+        Model.Modulo,
+        Model.TipoOperacion,
+        Model.NombreUsuario,
+        Model.Resultado,
+        pagina,
+        Model.TamanoPagina
+    })!;
+}
+<section class="dashboard-page admin-page">
+    <div class="container">
+        <div class="page-heading">
+            <div>
+                <a class="back-link" href="/admin">← Administración</a>
+                <h1>Auditoría</h1>
+                <p>Consulte acciones de seguridad y cambios administrativos registrados por la plataforma.</p>
+            </div>
+            <span class="status-pill">@Model.Resultados.TotalRegistros eventos</span>
+        </div>
+        @if (TempData["Error"] is not null) { <div class="alert error">@TempData["Error"]</div> }
+        <form method="get" class="filter-bar audit-filter">
+            <div class="audit-search"><label asp-for="Busqueda">Buscar</label><input asp-for="Busqueda" placeholder="Módulo, operación, identificador o detalle" /></div>
+            <div><label asp-for="FechaDesde"></label><input asp-for="FechaDesde" /></div>
+            <div><label asp-for="FechaHasta"></label><input asp-for="FechaHasta" /><span asp-validation-for="FechaHasta" class="validation"></span></div>
+            <div><label asp-for="Modulo"></label><input asp-for="Modulo" placeholder="Ej. Usuarios" /></div>
+            <div><label asp-for="TipoOperacion"></label><input asp-for="TipoOperacion" placeholder="Ej. Crear" /></div>
+            <div><label asp-for="NombreUsuario"></label><input asp-for="NombreUsuario" placeholder="Nombre de usuario" /></div>
+            <div>
+                <label asp-for="Resultado"></label>
+                <select asp-for="Resultado"><option value="">Todos</option><option value="Exitoso">Exitoso</option><option value="Fallido">Fallido</option></select>
+            </div>
+            <div>
+                <label asp-for="TamanoPagina">Por página</label>
+                <select asp-for="TamanoPagina"><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select>
+            </div>
+            <input type="hidden" name="Pagina" value="1" />
+            <div class="audit-filter-actions"><button class="button button-small" type="submit">Filtrar</button><a class="text-link" href="/admin/auditoria">Limpiar</a></div>
+        </form>
+        <div class="responsive-table audit-table">
+            <table>
+                <thead><tr><th>Fecha</th><th>Usuario</th><th>Módulo</th><th>Operación</th><th>Registro</th><th>Resultado</th><th>Detalle</th></tr></thead>
+                <tbody>
+                @if (Model.Resultados.Elementos.Count == 0)
+                {
+                    <tr><td colspan="7" class="empty">No se encontraron eventos para los filtros seleccionados.</td></tr>
+                }
+                @foreach (var evento in Model.Resultados.Elementos)
+                {
+                    var fechaUtc = DateTime.SpecifyKind(evento.Fecha, DateTimeKind.Utc);
+                    var fechaLocal = TimeZoneInfo.ConvertTimeFromUtc(fechaUtc, zonaGuatemala);
+                    var fallido = evento.Resultado.Equals("Fallido", StringComparison.OrdinalIgnoreCase);
+                    <tr>
+                        <td data-label="Fecha"><strong>@fechaLocal.ToString("dd/MM/yyyy")</strong><small>@fechaLocal.ToString("HH:mm:ss") Guatemala</small></td>
+                        <td data-label="Usuario">@(evento.NombreUsuario ?? "Sistema")</td>
+                        <td data-label="Módulo">@evento.Modulo</td>
+                        <td data-label="Operación">@evento.TipoOperacion</td>
+                        <td data-label="Registro">@(evento.IdentificadorRegistro ?? "—")</td>
+                        <td data-label="Resultado"><span class="status-pill @(fallido ? "inactive" : "")">@evento.Resultado</span></td>
+                        <td data-label="Detalle">
+                            @if (string.IsNullOrWhiteSpace(evento.Detalle)) { <span>—</span> }
+                            else { <details><summary>Ver detalle</summary><p>@evento.Detalle</p></details> }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+        @if (Model.Resultados.TotalPaginas > 1)
+        {
+            <nav class="pagination" aria-label="Paginación de auditoría">
+                @if (Model.Resultados.Pagina > 1) { <a href="@PaginaUrl(Model.Resultados.Pagina - 1)">← Anterior</a> }
+                <span>Página @Model.Resultados.Pagina de @Model.Resultados.TotalPaginas</span>
+                @if (Model.Resultados.Pagina < Model.Resultados.TotalPaginas) { <a href="@PaginaUrl(Model.Resultados.Pagina + 1)">Siguiente →</a> }
+            </nav>
+        }
+    </div>
+</section>
