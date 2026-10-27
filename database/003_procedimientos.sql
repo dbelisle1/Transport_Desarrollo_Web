@@ -948,3 +948,52 @@ BEGIN
     SELECT @Filas;
 END;
 GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_portalcliente_leer_resumen
+    @UsuarioId INT,
+    @EsAdministrador BIT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT c.ClienteId, c.Nombre, c.Nit, c.CorreoContacto,
+           g.GiroNegocioId, g.Nombre AS Giro
+    FROM dbo.Cliente c
+    LEFT JOIN dbo.ClienteGiroNegocio cg ON cg.ClienteId=c.ClienteId AND cg.Eliminado=0
+    LEFT JOIN dbo.GiroNegocio g ON g.GiroNegocioId=cg.GiroNegocioId AND g.Eliminado=0 AND g.EsActivo=1
+    WHERE c.Eliminado=0 AND c.EsActivo=1
+      AND (@EsAdministrador=1 OR EXISTS(
+          SELECT 1 FROM dbo.ClienteUsuario cu
+          WHERE cu.ClienteId=c.ClienteId AND cu.UsuarioId=@UsuarioId AND cu.Eliminado=0))
+    ORDER BY c.Nombre, g.Nombre;
+
+    SELECT COUNT_BIG(*) AS TotalSolicitudes,
+           COALESCE(SUM(CASE WHEN p.Estado=N'Solicitado' THEN 1 ELSE 0 END),0) AS Solicitadas,
+           COALESCE(SUM(CASE WHEN p.Estado IN(N'EnRevision',N'Cotizado',N'Aprobado',N'EnProceso') THEN 1 ELSE 0 END),0) AS EnGestion,
+           COALESCE(SUM(CASE WHEN p.Estado=N'Completado' THEN 1 ELSE 0 END),0) AS Completadas,
+           (SELECT COUNT_BIG(*)
+            FROM dbo.PedidoDocumento d
+            INNER JOIN dbo.Pedido pd ON pd.PedidoId=d.PedidoId AND pd.Eliminado=0
+            WHERE d.Eliminado=0 AND (@EsAdministrador=1 OR EXISTS(
+                SELECT 1 FROM dbo.ClienteUsuario cu
+                WHERE cu.ClienteId=pd.ClienteId AND cu.UsuarioId=@UsuarioId AND cu.Eliminado=0))) AS Documentos
+    FROM dbo.Pedido p
+    WHERE p.Eliminado=0 AND (@EsAdministrador=1 OR EXISTS(
+        SELECT 1 FROM dbo.ClienteUsuario cu
+        WHERE cu.ClienteId=p.ClienteId AND cu.UsuarioId=@UsuarioId AND cu.Eliminado=0));
+
+    SELECT TOP (5) p.PedidoId, p.ClienteId, c.Nombre AS Cliente, p.GiroNegocioId, g.Nombre AS Giro,
+           p.TipoSolicitud, p.Titulo, p.Estado, p.FechaRequerida, p.MontoCotizado,
+           p.VendedorUsuarioId,
+           CASE WHEN v.UsuarioId IS NULL THEN NULL ELSE CONCAT(v.Nombre,N' ',v.Apellido) END AS Vendedor,
+           p.FechaCreacion, p.FechaModificacion
+    FROM dbo.Pedido p
+    INNER JOIN dbo.Cliente c ON c.ClienteId=p.ClienteId
+    INNER JOIN dbo.GiroNegocio g ON g.GiroNegocioId=p.GiroNegocioId
+    LEFT JOIN dbo.Usuario v ON v.UsuarioId=p.VendedorUsuarioId
+    WHERE p.Eliminado=0 AND (@EsAdministrador=1 OR EXISTS(
+        SELECT 1 FROM dbo.ClienteUsuario cu
+        WHERE cu.ClienteId=p.ClienteId AND cu.UsuarioId=@UsuarioId AND cu.Eliminado=0))
+    ORDER BY p.FechaCreacion DESC, p.PedidoId DESC;
+END;
+GO

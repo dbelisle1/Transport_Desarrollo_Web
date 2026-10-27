@@ -32,6 +32,10 @@ M12 Pedidos y gestión comercial incorpora historial, documentos por enlace,
 auditoría y aislamiento por cliente o giro. El flujo completo se verificó contra
 SQL Server desde los contenedores de API y MVC.
 
+M24 convirtió `/cliente` en un portal operativo con indicadores reales,
+empresas, servicios contratados y solicitudes recientes, aislados por la
+relación `ClienteUsuario`.
+
 ## 2. Arquitectura actual
 
 ```text
@@ -75,7 +79,7 @@ Leyenda:
 | Solución .NET 8 con MVC y API | Completo | Dos proyectos principales y dos proyectos de pruebas en `TransPort.sln`. |
 | Separación MVC → API → SQL Server | Completo | El MVC no accede directamente a la base. |
 | ADO.NET y procedimientos almacenados | Completo | Repositorios con `Microsoft.Data.SqlClient`; no se utiliza Entity Framework. |
-| Base de datos actual | Completo | 15 tablas, 21 claves foráneas, 18 índices y 55 procedimientos definidos. |
+| Base de datos actual | Completo | 15 tablas, 21 claves foráneas, 18 índices y 56 procedimientos definidos. |
 | Datos de demostración | Completo | Script idempotente con giros, sedes, roles y usuarios demo. |
 | Login único `/acceso` | Completo | Credenciales validadas por la API y SQL Server. |
 | JWT MVC–API | Completo | Firma configurable, expiración y envío como Bearer. |
@@ -94,7 +98,7 @@ Leyenda:
 | PWA y responsive | Completo para Fase 1 | Manifest, ícono, service worker público y breakpoints 768/1100/1920 px. |
 | Docker | Completo en configuración | Dos Dockerfiles multietapa, red interna, volumen de claves y Compose válido. |
 | Documentación de inicio | Completo | `README.md`, `.env.example`, `.gitignore` e `instruccionesInicio.txt`. |
-| Pruebas automatizadas | Parcial | 21 pruebas aprobadas; faltan pruebas amplias de integración de todos los módulos. |
+| Pruebas automatizadas | Parcial | 24 pruebas aprobadas; faltan pruebas amplias de integración de todos los módulos. |
 
 ## 4. Módulos desarrollados
 
@@ -261,6 +265,19 @@ Incluye:
 - Eliminación lógica exclusiva de AdministradorGeneral.
 - Cinco pruebas unitarias y recorrido HTTP real MVC–API–SQL Server.
 
+### 4.10 Portal operativo del cliente
+
+**Estado: implementado sobre los módulos disponibles**
+
+Incluye:
+
+- Resumen real de empresas asociadas y servicios contratados.
+- Indicadores y solicitudes recientes del módulo comercial.
+- Acceso a detalle, documentos, comentarios e historial de M12.
+- Aislamiento por `ClienteUsuario` aplicado dentro del procedimiento almacenado.
+- Vista global administrativa y rechazo 403 para roles no autorizados.
+- Puntos visibles de extensión para transporte (M18) y reportes (M26).
+
 ## 5. Inventario de base de datos
 
 ### Tablas implementadas (15)
@@ -288,8 +305,8 @@ También se implementaron:
 - Eliminación lógica en entidades y relaciones.
 - Fechas UTC mediante `DATETIME2`/`SYSUTCDATETIME()`.
 - Transacciones y `XACT_ABORT` en operaciones compuestas.
-- 55 procedimientos almacenados para usuarios, catálogos, asociaciones,
-  clientes, pedidos, dashboard y auditoría.
+- 56 procedimientos almacenados para usuarios, catálogos, asociaciones,
+  clientes, pedidos, portal, dashboard y auditoría.
 
 ## 6. Rutas y endpoints disponibles
 
@@ -333,6 +350,7 @@ También se implementaron:
 | `PUT` | `/api/pedidos/{id}/gestion` | Asignar, cotizar y actualizar estado |
 | `POST` | `/api/pedidos/{id}/{comentarios|documentos}` | Agregar seguimiento |
 | `DELETE` | `/api/pedidos/{id}` | Eliminación lógica administrativa |
+| `GET` | `/api/portal-cliente/resumen` | Resumen aislado del portal cliente |
 
 ## 7. Componentes parciales y mejoras pendientes de la base
 
@@ -432,13 +450,6 @@ Los siguientes módulos todavía no están desarrollados:
 - Indicadores operativos y financieros.
 - Reportes disponibles para clientes según sus asociaciones.
 
-### 8.12 Portal operativo del cliente
-
-- Consulta real de pedidos y operaciones.
-- Seguimiento de servicios y transporte.
-- Descarga de documentos y reportes.
-- Comunicación con el equipo asignado.
-
 ## 9. Pruebas y validación realizadas
 
 Revisión del 27 de octubre de 2026:
@@ -446,15 +457,16 @@ Revisión del 27 de octubre de 2026:
 | Validación | Resultado |
 |---|---|
 | Compilación durante `dotnet test TransPort.sln --no-restore` | Correcta |
-| Pruebas de API | 20 aprobadas, 0 fallidas |
+| Pruebas de API | 23 aprobadas, 0 fallidas |
 | Pruebas de MVC | 1 aprobada, 0 fallidas |
-| Total | **21 aprobadas, 0 fallidas** |
+| Total | **24 aprobadas, 0 fallidas** |
 | `docker-compose config -q` | Configuración válida |
 | Contenedores activos durante esta revisión | API y Web activos; `/salud`, `/` y `/admin/auditoria` respondieron correctamente |
 | Smoke test de clientes | CRUD, filtro, asignaciones, auditoría y eliminación lógica correctos |
 | Smoke test de catálogos | CRUD de roles, giros y sedes, MVC, auditoría y autorización correctos |
 | Smoke test de auditoría | Filtros, dos páginas sin duplicados, MVC y autorización correctos |
 | Smoke test de pedidos | Creación, cotización, comentarios, documentos, historial, aislamiento y eliminación lógica correctos |
+| Smoke test del portal cliente | Empresas, servicios, indicadores, MVC, aislamiento entre clientes y autorización correctos |
 
 Cobertura actual:
 
@@ -470,6 +482,7 @@ Cobertura actual:
 - Exigencia del rol AdministradorGeneral en el controlador administrativo.
 - Alcance de cliente, estados válidos, autorización comercial y eliminación en
   el controlador de pedidos.
+- Propagación de identidad y autorización del resumen del portal cliente.
 
 El smoke test creó un cliente temporal, consultó y actualizó sus datos, validó el filtro y las asignaciones de usuario/giro, y ejecutó su eliminación lógica. SQL Server confirmó cero relaciones activas, cinco eventos de auditoría y ningún cliente de prueba visible al finalizar.
 
@@ -494,7 +507,7 @@ registros temporales.
 
 1. Aumentar pruebas de integración para usuarios, autorización, SQL Server y flujos HTTP.
 2. Sustituir contraseñas en texto plano por hashes antes de usar datos reales.
-3. Extender el flujo ya implementado de pedidos hacia el portal operativo del cliente.
+3. Integrar en el portal el seguimiento de transporte cuando se implemente M18.
 4. Implementar inventario y producción como soporte del flujo comercial.
 5. Implementar transporte, maquinaria y GPS.
 6. Agregar alertas, comunicación e integraciones externas.

@@ -31,4 +31,5 @@ public interface ITransportApiClient
     Task ComentarPedidoAsync(long id, string comentario, CancellationToken ct);
     Task AgregarDocumentoPedidoAsync(long id, string nombre, string tipoDocumento, string url, CancellationToken ct);
     Task EliminarPedidoAsync(long id, CancellationToken ct);
+    Task<PortalClienteResumenModel> PortalClienteResumenAsync(CancellationToken ct);
 }

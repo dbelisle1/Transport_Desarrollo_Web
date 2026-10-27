@@ -124,5 +124,6 @@ public sealed class AccesoControllerTests
         public Task ComentarPedidoAsync(long id, string comentario, CancellationToken ct) => throw NotUsed();
         public Task AgregarDocumentoPedidoAsync(long id, string nombre, string tipoDocumento, string url, CancellationToken ct) => throw NotUsed();
         public Task EliminarPedidoAsync(long id, CancellationToken ct) => throw NotUsed();
+        public Task<PortalClienteResumenModel> PortalClienteResumenAsync(CancellationToken ct) => throw NotUsed();
     }
 }

@@ -3,7 +3,7 @@ TRANSPORT - CONTROL DE AVANCE DE MÓDULOS
 
 Última actualización: 27 de octubre de 2026
 Etapa actual: Fase 2 - completar administración y flujo comercial
-Módulo activo: Ninguno; M12 finalizado y verificado.
+Módulo activo: Ninguno; M24 finalizado y verificado.
 
 
 1. PROPÓSITO DE ESTE ARCHIVO
@@ -163,7 +163,7 @@ M11. Pruebas automatizadas iniciales                           [BASE IMPLEMENTAD
 - Pruebas del controlador API de catálogos para tipos válidos e inválidos,
   eliminación y protección del rol AdministradorGeneral.
 - Pruebas del visor de auditoría para filtros, paginación y autorización.
-- Resultado registrado: 21 pruebas aprobadas y 0 fallidas.
+- Resultado registrado: 24 pruebas aprobadas y 0 fallidas.
 - Falta cobertura de integración, autorización, controladores, repositorios y
   operaciones CRUD completas.
 
@@ -213,6 +213,8 @@ C04. Cobertura de pruebas de la plataforma                      [PENDIENTE]
 - Pruebas de aislamiento por rol, giro, sede y cliente.
 - M12 agregó pruebas unitarias de identidad, alcance, validación, autorización
   y eliminación, además de un recorrido HTTP real con SQL Server y Docker.
+- M24 agregó pruebas de propagación de identidad y autorización, además de una
+  prueba real de aislamiento entre dos empresas cliente.
 
 
 6. MÓDULOS OBLIGATORIOS POR DESARROLLAR
@@ -308,12 +310,22 @@ M23. Comunicación con clientes y personal                      [PENDIENTE]
 - Seguimiento de solicitudes y responsables.
 - Acceso limitado según empresa cliente y permisos internos.
 
-M24. Portal operativo del cliente                              [PENDIENTE]
+M24. Portal operativo del cliente                              [IMPLEMENTADO]
 
 - Consulta real de pedidos, operaciones y servicios contratados.
 - Seguimiento de transporte y otros trabajos autorizados.
 - Documentos, reportes y comunicación.
 - Separación estricta de información entre clientes.
+- Dashboard con indicadores reales de solicitudes nuevas, en gestión,
+  completadas y documentos disponibles.
+- Empresas asociadas y servicios contratados leídos desde ClienteUsuario y
+  ClienteGiroNegocio, sin depender de Claims de presentación.
+- Solicitudes recientes y acceso directo a su detalle, historial, comentarios
+  y documentos del módulo M12.
+- Aislamiento SQL verificado: un cliente no ve empresas ni pedidos ajenos;
+  AdministradorGeneral conserva vista global y Empleado recibe 403.
+- El portal queda preparado para que M18 y M26 incorporen seguimiento de
+  transporte y reportes cuando esos módulos se desarrollen.
 
 M25. Integraciones externas                                    [PENDIENTE]
 
@@ -456,4 +468,9 @@ OXX. Nombre del módulo                                          [OPCIONAL]
   consultar historial y eliminar lógicamente, con aislamiento de cliente y
   rechazo 403 para personal sin rol comercial.
 - Se agregaron 5 pruebas; el total pasó de 16 a 21 aprobadas y 0 fallidas.
+- Se implementó M24 Portal operativo del cliente con resumen SQL por identidad,
+  indicadores, empresas, servicios contratados y solicitudes recientes.
+- Se verificó el aislamiento con dos empresas y dos pedidos simultáneos: el
+  cliente observó únicamente su información y el administrador ambas.
+- Se agregaron 3 pruebas; el total pasó de 21 a 24 aprobadas y 0 fallidas.
 

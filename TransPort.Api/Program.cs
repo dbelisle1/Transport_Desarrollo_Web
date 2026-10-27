@@ -5,6 +5,7 @@ using TransPort.Api.Middleware;
 using TransPort.Api.Modules.Clientes.Repositories;
 using TransPort.Api.Modules.Comercial.Repositories;
 using TransPort.Api.Modules.Organizacion.Repositories;
+using TransPort.Api.Modules.PortalCliente.Repositories;
 using TransPort.Api.Modules.Seguridad.Repositories;
 using TransPort.Api.Modules.Seguridad.Services;
 
@@ -21,6 +22,7 @@ builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<ICatalogoRepository, CatalogoRepository>();
 builder.Services.AddScoped<IOperacionesRepository, OperacionesRepository>();
+builder.Services.AddScoped<IPortalClienteRepository, PortalClienteRepository>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddAuthentication("Bearer")

@@ -107,6 +107,8 @@ Procedimientos principales:
 - Clientes: CRUD, filtros, eliminación lógica y asignación de usuarios y giros.
 - Pedidos: listado por alcance, detalle, opciones, creación, gestión comercial,
   comentarios, documentos y eliminación lógica.
+- Portal del cliente: empresas y servicios contratados, indicadores y
+  solicitudes recientes con aislamiento por identidad.
 
 Los repositorios no consultan tablas directamente cuando existe un procedimiento para la operación. La contraseña no aparece en listados, DTOs, tokens, auditoría ni logs.
 
@@ -132,12 +134,13 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 | `PUT` | `/api/pedidos/{id}/gestion` | AdministradorGeneral, Gerente o Vendedor |
 | `POST` | `/api/pedidos/{id}/{comentarios|documentos}` | Roles comerciales, según alcance |
 | `DELETE` | `/api/pedidos/{id}` | AdministradorGeneral |
+| `GET` | `/api/portal-cliente/resumen` | Cliente o AdministradorGeneral, filtrado por identidad |
 
 ## Rutas web
 
 - `/`: sitio público y seis giros de negocio.
 - `/acceso`: login único.
-- `/cliente`: panel del cliente.
+- `/cliente`: dashboard operativo con empresas, servicios e indicadores reales.
 - `/cliente/pedidos`: solicitudes y seguimiento del cliente.
 - `/cliente/pedidos/crear`: nuevo pedido, cotización o reunión.
 - `/gestion`: panel interno según roles, giros y sedes.
@@ -157,7 +160,7 @@ dotnet build TransPort.sln --no-restore
 dotnet test TransPort.sln --no-restore
 ```
 
-Las 21 pruebas actuales cubren seguridad JWT, autenticación, cierre de sesión, clientes, catálogos, auditoría y el controlador de pedidos: alcance del cliente, validación de estados, autorización comercial y eliminación administrativa.
+Las 24 pruebas actuales cubren seguridad JWT, autenticación, cierre de sesión, clientes, catálogos, auditoría, pedidos y el portal operativo: alcance del cliente, validación de estados, autorización comercial, eliminación administrativa y propagación segura de la identidad.
 
 ## Pendiente para fases posteriores
 

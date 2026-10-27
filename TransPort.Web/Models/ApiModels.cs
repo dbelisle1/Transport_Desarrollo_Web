@@ -261,3 +261,16 @@ public sealed class PedidoDetalleViewModel
     public PedidoDetalleModel Pedido { get; set; } = null!;
     public PedidoOpcionesModel Opciones { get; set; } = new([], [], []);
 }
+
+public sealed record EmpresaPortalClienteModel(
+    int ClienteId, string Nombre, string? Nit, string? CorreoContacto,
+    IReadOnlyList<CatalogoModel> ServiciosContratados);
+
+public sealed record PortalClienteResumenModel(
+    IReadOnlyList<EmpresaPortalClienteModel> Empresas,
+    long TotalSolicitudes, long Solicitadas, long EnGestion,
+    long Completadas, long Documentos,
+    IReadOnlyList<PedidoListadoModel> SolicitudesRecientes)
+{
+    public static PortalClienteResumenModel Vacio => new([], 0, 0, 0, 0, 0, []);
+}

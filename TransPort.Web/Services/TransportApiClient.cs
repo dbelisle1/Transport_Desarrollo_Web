@@ -254,6 +254,9 @@ public sealed class TransportApiClient(HttpClient http, IHttpContextAccessor con
         await EnsureAsync(response, ct);
     }
 
+    public Task<PortalClienteResumenModel> PortalClienteResumenAsync(CancellationToken ct) =>
+        GetRequiredAsync<PortalClienteResumenModel>("api/portal-cliente/resumen", ct);
+
     private async Task<T> GetRequiredAsync<T>(string uri, CancellationToken ct)
     {
         using var request = Request(HttpMethod.Get, uri);
