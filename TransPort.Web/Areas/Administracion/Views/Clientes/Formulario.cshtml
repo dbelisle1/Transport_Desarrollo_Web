@@ -1,0 +1,55 @@
+@model ClienteFormViewModel
+@{ var editando = Model.ClienteId > 0; ViewData["Title"] = editando ? "Editar cliente" : "Nuevo cliente"; }
+<section class="dashboard-page admin-page">
+    <div class="container narrow">
+        <div class="page-heading">
+            <div>
+                <a class="back-link" href="/admin/clientes">← Clientes</a>
+                <h1>@ViewData["Title"]</h1>
+                <p>Defina la empresa, sus usuarios autorizados y los giros con los que opera.</p>
+            </div>
+        </div>
+        <form method="post" class="entity-form">
+            <input asp-for="ClienteId" type="hidden" />
+            <div asp-validation-summary="ModelOnly" class="validation"></div>
+            <fieldset>
+                <legend>Datos de la empresa</legend>
+                <div class="form-grid">
+                    <div><label asp-for="Nombre"></label><input asp-for="Nombre" autocomplete="organization" /><span asp-validation-for="Nombre" class="validation"></span></div>
+                    <div><label asp-for="Nit"></label><input asp-for="Nit" autocomplete="off" /><span asp-validation-for="Nit" class="validation"></span></div>
+                    <div><label asp-for="CorreoContacto"></label><input asp-for="CorreoContacto" autocomplete="email" /><span asp-validation-for="CorreoContacto" class="validation"></span></div>
+                    <label class="check-line"><input asp-for="EsActivo" /> <span>Cliente activo</span></label>
+                </div>
+            </fieldset>
+            <fieldset>
+                <legend>Usuarios asociados</legend>
+                <p class="field-help">Los usuarios seleccionados podrán representar a esta empresa según sus roles.</p>
+                <div class="check-grid">
+                    @foreach (var usuario in Model.UsuariosDisponibles)
+                    {
+                        <label class="check-card">
+                            <input type="checkbox" name="UsuariosSeleccionados" value="@usuario.UsuarioId" checked="@Model.UsuariosSeleccionados.Contains(usuario.UsuarioId)" />
+                            <span><strong>@usuario.Nombre @usuario.Apellido</strong><small>@usuario.NombreUsuario · @(string.IsNullOrWhiteSpace(usuario.Roles) ? "Sin roles" : usuario.Roles)</small></span>
+                        </label>
+                    }
+                </div>
+            </fieldset>
+            <fieldset>
+                <legend>Giros contratados</legend>
+                <div class="check-grid">
+                    @foreach (var giro in Model.GirosDisponibles)
+                    {
+                        <label class="check-card">
+                            <input type="checkbox" name="GirosSeleccionados" value="@giro.Id" checked="@Model.GirosSeleccionados.Contains(giro.Id)" />
+                            <span><strong>@giro.Nombre</strong><small>@giro.Descripcion</small></span>
+                        </label>
+                    }
+                </div>
+            </fieldset>
+            <div class="form-actions">
+                <a class="text-link" href="/admin/clientes">Cancelar</a>
+                <button class="button" type="submit">@(editando ? "Guardar cambios" : "Crear cliente")</button>
+            </div>
+        </form>
+    </div>
+</section>
