@@ -32,4 +32,9 @@ public interface ITransportApiClient
     Task AgregarDocumentoPedidoAsync(long id, string nombre, string tipoDocumento, string url, CancellationToken ct);
     Task EliminarPedidoAsync(long id, CancellationToken ct);
     Task<PortalClienteResumenModel> PortalClienteResumenAsync(CancellationToken ct);
+    Task<IReadOnlyList<InventarioExistenciaModel>> InventarioAsync(string? busqueda,int? giroId,int? sedeId,bool soloBajoMinimo,CancellationToken ct);
+    Task<IReadOnlyList<InventarioMovimientoModel>> InventarioMovimientosAsync(int? articuloId,int limite,CancellationToken ct);
+    Task<InventarioOpcionesModel> InventarioOpcionesAsync(CancellationToken ct);
+    Task CrearInventarioArticuloAsync(InventarioArticuloFormModel model,CancellationToken ct);
+    Task RegistrarInventarioMovimientoAsync(InventarioMovimientoFormModel model,CancellationToken ct);
 }

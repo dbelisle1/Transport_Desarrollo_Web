@@ -1,5 +1,8 @@
 USE [TransPortDB];
 GO
+SET ANSI_NULLS ON;
+SET QUOTED_IDENTIFIER ON;
+GO
 
 IF OBJECT_ID(N'dbo.Usuario', N'U') IS NULL
 CREATE TABLE dbo.Usuario
@@ -205,5 +208,54 @@ CREATE TABLE dbo.PedidoDocumento
     Url NVARCHAR(1000) NOT NULL,
     Eliminado BIT NOT NULL CONSTRAINT DF_PedidoDocumento_Eliminado DEFAULT (0),
     FechaCreacion DATETIME2(0) NOT NULL CONSTRAINT DF_PedidoDocumento_FechaCreacion DEFAULT (SYSUTCDATETIME())
+);
+GO
+
+IF OBJECT_ID(N'dbo.InventarioArticulo', N'U') IS NULL
+CREATE TABLE dbo.InventarioArticulo
+(
+    InventarioArticuloId INT IDENTITY(1,1) NOT NULL CONSTRAINT PK_InventarioArticulo PRIMARY KEY,
+    GiroNegocioId INT NOT NULL,
+    Codigo NVARCHAR(50) NOT NULL,
+    Nombre NVARCHAR(180) NOT NULL,
+    Categoria NVARCHAR(80) NOT NULL,
+    UnidadMedida NVARCHAR(30) NOT NULL,
+    StockMinimo DECIMAL(18,3) NOT NULL CONSTRAINT DF_InventarioArticulo_StockMinimo DEFAULT (0),
+    EsActivo BIT NOT NULL CONSTRAINT DF_InventarioArticulo_EsActivo DEFAULT (1),
+    Eliminado BIT NOT NULL CONSTRAINT DF_InventarioArticulo_Eliminado DEFAULT (0),
+    FechaCreacion DATETIME2(0) NOT NULL CONSTRAINT DF_InventarioArticulo_FechaCreacion DEFAULT (SYSUTCDATETIME()),
+    FechaModificacion DATETIME2(0) NULL,
+    CONSTRAINT CK_InventarioArticulo_StockMinimo CHECK (StockMinimo>=0)
+);
+GO
+
+IF OBJECT_ID(N'dbo.InventarioExistencia', N'U') IS NULL
+CREATE TABLE dbo.InventarioExistencia
+(
+    InventarioExistenciaId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_InventarioExistencia PRIMARY KEY,
+    InventarioArticuloId INT NOT NULL,
+    SedeId INT NOT NULL,
+    Cantidad DECIMAL(18,3) NOT NULL CONSTRAINT DF_InventarioExistencia_Cantidad DEFAULT (0),
+    CantidadReservada DECIMAL(18,3) NOT NULL CONSTRAINT DF_InventarioExistencia_Reservada DEFAULT (0),
+    FechaModificacion DATETIME2(0) NOT NULL CONSTRAINT DF_InventarioExistencia_Fecha DEFAULT (SYSUTCDATETIME()),
+    CONSTRAINT CK_InventarioExistencia_Cantidades CHECK (Cantidad>=0 AND CantidadReservada>=0 AND CantidadReservada<=Cantidad)
+);
+GO
+
+IF OBJECT_ID(N'dbo.InventarioMovimiento', N'U') IS NULL
+CREATE TABLE dbo.InventarioMovimiento
+(
+    InventarioMovimientoId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_InventarioMovimiento PRIMARY KEY,
+    InventarioArticuloId INT NOT NULL,
+    Tipo NVARCHAR(30) NOT NULL,
+    SedeOrigenId INT NULL,
+    SedeDestinoId INT NULL,
+    Cantidad DECIMAL(18,3) NOT NULL,
+    Referencia NVARCHAR(120) NULL,
+    Observacion NVARCHAR(500) NULL,
+    UsuarioId INT NOT NULL,
+    Fecha DATETIME2(0) NOT NULL CONSTRAINT DF_InventarioMovimiento_Fecha DEFAULT (SYSUTCDATETIME()),
+    CONSTRAINT CK_InventarioMovimiento_Tipo CHECK (Tipo IN(N'Entrada',N'Salida',N'Transferencia',N'Reserva',N'Liberacion')),
+    CONSTRAINT CK_InventarioMovimiento_Cantidad CHECK (Cantidad>0)
 );
 GO

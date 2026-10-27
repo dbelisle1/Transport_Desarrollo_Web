@@ -125,5 +125,10 @@ public sealed class AccesoControllerTests
         public Task AgregarDocumentoPedidoAsync(long id, string nombre, string tipoDocumento, string url, CancellationToken ct) => throw NotUsed();
         public Task EliminarPedidoAsync(long id, CancellationToken ct) => throw NotUsed();
         public Task<PortalClienteResumenModel> PortalClienteResumenAsync(CancellationToken ct) => throw NotUsed();
+        public Task<IReadOnlyList<InventarioExistenciaModel>> InventarioAsync(string? busqueda,int? giroId,int? sedeId,bool soloBajoMinimo,CancellationToken ct)=>throw NotUsed();
+        public Task<IReadOnlyList<InventarioMovimientoModel>> InventarioMovimientosAsync(int? articuloId,int limite,CancellationToken ct)=>throw NotUsed();
+        public Task<InventarioOpcionesModel> InventarioOpcionesAsync(CancellationToken ct)=>throw NotUsed();
+        public Task CrearInventarioArticuloAsync(InventarioArticuloFormModel model,CancellationToken ct)=>throw NotUsed();
+        public Task RegistrarInventarioMovimientoAsync(InventarioMovimientoFormModel model,CancellationToken ct)=>throw NotUsed();
     }
 }

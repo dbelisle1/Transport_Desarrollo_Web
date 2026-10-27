@@ -997,3 +997,147 @@ BEGIN
     ORDER BY p.FechaCreacion DESC, p.PedidoId DESC;
 END;
 GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_inventario_leer_listado
+    @UsuarioId INT,@EsAdministrador BIT,@Busqueda NVARCHAR(200)=NULL,
+    @GiroNegocioId INT=NULL,@SedeId INT=NULL,@SoloBajoMinimo BIT=0
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET @Busqueda=NULLIF(LTRIM(RTRIM(@Busqueda)),N'');
+    SELECT a.InventarioArticuloId,a.Codigo,a.Nombre,a.Categoria,a.UnidadMedida,
+           a.GiroNegocioId,g.Nombre AS Giro,a.StockMinimo,e.SedeId,s.Nombre AS Sede,
+           COALESCE(e.Cantidad,0) AS Cantidad,COALESCE(e.CantidadReservada,0) AS CantidadReservada,
+           COALESCE(e.Cantidad,0)-COALESCE(e.CantidadReservada,0) AS CantidadDisponible,
+           CONVERT(BIT,CASE WHEN COALESCE(e.Cantidad,0)<a.StockMinimo THEN 1 ELSE 0 END) AS BajoMinimo
+    FROM dbo.InventarioArticulo a
+    INNER JOIN dbo.GiroNegocio g ON g.GiroNegocioId=a.GiroNegocioId
+    LEFT JOIN dbo.InventarioExistencia e ON e.InventarioArticuloId=a.InventarioArticuloId
+    LEFT JOIN dbo.Sede s ON s.SedeId=e.SedeId
+    WHERE a.Eliminado=0 AND a.EsActivo=1
+      AND (@Busqueda IS NULL OR a.Codigo LIKE N'%'+@Busqueda+N'%' OR a.Nombre LIKE N'%'+@Busqueda+N'%' OR a.Categoria LIKE N'%'+@Busqueda+N'%')
+      AND (@GiroNegocioId IS NULL OR a.GiroNegocioId=@GiroNegocioId)
+      AND (@SedeId IS NULL OR e.SedeId=@SedeId)
+      AND (@SoloBajoMinimo=0 OR COALESCE(e.Cantidad,0)<a.StockMinimo)
+      AND (@EsAdministrador=1 OR EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio ug WHERE ug.UsuarioId=@UsuarioId AND ug.GiroNegocioId=a.GiroNegocioId AND ug.Eliminado=0))
+      AND (e.SedeId IS NULL OR @EsAdministrador=1 OR EXISTS(SELECT 1 FROM dbo.UsuarioSede us WHERE us.UsuarioId=@UsuarioId AND us.SedeId=e.SedeId AND us.Eliminado=0))
+    ORDER BY a.Nombre,s.Nombre;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_inventario_leer_movimientos
+    @UsuarioId INT,@EsAdministrador BIT,@InventarioArticuloId INT=NULL,@Limite INT=100
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET @Limite=CASE WHEN @Limite<1 THEN 1 WHEN @Limite>500 THEN 500 ELSE @Limite END;
+    SELECT TOP (@Limite) m.InventarioMovimientoId,m.InventarioArticuloId,a.Codigo,a.Nombre AS Articulo,
+           m.Tipo,m.SedeOrigenId,so.Nombre AS SedeOrigen,m.SedeDestinoId,sd.Nombre AS SedeDestino,
+           m.Cantidad,a.UnidadMedida,m.Referencia,m.Observacion,m.UsuarioId,u.NombreUsuario,m.Fecha
+    FROM dbo.InventarioMovimiento m
+    INNER JOIN dbo.InventarioArticulo a ON a.InventarioArticuloId=m.InventarioArticuloId
+    INNER JOIN dbo.Usuario u ON u.UsuarioId=m.UsuarioId
+    LEFT JOIN dbo.Sede so ON so.SedeId=m.SedeOrigenId
+    LEFT JOIN dbo.Sede sd ON sd.SedeId=m.SedeDestinoId
+    WHERE a.Eliminado=0 AND (@InventarioArticuloId IS NULL OR m.InventarioArticuloId=@InventarioArticuloId)
+      AND (@EsAdministrador=1 OR
+           (EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio ug WHERE ug.UsuarioId=@UsuarioId AND ug.GiroNegocioId=a.GiroNegocioId AND ug.Eliminado=0)
+            AND (m.SedeOrigenId IS NULL OR EXISTS(SELECT 1 FROM dbo.UsuarioSede us WHERE us.UsuarioId=@UsuarioId AND us.SedeId=m.SedeOrigenId AND us.Eliminado=0))
+            AND (m.SedeDestinoId IS NULL OR EXISTS(SELECT 1 FROM dbo.UsuarioSede us WHERE us.UsuarioId=@UsuarioId AND us.SedeId=m.SedeDestinoId AND us.Eliminado=0))))
+    ORDER BY m.Fecha DESC,m.InventarioMovimientoId DESC;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_inventario_leer_opciones
+    @UsuarioId INT,@EsAdministrador BIT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT g.GiroNegocioId AS Id,g.Nombre FROM dbo.GiroNegocio g
+    WHERE g.Eliminado=0 AND g.EsActivo=1 AND (@EsAdministrador=1 OR EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio ug WHERE ug.UsuarioId=@UsuarioId AND ug.GiroNegocioId=g.GiroNegocioId AND ug.Eliminado=0)) ORDER BY g.Nombre;
+    SELECT s.SedeId AS Id,s.Nombre FROM dbo.Sede s
+    WHERE s.Eliminado=0 AND s.EsActivo=1 AND (@EsAdministrador=1 OR EXISTS(SELECT 1 FROM dbo.UsuarioSede us WHERE us.UsuarioId=@UsuarioId AND us.SedeId=s.SedeId AND us.Eliminado=0)) ORDER BY s.Nombre;
+    SELECT a.InventarioArticuloId AS Id,CONCAT(a.Codigo,N' · ',a.Nombre) AS Nombre FROM dbo.InventarioArticulo a
+    WHERE a.Eliminado=0 AND a.EsActivo=1 AND (@EsAdministrador=1 OR EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio ug WHERE ug.UsuarioId=@UsuarioId AND ug.GiroNegocioId=a.GiroNegocioId AND ug.Eliminado=0)) ORDER BY a.Nombre;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_inventario_crear_articulo
+    @GiroNegocioId INT,@Codigo NVARCHAR(50),@Nombre NVARCHAR(180),@Categoria NVARCHAR(80),
+    @UnidadMedida NVARCHAR(30),@StockMinimo DECIMAL(18,3),@UsuarioId INT,@EsAdministrador BIT
+AS
+BEGIN
+    SET NOCOUNT ON;SET XACT_ABORT ON;
+    IF @StockMinimo<0 THROW 50002,N'El stock mínimo no puede ser negativo.',1;
+    IF @EsAdministrador=0 AND NOT EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio WHERE UsuarioId=@UsuarioId AND GiroNegocioId=@GiroNegocioId AND Eliminado=0) THROW 50002,N'El usuario no tiene acceso al giro.',1;
+    INSERT dbo.InventarioArticulo(GiroNegocioId,Codigo,Nombre,Categoria,UnidadMedida,StockMinimo)
+    VALUES(@GiroNegocioId,UPPER(LTRIM(RTRIM(@Codigo))),LTRIM(RTRIM(@Nombre)),LTRIM(RTRIM(@Categoria)),LTRIM(RTRIM(@UnidadMedida)),@StockMinimo);
+    DECLARE @Id INT=CONVERT(INT,SCOPE_IDENTITY());
+    EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'Inventario',N'CrearArticulo',@Id,N'Exitoso',@Codigo;
+    SELECT @Id;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_inventario_registrar_movimiento
+    @InventarioArticuloId INT,@Tipo NVARCHAR(30),@SedeOrigenId INT=NULL,@SedeDestinoId INT=NULL,
+    @Cantidad DECIMAL(18,3),@Referencia NVARCHAR(120)=NULL,@Observacion NVARCHAR(500)=NULL,
+    @UsuarioId INT,@EsAdministrador BIT
+AS
+BEGIN
+    SET NOCOUNT ON;SET XACT_ABORT ON;
+    BEGIN TRY
+        BEGIN TRANSACTION;
+        IF @Tipo NOT IN(N'Entrada',N'Salida',N'Transferencia',N'Reserva',N'Liberacion') THROW 50002,N'Tipo de movimiento inválido.',1;
+        IF @Cantidad<=0 THROW 50002,N'La cantidad debe ser mayor que cero.',1;
+        DECLARE @GiroId INT=(SELECT GiroNegocioId FROM dbo.InventarioArticulo WHERE InventarioArticuloId=@InventarioArticuloId AND Eliminado=0 AND EsActivo=1);
+        IF @GiroId IS NULL THROW 50002,N'El artículo no está disponible.',1;
+        IF @Tipo=N'Entrada' AND @SedeDestinoId IS NULL THROW 50002,N'La entrada requiere sede destino.',1;
+        IF @Tipo IN(N'Salida',N'Reserva',N'Liberacion') AND @SedeOrigenId IS NULL THROW 50002,N'El movimiento requiere sede origen.',1;
+        IF @Tipo=N'Transferencia' AND (@SedeOrigenId IS NULL OR @SedeDestinoId IS NULL OR @SedeOrigenId=@SedeDestinoId) THROW 50002,N'La transferencia requiere sedes distintas.',1;
+        IF @EsAdministrador=0 AND NOT EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio WHERE UsuarioId=@UsuarioId AND GiroNegocioId=@GiroId AND Eliminado=0) THROW 50002,N'El usuario no tiene acceso al giro.',1;
+        IF @SedeOrigenId IS NOT NULL AND NOT EXISTS(SELECT 1 FROM dbo.SedeGiroNegocio WHERE SedeId=@SedeOrigenId AND GiroNegocioId=@GiroId AND Eliminado=0) THROW 50002,N'La sede origen no opera el giro del artículo.',1;
+        IF @SedeDestinoId IS NOT NULL AND NOT EXISTS(SELECT 1 FROM dbo.SedeGiroNegocio WHERE SedeId=@SedeDestinoId AND GiroNegocioId=@GiroId AND Eliminado=0) THROW 50002,N'La sede destino no opera el giro del artículo.',1;
+        IF @EsAdministrador=0 AND @SedeOrigenId IS NOT NULL AND NOT EXISTS(SELECT 1 FROM dbo.UsuarioSede WHERE UsuarioId=@UsuarioId AND SedeId=@SedeOrigenId AND Eliminado=0) THROW 50002,N'El usuario no tiene acceso a la sede origen.',1;
+        IF @EsAdministrador=0 AND @SedeDestinoId IS NOT NULL AND NOT EXISTS(SELECT 1 FROM dbo.UsuarioSede WHERE UsuarioId=@UsuarioId AND SedeId=@SedeDestinoId AND Eliminado=0) THROW 50002,N'El usuario no tiene acceso a la sede destino.',1;
+
+        IF @SedeOrigenId IS NOT NULL AND NOT EXISTS(SELECT 1 FROM dbo.InventarioExistencia WHERE InventarioArticuloId=@InventarioArticuloId AND SedeId=@SedeOrigenId)
+            INSERT dbo.InventarioExistencia(InventarioArticuloId,SedeId) VALUES(@InventarioArticuloId,@SedeOrigenId);
+        IF @SedeDestinoId IS NOT NULL AND NOT EXISTS(SELECT 1 FROM dbo.InventarioExistencia WHERE InventarioArticuloId=@InventarioArticuloId AND SedeId=@SedeDestinoId)
+            INSERT dbo.InventarioExistencia(InventarioArticuloId,SedeId) VALUES(@InventarioArticuloId,@SedeDestinoId);
+
+        DECLARE @Actual DECIMAL(18,3),@Reservada DECIMAL(18,3);
+        IF @SedeOrigenId IS NOT NULL SELECT @Actual=Cantidad,@Reservada=CantidadReservada FROM dbo.InventarioExistencia WITH(UPDLOCK,HOLDLOCK) WHERE InventarioArticuloId=@InventarioArticuloId AND SedeId=@SedeOrigenId;
+        IF @Tipo IN(N'Salida',N'Transferencia',N'Reserva') AND @Actual-@Reservada<@Cantidad THROW 50002,N'No existe cantidad disponible suficiente.',1;
+        IF @Tipo=N'Liberacion' AND @Reservada<@Cantidad THROW 50002,N'No existe cantidad reservada suficiente.',1;
+
+        IF @Tipo=N'Entrada' UPDATE dbo.InventarioExistencia SET Cantidad=Cantidad+@Cantidad,FechaModificacion=SYSUTCDATETIME() WHERE InventarioArticuloId=@InventarioArticuloId AND SedeId=@SedeDestinoId;
+        IF @Tipo=N'Salida' UPDATE dbo.InventarioExistencia SET Cantidad=Cantidad-@Cantidad,FechaModificacion=SYSUTCDATETIME() WHERE InventarioArticuloId=@InventarioArticuloId AND SedeId=@SedeOrigenId;
+        IF @Tipo=N'Transferencia'
+        BEGIN
+            UPDATE dbo.InventarioExistencia SET Cantidad=Cantidad-@Cantidad,FechaModificacion=SYSUTCDATETIME() WHERE InventarioArticuloId=@InventarioArticuloId AND SedeId=@SedeOrigenId;
+            UPDATE dbo.InventarioExistencia SET Cantidad=Cantidad+@Cantidad,FechaModificacion=SYSUTCDATETIME() WHERE InventarioArticuloId=@InventarioArticuloId AND SedeId=@SedeDestinoId;
+        END;
+        IF @Tipo=N'Reserva' UPDATE dbo.InventarioExistencia SET CantidadReservada=CantidadReservada+@Cantidad,FechaModificacion=SYSUTCDATETIME() WHERE InventarioArticuloId=@InventarioArticuloId AND SedeId=@SedeOrigenId;
+        IF @Tipo=N'Liberacion' UPDATE dbo.InventarioExistencia SET CantidadReservada=CantidadReservada-@Cantidad,FechaModificacion=SYSUTCDATETIME() WHERE InventarioArticuloId=@InventarioArticuloId AND SedeId=@SedeOrigenId;
+
+        INSERT dbo.InventarioMovimiento(InventarioArticuloId,Tipo,SedeOrigenId,SedeDestinoId,Cantidad,Referencia,Observacion,UsuarioId)
+        VALUES(@InventarioArticuloId,@Tipo,@SedeOrigenId,@SedeDestinoId,@Cantidad,NULLIF(LTRIM(RTRIM(@Referencia)),N''),NULLIF(LTRIM(RTRIM(@Observacion)),N''),@UsuarioId);
+        DECLARE @Id BIGINT=CONVERT(BIGINT,SCOPE_IDENTITY());
+        EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'Inventario',@Tipo,@Id,N'Exitoso',@Referencia;
+        COMMIT TRANSACTION;SELECT @Id;
+    END TRY BEGIN CATCH IF XACT_STATE()<>0 ROLLBACK TRANSACTION;THROW;END CATCH
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_inventario_eliminar_articulo
+    @InventarioArticuloId INT,@UsuarioId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE dbo.InventarioArticulo SET Eliminado=1,EsActivo=0,FechaModificacion=SYSUTCDATETIME()
+    WHERE InventarioArticuloId=@InventarioArticuloId AND Eliminado=0;
+    DECLARE @Filas INT=@@ROWCOUNT;
+    IF @Filas>0 EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'Inventario',N'EliminarArticulo',@InventarioArticuloId,N'Exitoso',NULL;
+    SELECT @Filas;
+END;
+GO

@@ -3,7 +3,7 @@ TRANSPORT - CONTROL DE AVANCE DE MÓDULOS
 
 Última actualización: 27 de octubre de 2026
 Etapa actual: Fase 2 - completar administración y flujo comercial
-Módulo activo: Ninguno; M24 finalizado y verificado.
+Módulo activo: Ninguno; M14 finalizado y verificado.
 
 
 1. PROPÓSITO DE ESTE ARCHIVO
@@ -163,7 +163,7 @@ M11. Pruebas automatizadas iniciales                           [BASE IMPLEMENTAD
 - Pruebas del controlador API de catálogos para tipos válidos e inválidos,
   eliminación y protección del rol AdministradorGeneral.
 - Pruebas del visor de auditoría para filtros, paginación y autorización.
-- Resultado registrado: 24 pruebas aprobadas y 0 fallidas.
+- Resultado registrado: 29 pruebas aprobadas y 0 fallidas.
 - Falta cobertura de integración, autorización, controladores, repositorios y
   operaciones CRUD completas.
 
@@ -246,12 +246,20 @@ M13. Abastecimiento entre giros                                [PENDIENTE]
 - Programación oportuna para evitar retrasos de producción.
 - Trazabilidad entre giro solicitante y giro proveedor.
 
-M14. Inventarios y bodegas                                     [PENDIENTE]
+M14. Inventarios y bodegas                                     [IMPLEMENTADO]
 
 - Existencias por sede y giro.
 - Entradas, salidas, transferencias y reservas.
 - Materia prima, productos terminados y repuestos.
 - Niveles mínimos y alertas de reposición.
+- Catálogo de artículos por giro, categoría, unidad y stock mínimo.
+- Existencias y cantidades reservadas por sede, con disponibilidad calculada.
+- Entradas, salidas, transferencias, reservas y liberaciones transaccionales.
+- Rechazo de saldos insuficientes y de sedes que no operan el giro.
+- Consulta y movimientos limitados por los giros y sedes del usuario.
+- Pantalla MVC con filtros, indicadores de reposición y trazabilidad.
+- Cinco pruebas unitarias y recorrido real con saldos, mínimos, permisos,
+  eliminación lógica y auditoría.
 
 M15. Extracción minera                                         [PENDIENTE]
 
@@ -473,4 +481,9 @@ OXX. Nombre del módulo                                          [OPCIONAL]
 - Se verificó el aislamiento con dos empresas y dos pedidos simultáneos: el
   cliente observó únicamente su información y el administrador ambas.
 - Se agregaron 3 pruebas; el total pasó de 21 a 24 aprobadas y 0 fallidas.
+- Se implementó M14 Inventarios y bodegas con artículos, existencias por sede,
+  movimientos, reservas, mínimos, auditoría y aislamiento por alcance.
+- Se validaron entrada, reserva, transferencia, liberación y salida; SQL Server
+  calculó los saldos esperados y rechazó una transferencia fuera de sede.
+- Se agregaron 5 pruebas; el total pasó de 24 a 29 aprobadas y 0 fallidas.
 

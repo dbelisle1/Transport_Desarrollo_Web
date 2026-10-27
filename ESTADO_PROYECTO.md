@@ -20,7 +20,7 @@ La Fase 1 está implementada en sus componentes principales:
 - Contenedores independientes para MVC y API.
 - Pruebas unitarias iniciales para seguridad y cierre de sesión.
 
-El primer módulo comercial ya está implementado: los clientes pueden crear y seguir pedidos, cotizaciones o reuniones, mientras el equipo comercial asigna responsables, cotiza y actualiza estados. Producción, abastecimiento, transporte, GPS, maquinaria, construcción, inventarios, alertas, comunicación, integraciones y reportes consolidados continúan pendientes.
+Los primeros módulos operativos ya están implementados: pedidos, portal del cliente e inventarios por sede. Producción, abastecimiento, transporte, GPS, maquinaria, construcción, alertas, comunicación, integraciones y reportes consolidados continúan pendientes.
 
 Después del cierre de la Fase 1 se implementó y verificó el módulo administrativo de clientes: CRUD, filtros, asociaciones transaccionales de usuarios y giros, eliminación lógica, auditoría, API, vistas MVC y pruebas. El recorrido MVC–API–SQL Server se validó con ambos contenedores activos.
 
@@ -79,7 +79,7 @@ Leyenda:
 | Solución .NET 8 con MVC y API | Completo | Dos proyectos principales y dos proyectos de pruebas en `TransPort.sln`. |
 | Separación MVC → API → SQL Server | Completo | El MVC no accede directamente a la base. |
 | ADO.NET y procedimientos almacenados | Completo | Repositorios con `Microsoft.Data.SqlClient`; no se utiliza Entity Framework. |
-| Base de datos actual | Completo | 15 tablas, 21 claves foráneas, 18 índices y 56 procedimientos definidos. |
+| Base de datos actual | Completo | 18 tablas, 28 claves foráneas, 22 índices y 62 procedimientos definidos. |
 | Datos de demostración | Completo | Script idempotente con giros, sedes, roles y usuarios demo. |
 | Login único `/acceso` | Completo | Credenciales validadas por la API y SQL Server. |
 | JWT MVC–API | Completo | Firma configurable, expiración y envío como Bearer. |
@@ -98,7 +98,7 @@ Leyenda:
 | PWA y responsive | Completo para Fase 1 | Manifest, ícono, service worker público y breakpoints 768/1100/1920 px. |
 | Docker | Completo en configuración | Dos Dockerfiles multietapa, red interna, volumen de claves y Compose válido. |
 | Documentación de inicio | Completo | `README.md`, `.env.example`, `.gitignore` e `instruccionesInicio.txt`. |
-| Pruebas automatizadas | Parcial | 24 pruebas aprobadas; faltan pruebas amplias de integración de todos los módulos. |
+| Pruebas automatizadas | Parcial | 29 pruebas aprobadas; faltan pruebas amplias de integración de todos los módulos. |
 
 ## 4. Módulos desarrollados
 
@@ -278,9 +278,19 @@ Incluye:
 - Vista global administrativa y rechazo 403 para roles no autorizados.
 - Puntos visibles de extensión para transporte (M18) y reportes (M26).
 
+### 4.11 Inventarios y bodegas
+
+**Estado: implementado y verificado**
+
+- Artículos por giro, categoría, unidad y stock mínimo.
+- Existencias, reservas y disponibilidad por sede.
+- Entradas, salidas, transferencias, reservas y liberaciones transaccionales.
+- Trazabilidad, auditoría, filtros y alertas visuales de mínimo.
+- Autorización y aislamiento por giro y sede en SQL y API.
+
 ## 5. Inventario de base de datos
 
-### Tablas implementadas (15)
+### Tablas implementadas (18)
 
 1. `Usuario`
 2. `Rol`
@@ -297,16 +307,19 @@ Incluye:
 13. `Pedido`
 14. `PedidoHistorial`
 15. `PedidoDocumento`
+16. `InventarioArticulo`
+17. `InventarioExistencia`
+18. `InventarioMovimiento`
 
 También se implementaron:
 
-- 21 claves foráneas.
-- 18 índices normales o únicos.
+- 28 claves foráneas.
+- 22 índices normales o únicos.
 - Eliminación lógica en entidades y relaciones.
 - Fechas UTC mediante `DATETIME2`/`SYSUTCDATETIME()`.
 - Transacciones y `XACT_ABORT` en operaciones compuestas.
-- 56 procedimientos almacenados para usuarios, catálogos, asociaciones,
-  clientes, pedidos, portal, dashboard y auditoría.
+- 62 procedimientos almacenados para usuarios, catálogos, asociaciones,
+  clientes, pedidos, portal, inventarios, dashboard y auditoría.
 
 ## 6. Rutas y endpoints disponibles
 
@@ -321,6 +334,7 @@ También se implementaron:
 | `/cliente/pedidos` | Crear y seguir solicitudes | Cliente o AdministradorGeneral |
 | `/gestion` | Portal interno | Roles internos o AdministradorGeneral |
 | `/gestion/pedidos` | Gestión de pedidos y cotizaciones | AdministradorGeneral, Gerente o Vendedor |
+| `/gestion/inventarios` | Existencias y movimientos por sede | Personal interno autorizado |
 | `/admin` | Dashboard administrativo | AdministradorGeneral |
 | `/admin/usuarios` | Administración de usuarios | AdministradorGeneral |
 | `/admin/clientes` | Administración de empresas cliente | AdministradorGeneral |
@@ -351,6 +365,9 @@ También se implementaron:
 | `POST` | `/api/pedidos/{id}/{comentarios|documentos}` | Agregar seguimiento |
 | `DELETE` | `/api/pedidos/{id}` | Eliminación lógica administrativa |
 | `GET` | `/api/portal-cliente/resumen` | Resumen aislado del portal cliente |
+| `GET` | `/api/inventarios` | Existencias filtradas por alcance |
+| `GET/POST` | `/api/inventarios/movimientos` | Trazabilidad o nuevo movimiento |
+| `POST/DELETE` | `/api/inventarios/articulos` | Crear o eliminar lógicamente artículos |
 
 ## 7. Componentes parciales y mejoras pendientes de la base
 
@@ -381,13 +398,6 @@ Los siguientes módulos todavía no están desarrollados:
 - Transformación y rendimiento.
 - Control de productos terminados.
 - Costos y trazabilidad del proceso.
-
-### 8.3 Inventarios
-
-- Existencias por sede y giro.
-- Entradas, salidas y transferencias.
-- Reservas para pedidos y producción.
-- Niveles mínimos y alertas de reposición.
 
 ### 8.4 Maquinaria
 
@@ -457,9 +467,9 @@ Revisión del 27 de octubre de 2026:
 | Validación | Resultado |
 |---|---|
 | Compilación durante `dotnet test TransPort.sln --no-restore` | Correcta |
-| Pruebas de API | 23 aprobadas, 0 fallidas |
+| Pruebas de API | 28 aprobadas, 0 fallidas |
 | Pruebas de MVC | 1 aprobada, 0 fallidas |
-| Total | **24 aprobadas, 0 fallidas** |
+| Total | **29 aprobadas, 0 fallidas** |
 | `docker-compose config -q` | Configuración válida |
 | Contenedores activos durante esta revisión | API y Web activos; `/salud`, `/` y `/admin/auditoria` respondieron correctamente |
 | Smoke test de clientes | CRUD, filtro, asignaciones, auditoría y eliminación lógica correctos |
@@ -467,6 +477,7 @@ Revisión del 27 de octubre de 2026:
 | Smoke test de auditoría | Filtros, dos páginas sin duplicados, MVC y autorización correctos |
 | Smoke test de pedidos | Creación, cotización, comentarios, documentos, historial, aislamiento y eliminación lógica correctos |
 | Smoke test del portal cliente | Empresas, servicios, indicadores, MVC, aislamiento entre clientes y autorización correctos |
+| Smoke test de inventarios | Cinco tipos de movimiento, saldos, mínimos, MVC y aislamiento por sede correctos |
 
 Cobertura actual:
 
@@ -508,7 +519,7 @@ registros temporales.
 1. Aumentar pruebas de integración para usuarios, autorización, SQL Server y flujos HTTP.
 2. Sustituir contraseñas en texto plano por hashes antes de usar datos reales.
 3. Integrar en el portal el seguimiento de transporte cuando se implemente M18.
-4. Implementar inventario y producción como soporte del flujo comercial.
+4. Implementar abastecimiento y producción sobre el inventario disponible.
 5. Implementar transporte, maquinaria y GPS.
 6. Agregar alertas, comunicación e integraciones externas.
 7. Construir reportes operativos, financieros y consolidados.
@@ -516,5 +527,5 @@ registros temporales.
 
 ## 12. Conclusión
 
-El proyecto dispone de una base técnica coherente y extensible. La Fase 1 cubre el acceso, la estructura organizacional, el control de usuarios, los portales iniciales, la persistencia y el despliegue local. M12 inicia la operación comercial real sobre esas asociaciones; el siguiente paso es ampliar el portal del cliente y conectar pedidos con inventario, abastecimiento y producción.
+El proyecto dispone de una base técnica coherente y extensible. La Fase 1 cubre el acceso, la estructura organizacional, el control de usuarios, los portales iniciales, la persistencia y el despliegue local. Pedidos, portal e inventarios ya operan sobre esas asociaciones; el siguiente paso es conectar abastecimiento y producción.
 

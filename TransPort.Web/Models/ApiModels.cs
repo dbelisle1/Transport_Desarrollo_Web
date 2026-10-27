@@ -274,3 +274,41 @@ public sealed record PortalClienteResumenModel(
 {
     public static PortalClienteResumenModel Vacio => new([], 0, 0, 0, 0, 0, []);
 }
+
+public sealed record InventarioExistenciaModel(
+    int InventarioArticuloId,string Codigo,string Nombre,string Categoria,string UnidadMedida,
+    int GiroNegocioId,string Giro,decimal StockMinimo,int? SedeId,string? Sede,
+    decimal Cantidad,decimal CantidadReservada,decimal CantidadDisponible,bool BajoMinimo);
+public sealed record InventarioMovimientoModel(
+    long InventarioMovimientoId,int InventarioArticuloId,string Codigo,string Articulo,string Tipo,
+    int? SedeOrigenId,string? SedeOrigen,int? SedeDestinoId,string? SedeDestino,decimal Cantidad,
+    string UnidadMedida,string? Referencia,string? Observacion,int UsuarioId,string NombreUsuario,DateTime Fecha);
+public sealed record InventarioOpcionesModel(
+    IReadOnlyList<CatalogoModel> Giros,IReadOnlyList<CatalogoModel> Sedes,IReadOnlyList<CatalogoModel> Articulos);
+
+public sealed class InventarioPaginaViewModel
+{
+    public string? Busqueda { get; set; } public int? GiroId { get; set; } public int? SedeId { get; set; }
+    public bool SoloBajoMinimo { get; set; }
+    public IReadOnlyList<InventarioExistenciaModel> Existencias { get; set; }=[];
+    public IReadOnlyList<InventarioMovimientoModel> Movimientos { get; set; }=[];
+    public InventarioOpcionesModel Opciones { get; set; }=new([],[],[]);
+}
+public sealed class InventarioArticuloFormModel
+{
+    [Range(1,int.MaxValue)]public int GiroNegocioId{get;set;}
+    [Required,StringLength(50,MinimumLength=2)]public string Codigo{get;set;}=string.Empty;
+    [Required,StringLength(180,MinimumLength=2)]public string Nombre{get;set;}=string.Empty;
+    [Required,StringLength(80,MinimumLength=2)]public string Categoria{get;set;}=string.Empty;
+    [Required,StringLength(30)]public string UnidadMedida{get;set;}=string.Empty;
+    [Range(0,999999999999999.999)]public decimal StockMinimo{get;set;}
+}
+public sealed class InventarioMovimientoFormModel
+{
+    [Range(1,int.MaxValue)]public int InventarioArticuloId{get;set;}
+    [Required]public string Tipo{get;set;}="Entrada";
+    public int? SedeOrigenId{get;set;} public int? SedeDestinoId{get;set;}
+    [Range(0.001,999999999999999.999)]public decimal Cantidad{get;set;}
+    [StringLength(120)]public string? Referencia{get;set;}
+    [StringLength(500)]public string? Observacion{get;set;}
+}

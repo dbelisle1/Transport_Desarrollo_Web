@@ -1,5 +1,8 @@
 USE [TransPortDB];
 GO
+SET ANSI_NULLS ON;
+SET QUOTED_IDENTIFIER ON;
+GO
 
 IF OBJECT_ID(N'dbo.FK_UsuarioRol_Usuario', N'F') IS NULL
     ALTER TABLE dbo.UsuarioRol ADD CONSTRAINT FK_UsuarioRol_Usuario FOREIGN KEY (UsuarioId) REFERENCES dbo.Usuario(UsuarioId);
@@ -43,6 +46,20 @@ IF OBJECT_ID(N'dbo.FK_PedidoDocumento_Pedido', N'F') IS NULL
     ALTER TABLE dbo.PedidoDocumento ADD CONSTRAINT FK_PedidoDocumento_Pedido FOREIGN KEY (PedidoId) REFERENCES dbo.Pedido(PedidoId);
 IF OBJECT_ID(N'dbo.FK_PedidoDocumento_Usuario', N'F') IS NULL
     ALTER TABLE dbo.PedidoDocumento ADD CONSTRAINT FK_PedidoDocumento_Usuario FOREIGN KEY (UsuarioId) REFERENCES dbo.Usuario(UsuarioId);
+IF OBJECT_ID(N'dbo.FK_InventarioArticulo_Giro', N'F') IS NULL
+    ALTER TABLE dbo.InventarioArticulo ADD CONSTRAINT FK_InventarioArticulo_Giro FOREIGN KEY (GiroNegocioId) REFERENCES dbo.GiroNegocio(GiroNegocioId);
+IF OBJECT_ID(N'dbo.FK_InventarioExistencia_Articulo', N'F') IS NULL
+    ALTER TABLE dbo.InventarioExistencia ADD CONSTRAINT FK_InventarioExistencia_Articulo FOREIGN KEY (InventarioArticuloId) REFERENCES dbo.InventarioArticulo(InventarioArticuloId);
+IF OBJECT_ID(N'dbo.FK_InventarioExistencia_Sede', N'F') IS NULL
+    ALTER TABLE dbo.InventarioExistencia ADD CONSTRAINT FK_InventarioExistencia_Sede FOREIGN KEY (SedeId) REFERENCES dbo.Sede(SedeId);
+IF OBJECT_ID(N'dbo.FK_InventarioMovimiento_Articulo', N'F') IS NULL
+    ALTER TABLE dbo.InventarioMovimiento ADD CONSTRAINT FK_InventarioMovimiento_Articulo FOREIGN KEY (InventarioArticuloId) REFERENCES dbo.InventarioArticulo(InventarioArticuloId);
+IF OBJECT_ID(N'dbo.FK_InventarioMovimiento_SedeOrigen', N'F') IS NULL
+    ALTER TABLE dbo.InventarioMovimiento ADD CONSTRAINT FK_InventarioMovimiento_SedeOrigen FOREIGN KEY (SedeOrigenId) REFERENCES dbo.Sede(SedeId);
+IF OBJECT_ID(N'dbo.FK_InventarioMovimiento_SedeDestino', N'F') IS NULL
+    ALTER TABLE dbo.InventarioMovimiento ADD CONSTRAINT FK_InventarioMovimiento_SedeDestino FOREIGN KEY (SedeDestinoId) REFERENCES dbo.Sede(SedeId);
+IF OBJECT_ID(N'dbo.FK_InventarioMovimiento_Usuario', N'F') IS NULL
+    ALTER TABLE dbo.InventarioMovimiento ADD CONSTRAINT FK_InventarioMovimiento_Usuario FOREIGN KEY (UsuarioId) REFERENCES dbo.Usuario(UsuarioId);
 GO
 
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.Usuario') AND name = N'UX_Usuario_NombreUsuario')
@@ -83,4 +100,12 @@ IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.Pedid
     CREATE INDEX IX_PedidoHistorial_PedidoFecha ON dbo.PedidoHistorial(PedidoId, Fecha DESC);
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.PedidoDocumento') AND name = N'IX_PedidoDocumento_Pedido')
     CREATE INDEX IX_PedidoDocumento_Pedido ON dbo.PedidoDocumento(PedidoId, FechaCreacion DESC) INCLUDE (Eliminado);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.InventarioArticulo') AND name = N'UX_InventarioArticulo_CodigoActivo')
+    CREATE UNIQUE INDEX UX_InventarioArticulo_CodigoActivo ON dbo.InventarioArticulo(Codigo) WHERE Eliminado=0;
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.InventarioArticulo') AND name = N'IX_InventarioArticulo_Giro')
+    CREATE INDEX IX_InventarioArticulo_Giro ON dbo.InventarioArticulo(GiroNegocioId,EsActivo) INCLUDE (Nombre,Categoria,StockMinimo,Eliminado);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.InventarioExistencia') AND name = N'UX_InventarioExistencia_ArticuloSede')
+    CREATE UNIQUE INDEX UX_InventarioExistencia_ArticuloSede ON dbo.InventarioExistencia(InventarioArticuloId,SedeId);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.InventarioMovimiento') AND name = N'IX_InventarioMovimiento_ArticuloFecha')
+    CREATE INDEX IX_InventarioMovimiento_ArticuloFecha ON dbo.InventarioMovimiento(InventarioArticuloId,Fecha DESC) INCLUDE (Tipo,SedeOrigenId,SedeDestinoId,Cantidad);
 GO

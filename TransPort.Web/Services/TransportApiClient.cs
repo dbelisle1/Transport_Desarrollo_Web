@@ -257,6 +257,17 @@ public sealed class TransportApiClient(HttpClient http, IHttpContextAccessor con
     public Task<PortalClienteResumenModel> PortalClienteResumenAsync(CancellationToken ct) =>
         GetRequiredAsync<PortalClienteResumenModel>("api/portal-cliente/resumen", ct);
 
+    public async Task<IReadOnlyList<InventarioExistenciaModel>> InventarioAsync(string? busqueda,int? giroId,int? sedeId,bool soloBajoMinimo,CancellationToken ct)
+    {
+        var q=new List<string>();Add(q,"busqueda",busqueda);if(giroId.HasValue)q.Add($"giroId={giroId}");if(sedeId.HasValue)q.Add($"sedeId={sedeId}");if(soloBajoMinimo)q.Add("soloBajoMinimo=true");
+        return await GetRequiredAsync<List<InventarioExistenciaModel>>("api/inventarios"+(q.Count>0?"?"+string.Join('&',q):""),ct);
+    }
+    public async Task<IReadOnlyList<InventarioMovimientoModel>> InventarioMovimientosAsync(int? articuloId,int limite,CancellationToken ct)=>
+        await GetRequiredAsync<List<InventarioMovimientoModel>>($"api/inventarios/movimientos?limite={limite}"+(articuloId.HasValue?$"&articuloId={articuloId}":""),ct);
+    public Task<InventarioOpcionesModel> InventarioOpcionesAsync(CancellationToken ct)=>GetRequiredAsync<InventarioOpcionesModel>("api/inventarios/opciones",ct);
+    public async Task CrearInventarioArticuloAsync(InventarioArticuloFormModel model,CancellationToken ct){using var request=Request(HttpMethod.Post,"api/inventarios/articulos",model);using var response=await http.SendAsync(request,ct);await EnsureAsync(response,ct);}
+    public async Task RegistrarInventarioMovimientoAsync(InventarioMovimientoFormModel model,CancellationToken ct){using var request=Request(HttpMethod.Post,"api/inventarios/movimientos",model);using var response=await http.SendAsync(request,ct);await EnsureAsync(response,ct);}
+
     private async Task<T> GetRequiredAsync<T>(string uri, CancellationToken ct)
     {
         using var request = Request(HttpMethod.Get, uri);
