@@ -111,5 +111,9 @@ public sealed class AccesoControllerTests
         public Task ActualizarClienteAsync(ClienteFormViewModel model, CancellationToken ct) => throw NotUsed();
         public Task EliminarClienteAsync(int id, CancellationToken ct) => throw NotUsed();
         public Task<IReadOnlyList<EntidadCatalogoModel>> CatalogoAsync(string tipo, CancellationToken ct) => throw NotUsed();
+        public Task<EntidadCatalogoModel?> CatalogoItemAsync(string tipo, int id, CancellationToken ct) => throw NotUsed();
+        public Task<int> CrearCatalogoAsync(CatalogoFormViewModel model, CancellationToken ct) => throw NotUsed();
+        public Task ActualizarCatalogoAsync(CatalogoFormViewModel model, CancellationToken ct) => throw NotUsed();
+        public Task EliminarCatalogoAsync(string tipo, int id, CancellationToken ct) => throw NotUsed();
     }
 }

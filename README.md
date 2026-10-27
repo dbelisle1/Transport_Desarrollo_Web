@@ -135,6 +135,7 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 - `/admin`: panel general con conteos reales.
 - `/admin/usuarios`: CRUD y filtros de usuarios.
 - `/admin/clientes`: CRUD, filtros y asociaciones de empresas cliente.
+- `/admin/catalogos/{roles|giros|sedes}`: CRUD, filtros y estado de catálogos organizacionales.
 - `/portal/cambiar/{admin|cliente|gestion}`: cambio de área sin reiniciar sesión.
 
 ## Pruebas
@@ -145,7 +146,7 @@ dotnet build TransPort.sln --no-restore
 dotnet test TransPort.sln --no-restore
 ```
 
-Las 9 pruebas actuales cubren firma y validación de JWT, rechazo de token alterado, requisito mínimo de clave de firma, login válido, auditoría segura del login fallido, cierre de sesión y comportamiento básico del controlador API de clientes.
+Las 14 pruebas actuales cubren firma y validación de JWT, rechazo de token alterado, requisito mínimo de clave de firma, login válido, auditoría segura del login fallido, cierre de sesión y comportamiento básico de los controladores API de clientes y catálogos, incluida la protección del rol administrador.
 
 ## Pendiente para fases posteriores
 

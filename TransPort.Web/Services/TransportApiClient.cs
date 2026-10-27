@@ -130,6 +130,43 @@ public sealed class TransportApiClient(HttpClient http, IHttpContextAccessor con
     public async Task<IReadOnlyList<EntidadCatalogoModel>> CatalogoAsync(string tipo, CancellationToken ct) =>
         await GetRequiredAsync<List<EntidadCatalogoModel>>($"api/catalogos/{tipo}", ct);
 
+    public async Task<EntidadCatalogoModel?> CatalogoItemAsync(string tipo, int id, CancellationToken ct)
+    {
+        using var request = Request(HttpMethod.Get, $"api/catalogos/{tipo}/{id}");
+        using var response = await http.SendAsync(request, ct);
+        if (response.StatusCode == HttpStatusCode.NotFound) return null;
+        await EnsureAsync(response, ct);
+        return await response.Content.ReadFromJsonAsync<EntidadCatalogoModel>(_json, ct);
+    }
+
+    public async Task<int> CrearCatalogoAsync(CatalogoFormViewModel model, CancellationToken ct)
+    {
+        using var request = Request(HttpMethod.Post, $"api/catalogos/{model.Tipo}", new
+        {
+            model.Nombre, model.Descripcion, model.EsActivo
+        });
+        using var response = await http.SendAsync(request, ct);
+        await EnsureAsync(response, ct);
+        return (await response.Content.ReadFromJsonAsync<ResultadoIdModel>(_json, ct))!.Id;
+    }
+
+    public async Task ActualizarCatalogoAsync(CatalogoFormViewModel model, CancellationToken ct)
+    {
+        using var request = Request(HttpMethod.Put, $"api/catalogos/{model.Tipo}/{model.Id}", new
+        {
+            model.Nombre, model.Descripcion, model.EsActivo
+        });
+        using var response = await http.SendAsync(request, ct);
+        await EnsureAsync(response, ct);
+    }
+
+    public async Task EliminarCatalogoAsync(string tipo, int id, CancellationToken ct)
+    {
+        using var request = Request(HttpMethod.Delete, $"api/catalogos/{tipo}/{id}");
+        using var response = await http.SendAsync(request, ct);
+        await EnsureAsync(response, ct);
+    }
+
     private async Task<T> GetRequiredAsync<T>(string uri, CancellationToken ct)
     {
         using var request = Request(HttpMethod.Get, uri);

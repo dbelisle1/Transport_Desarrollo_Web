@@ -18,4 +18,8 @@ public interface ITransportApiClient
     Task ActualizarClienteAsync(ClienteFormViewModel model, CancellationToken ct);
     Task EliminarClienteAsync(int id, CancellationToken ct);
     Task<IReadOnlyList<EntidadCatalogoModel>> CatalogoAsync(string tipo, CancellationToken ct);
+    Task<EntidadCatalogoModel?> CatalogoItemAsync(string tipo, int id, CancellationToken ct);
+    Task<int> CrearCatalogoAsync(CatalogoFormViewModel model, CancellationToken ct);
+    Task ActualizarCatalogoAsync(CatalogoFormViewModel model, CancellationToken ct);
+    Task EliminarCatalogoAsync(string tipo, int id, CancellationToken ct);
 }

@@ -103,3 +103,34 @@ public sealed class ClienteFormViewModel
     public IReadOnlyList<UsuarioListadoModel> UsuariosDisponibles { get; set; } = [];
     public IReadOnlyList<EntidadCatalogoModel> GirosDisponibles { get; set; } = [];
 }
+
+public sealed class CatalogoFiltroViewModel
+{
+    public string Tipo { get; set; } = string.Empty;
+    public string Titulo { get; set; } = string.Empty;
+    public string Singular { get; set; } = string.Empty;
+    public string Descripcion { get; set; } = string.Empty;
+    public string? Busqueda { get; set; }
+    public bool? EsActivo { get; set; }
+    public IReadOnlyList<EntidadCatalogoModel> Elementos { get; set; } = [];
+}
+
+public sealed class CatalogoFormViewModel
+{
+    public int Id { get; set; }
+    public string Tipo { get; set; } = string.Empty;
+    public string Titulo { get; set; } = string.Empty;
+    public string Singular { get; set; } = string.Empty;
+    public bool Protegido { get; set; }
+
+    [Required(ErrorMessage = "Ingrese el nombre.")]
+    [StringLength(120, MinimumLength = 2)]
+    public string Nombre { get; set; } = string.Empty;
+
+    [StringLength(500)]
+    [Display(Name = "Descripción")]
+    public string? Descripcion { get; set; }
+
+    [Display(Name = "Registro activo")]
+    public bool EsActivo { get; set; } = true;
+}
