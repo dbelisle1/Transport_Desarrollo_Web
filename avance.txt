@@ -3,7 +3,7 @@ TRANSPORT - CONTROL DE AVANCE DE MÓDULOS
 
 Última actualización: 27 de octubre de 2026
 Etapa actual: Fase 2 - completar administración y flujo comercial
-Módulo activo: Ninguno. C03 quedó implementado y verificado; el siguiente módulo requiere confirmación del usuario.
+Módulo activo: Ninguno; M12 finalizado y verificado.
 
 
 1. PROPÓSITO DE ESTE ARCHIVO
@@ -163,7 +163,7 @@ M11. Pruebas automatizadas iniciales                           [BASE IMPLEMENTAD
 - Pruebas del controlador API de catálogos para tipos válidos e inválidos,
   eliminación y protección del rol AdministradorGeneral.
 - Pruebas del visor de auditoría para filtros, paginación y autorización.
-- Resultado registrado: 16 pruebas aprobadas y 0 fallidas.
+- Resultado registrado: 21 pruebas aprobadas y 0 fallidas.
 - Falta cobertura de integración, autorización, controladores, repositorios y
   operaciones CRUD completas.
 
@@ -211,6 +211,8 @@ C04. Cobertura de pruebas de la plataforma                      [PENDIENTE]
 - Pruebas de CRUD, asociaciones y eliminación lógica.
 - Pruebas de integración con SQL Server y procedimientos almacenados.
 - Pruebas de aislamiento por rol, giro, sede y cliente.
+- M12 agregó pruebas unitarias de identidad, alcance, validación, autorización
+  y eliminación, además de un recorrido HTTP real con SQL Server y Docker.
 
 
 6. MÓDULOS OBLIGATORIOS POR DESARROLLAR
@@ -220,12 +222,20 @@ Los siguientes módulos corresponden al sistema completo descrito por el
 proyecto. No formaban parte del alcance funcional de la Fase 1, pero sí son el
 trabajo pendiente principal.
 
-M12. Pedidos y gestión comercial                               [PENDIENTE]
+M12. Pedidos y gestión comercial                               [IMPLEMENTADO]
 
 - Pedidos en línea de clientes.
 - Estados, aprobaciones y seguimiento.
 - Cotizaciones, reuniones y asignación de vendedores.
 - Historial y documentos asociados.
+- Portal del cliente para crear pedidos, cotizaciones o solicitudes de reunión.
+- Gestión interna para asignar vendedor, cotizar, programar reunión y cambiar
+  estado desde Solicitado hasta Completado, Rechazado o Cancelado.
+- Comentarios, enlaces a documentos, historial inmutable y auditoría.
+- Aislamiento por empresa cliente y por giros asignados al personal interno.
+- API protegida para AdministradorGeneral, Gerente, Vendedor y Cliente; los
+  empleados sin rol comercial reciben 403.
+- Flujo MVC-API-SQL Server verificado en Docker y 5 pruebas unitarias nuevas.
 
 M13. Abastecimiento entre giros                                [PENDIENTE]
 
@@ -440,4 +450,10 @@ OXX. Nombre del módulo                                          [OPCIONAL]
 - Se verificaron dos páginas sin registros duplicados, filtros por módulo,
   resultado, usuario y operación, además del rechazo de acceso a empleados.
 - C03 se marcó Implementado después del smoke test MVC-API-SQL Server.
+- Se implementó M12 Pedidos y gestión comercial con tres tablas, ocho
+  procedimientos, API, repositorio ADO.NET y pantallas para cliente y gestión.
+- Se verificó el ciclo crear, listar, cotizar, comentar, vincular documento,
+  consultar historial y eliminar lógicamente, con aislamiento de cliente y
+  rechazo 403 para personal sin rol comercial.
+- Se agregaron 5 pruebas; el total pasó de 16 a 21 aprobadas y 0 fallidas.
 

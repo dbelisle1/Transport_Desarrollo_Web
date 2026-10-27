@@ -1,7 +1,7 @@
 # Estado actual del proyecto TransPort
 
 **Fecha de revisión:** 27 de octubre de 2026
-**Etapa evaluada:** Fase 2 — administración de clientes, catálogos y auditoría completada
+**Etapa evaluada:** Fase 2 — flujo de pedidos y gestión comercial completado
 
 ## 1. Resumen ejecutivo
 
@@ -20,13 +20,17 @@ La Fase 1 está implementada en sus componentes principales:
 - Contenedores independientes para MVC y API.
 - Pruebas unitarias iniciales para seguridad y cierre de sesión.
 
-Los módulos comerciales del sistema completo todavía no están implementados. Pedidos, producción, abastecimiento, transporte, GPS, maquinaria, construcción, inventarios, alertas, comunicación, integraciones y reportes consolidados corresponden a fases posteriores.
+El primer módulo comercial ya está implementado: los clientes pueden crear y seguir pedidos, cotizaciones o reuniones, mientras el equipo comercial asigna responsables, cotiza y actualiza estados. Producción, abastecimiento, transporte, GPS, maquinaria, construcción, inventarios, alertas, comunicación, integraciones y reportes consolidados continúan pendientes.
 
 Después del cierre de la Fase 1 se implementó y verificó el módulo administrativo de clientes: CRUD, filtros, asociaciones transaccionales de usuarios y giros, eliminación lógica, auditoría, API, vistas MVC y pruebas. El recorrido MVC–API–SQL Server se validó con ambos contenedores activos.
 
 También se completó la administración visual de roles, giros y sedes con búsqueda, filtros, formularios, estados, eliminación lógica, auditoría y protección del rol `AdministradorGeneral`.
 
 El visor administrativo de auditoría permite consultar el historial con filtros combinables, fechas en horario de Guatemala, paginación ejecutada en SQL Server y acceso exclusivo para `AdministradorGeneral`.
+
+M12 Pedidos y gestión comercial incorpora historial, documentos por enlace,
+auditoría y aislamiento por cliente o giro. El flujo completo se verificó contra
+SQL Server desde los contenedores de API y MVC.
 
 ## 2. Arquitectura actual
 
@@ -71,18 +75,18 @@ Leyenda:
 | Solución .NET 8 con MVC y API | Completo | Dos proyectos principales y dos proyectos de pruebas en `TransPort.sln`. |
 | Separación MVC → API → SQL Server | Completo | El MVC no accede directamente a la base. |
 | ADO.NET y procedimientos almacenados | Completo | Repositorios con `Microsoft.Data.SqlClient`; no se utiliza Entity Framework. |
-| Base de datos inicial | Completo | 12 tablas, 13 claves foráneas, 13 índices y 47 procedimientos definidos. |
+| Base de datos actual | Completo | 15 tablas, 21 claves foráneas, 18 índices y 55 procedimientos definidos. |
 | Datos de demostración | Completo | Script idempotente con giros, sedes, roles y usuarios demo. |
 | Login único `/acceso` | Completo | Credenciales validadas por la API y SQL Server. |
 | JWT MVC–API | Completo | Firma configurable, expiración y envío como Bearer. |
 | Cookie y sesión del frontend | Completo | Cookie HttpOnly, Claims y JWT guardado solo en sesión del servidor. |
 | Autorización por roles | Completo | Políticas MVC y validación independiente en la API. |
-| Asociaciones por giro, sede y cliente | Completo para Fase 1 | Se modelan, asignan y cargan en la sesión; faltan módulos comerciales donde aplicar el filtrado operativo. |
+| Asociaciones por giro, sede y cliente | Completo y aplicado en M12 | La API filtra pedidos por empresa cliente, giro asignado, vendedor y rol. |
 | Cierre de sesión | Completo | Limpia JWT/sesión, elimina cookies y usa antiforgery. |
 | Sitio público | Completo | Presentación, seis giros, contacto demostrativo, navegación y acceso. |
 | Panel administrativo | Completo para la base actual | Resumen real y acceso a usuarios, clientes y catálogos. |
-| Panel de gestión | Completo como bienvenida | Muestra roles, giros y sedes; las operaciones comerciales siguen pendientes. |
-| Panel del cliente | Completo como bienvenida | Muestra empresas vinculadas; pedidos, seguimiento y comunicación siguen pendientes. |
+| Panel de gestión | Parcial operativo | Muestra alcances y permite gestionar pedidos; otros módulos siguen pendientes. |
+| Panel del cliente | Parcial operativo | Muestra empresas, crea y consulta solicitudes; otros servicios siguen pendientes. |
 | CRUD de usuarios | Completo | Lista, filtra, crea, edita, activa/desactiva, elimina lógicamente y asigna permisos. |
 | CRUD de clientes | Completo | SQL/API/MVC verificados con filtros, asociaciones, auditoría y eliminación lógica. |
 | Catálogos de roles, giros y sedes | Completo | CRUD SQL/API/MVC, filtros, auditoría, eliminación lógica y protección del rol administrador. |
@@ -90,7 +94,7 @@ Leyenda:
 | PWA y responsive | Completo para Fase 1 | Manifest, ícono, service worker público y breakpoints 768/1100/1920 px. |
 | Docker | Completo en configuración | Dos Dockerfiles multietapa, red interna, volumen de claves y Compose válido. |
 | Documentación de inicio | Completo | `README.md`, `.env.example`, `.gitignore` e `instruccionesInicio.txt`. |
-| Pruebas automatizadas | Parcial | 16 pruebas aprobadas; faltan pruebas amplias de integración, autorización y CRUD. |
+| Pruebas automatizadas | Parcial | 21 pruebas aprobadas; faltan pruebas amplias de integración de todos los módulos. |
 
 ## 4. Módulos desarrollados
 
@@ -243,9 +247,23 @@ Incluye:
 - Script instalador `database/000_instalar_todo.sql`.
 - Instrucciones de inicio para otros integrantes del equipo.
 
+### 4.9 Pedidos y gestión comercial
+
+**Estado: implementado y verificado**
+
+Incluye:
+
+- Pedidos, solicitudes de cotización y reuniones creadas por clientes.
+- Estados, asignación de vendedor, monto cotizado, fecha y enlace de reunión.
+- Comentarios, documentos por URL, historial y auditoría.
+- Pantallas separadas para el cliente y el personal comercial.
+- Aislamiento de datos por empresa cliente y por giro o vendedor interno.
+- Eliminación lógica exclusiva de AdministradorGeneral.
+- Cinco pruebas unitarias y recorrido HTTP real MVC–API–SQL Server.
+
 ## 5. Inventario de base de datos
 
-### Tablas implementadas (12)
+### Tablas implementadas (15)
 
 1. `Usuario`
 2. `Rol`
@@ -259,15 +277,19 @@ Incluye:
 10. `ClienteUsuario`
 11. `ClienteGiroNegocio`
 12. `Auditoria`
+13. `Pedido`
+14. `PedidoHistorial`
+15. `PedidoDocumento`
 
 También se implementaron:
 
-- 13 claves foráneas.
-- 13 índices normales o únicos.
+- 21 claves foráneas.
+- 18 índices normales o únicos.
 - Eliminación lógica en entidades y relaciones.
 - Fechas UTC mediante `DATETIME2`/`SYSUTCDATETIME()`.
 - Transacciones y `XACT_ABORT` en operaciones compuestas.
-- 47 procedimientos almacenados para usuarios, catálogos, asociaciones, clientes, dashboard y auditoría.
+- 55 procedimientos almacenados para usuarios, catálogos, asociaciones,
+  clientes, pedidos, dashboard y auditoría.
 
 ## 6. Rutas y endpoints disponibles
 
@@ -279,7 +301,9 @@ También se implementaron:
 | `/acceso` | Inicio de sesión | Público |
 | `/acceso/salir` | Cierre de sesión | Autenticado, POST |
 | `/cliente` | Portal del cliente | Cliente o AdministradorGeneral |
+| `/cliente/pedidos` | Crear y seguir solicitudes | Cliente o AdministradorGeneral |
 | `/gestion` | Portal interno | Roles internos o AdministradorGeneral |
+| `/gestion/pedidos` | Gestión de pedidos y cotizaciones | AdministradorGeneral, Gerente o Vendedor |
 | `/admin` | Dashboard administrativo | AdministradorGeneral |
 | `/admin/usuarios` | Administración de usuarios | AdministradorGeneral |
 | `/admin/clientes` | Administración de empresas cliente | AdministradorGeneral |
@@ -304,6 +328,11 @@ También se implementaron:
 | `GET/PUT/DELETE` | `/api/catalogos/{tipo}/{id}` | CRUD de un catálogo |
 | `GET` | `/api/administracion/resumen` | Conteos administrativos |
 | `GET` | `/api/administracion/auditoria` | Eventos filtrados y paginados de auditoría |
+| `GET/POST` | `/api/pedidos` | Listar o crear solicitudes según alcance |
+| `GET` | `/api/pedidos/{id}` | Detalle, historial y documentos según alcance |
+| `PUT` | `/api/pedidos/{id}/gestion` | Asignar, cotizar y actualizar estado |
+| `POST` | `/api/pedidos/{id}/{comentarios|documentos}` | Agregar seguimiento |
+| `DELETE` | `/api/pedidos/{id}` | Eliminación lógica administrativa |
 
 ## 7. Componentes parciales y mejoras pendientes de la base
 
@@ -319,13 +348,11 @@ Estos puntos mejoran la plataforma actual, aunque varios no eran obligatorios pa
 
 ## 8. Módulos pendientes para fases posteriores
 
-Los siguientes módulos **no pertenecían al alcance funcional de la Fase 1** y todavía no están desarrollados:
+Los siguientes módulos todavía no están desarrollados:
 
-### 8.1 Pedidos y abastecimiento
+### 8.1 Abastecimiento entre giros
 
-- Pedidos de clientes.
 - Pedidos internos entre giros de negocio.
-- Aprobaciones y estados.
 - Programación de abastecimiento.
 - Documentos y seguimiento de entregas.
 
@@ -419,14 +446,15 @@ Revisión del 27 de octubre de 2026:
 | Validación | Resultado |
 |---|---|
 | Compilación durante `dotnet test TransPort.sln --no-restore` | Correcta |
-| Pruebas de API | 15 aprobadas, 0 fallidas |
+| Pruebas de API | 20 aprobadas, 0 fallidas |
 | Pruebas de MVC | 1 aprobada, 0 fallidas |
-| Total | **16 aprobadas, 0 fallidas** |
+| Total | **21 aprobadas, 0 fallidas** |
 | `docker-compose config -q` | Configuración válida |
 | Contenedores activos durante esta revisión | API y Web activos; `/salud`, `/` y `/admin/auditoria` respondieron correctamente |
 | Smoke test de clientes | CRUD, filtro, asignaciones, auditoría y eliminación lógica correctos |
 | Smoke test de catálogos | CRUD de roles, giros y sedes, MVC, auditoría y autorización correctos |
 | Smoke test de auditoría | Filtros, dos páginas sin duplicados, MVC y autorización correctos |
+| Smoke test de pedidos | Creación, cotización, comentarios, documentos, historial, aislamiento y eliminación lógica correctos |
 
 Cobertura actual:
 
@@ -440,8 +468,15 @@ Cobertura actual:
 - Creación y eliminación de catálogos, rechazo de tipos inválidos y protección del rol administrador.
 - Paso de filtros y paginación del controlador de auditoría al repositorio.
 - Exigencia del rol AdministradorGeneral en el controlador administrativo.
+- Alcance de cliente, estados válidos, autorización comercial y eliminación en
+  el controlador de pedidos.
 
 El smoke test creó un cliente temporal, consultó y actualizó sus datos, validó el filtro y las asignaciones de usuario/giro, y ejecutó su eliminación lógica. SQL Server confirmó cero relaciones activas, cinco eventos de auditoría y ningún cliente de prueba visible al finalizar.
+
+El recorrido de M12 creó una cotización como cliente, la gestionó como
+administrador, agregó comentario y documento, verificó historial y monto,
+confirmó 403 para un empleado sin rol comercial y eliminó lógicamente todos los
+registros temporales.
 
 ## 10. Riesgos y deuda técnica conocida
 
@@ -459,8 +494,8 @@ El smoke test creó un cliente temporal, consultó y actualizó sus datos, valid
 
 1. Aumentar pruebas de integración para usuarios, autorización, SQL Server y flujos HTTP.
 2. Sustituir contraseñas en texto plano por hashes antes de usar datos reales.
-3. Definir el primer flujo comercial transversal: cliente → pedido → abastecimiento/operación → seguimiento.
-4. Implementar inventario y producción como soporte del flujo de pedidos.
+3. Extender el flujo ya implementado de pedidos hacia el portal operativo del cliente.
+4. Implementar inventario y producción como soporte del flujo comercial.
 5. Implementar transporte, maquinaria y GPS.
 6. Agregar alertas, comunicación e integraciones externas.
 7. Construir reportes operativos, financieros y consolidados.
@@ -468,5 +503,5 @@ El smoke test creó un cliente temporal, consultó y actualizó sus datos, valid
 
 ## 12. Conclusión
 
-El proyecto dispone de una base técnica coherente y extensible. La Fase 1 cubre el acceso, la estructura organizacional, el control de usuarios, los portales iniciales, la persistencia y el despliegue local. El siguiente salto de avance no consiste en rehacer esta base, sino en ampliar su cobertura de pruebas y comenzar los módulos comerciales sobre las asociaciones de roles, giros, sedes y clientes que ya existen.
+El proyecto dispone de una base técnica coherente y extensible. La Fase 1 cubre el acceso, la estructura organizacional, el control de usuarios, los portales iniciales, la persistencia y el despliegue local. M12 inicia la operación comercial real sobre esas asociaciones; el siguiente paso es ampliar el portal del cliente y conectar pedidos con inventario, abastecimiento y producción.
 

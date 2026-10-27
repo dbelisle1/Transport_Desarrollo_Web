@@ -173,3 +173,91 @@ public sealed class AuditoriaFiltroViewModel
     public int TamanoPagina { get; set; } = 25;
     public AuditoriaPaginaModel Resultados { get; set; } = new([], 0, 1, 25, 0);
 }
+
+public sealed record PedidoListadoModel(
+    long PedidoId, int ClienteId, string Cliente, int GiroNegocioId, string Giro,
+    string TipoSolicitud, string Titulo, string Estado, DateTime? FechaRequerida,
+    decimal? MontoCotizado, int? VendedorUsuarioId, string? Vendedor,
+    DateTime FechaCreacion, DateTime? FechaModificacion);
+
+public sealed record PedidoHistorialModel(
+    long PedidoHistorialId, int UsuarioId, string NombreUsuario,
+    string? EstadoAnterior, string EstadoNuevo, string? Comentario, DateTime Fecha);
+
+public sealed record PedidoDocumentoModel(
+    long PedidoDocumentoId, int UsuarioId, string NombreUsuario,
+    string Nombre, string TipoDocumento, string Url, DateTime FechaCreacion);
+
+public sealed record PedidoDetalleModel(
+    long PedidoId, int ClienteId, string Cliente, int GiroNegocioId, string Giro,
+    int SolicitanteUsuarioId, string Solicitante, int? VendedorUsuarioId, string? Vendedor,
+    string TipoSolicitud, string Titulo, string Descripcion, string Estado,
+    DateTime? FechaRequerida, decimal? MontoCotizado, DateTime? FechaReunionUtc,
+    string? EnlaceReunion, DateTime FechaCreacion, DateTime? FechaModificacion,
+    IReadOnlyList<PedidoHistorialModel> Historial, IReadOnlyList<PedidoDocumentoModel> Documentos);
+
+public sealed record PedidoOpcionesModel(
+    IReadOnlyList<CatalogoModel> Clientes,
+    IReadOnlyList<CatalogoModel> Giros,
+    IReadOnlyList<CatalogoModel> Vendedores);
+
+public sealed class PedidoFiltroViewModel
+{
+    public string? Busqueda { get; set; }
+    public string? Estado { get; set; }
+    public int? ClienteId { get; set; }
+    public int? GiroId { get; set; }
+    public IReadOnlyList<PedidoListadoModel> Pedidos { get; set; } = [];
+    public PedidoOpcionesModel Opciones { get; set; } = new([], [], []);
+}
+
+public sealed class PedidoCrearViewModel
+{
+    [Range(1, int.MaxValue, ErrorMessage = "Seleccione un cliente.")]
+    [Display(Name = "Cliente")]
+    public int ClienteId { get; set; }
+
+    [Range(1, int.MaxValue, ErrorMessage = "Seleccione un giro.")]
+    [Display(Name = "Giro de negocio")]
+    public int GiroNegocioId { get; set; }
+
+    [Required, StringLength(30)]
+    [Display(Name = "Tipo de solicitud")]
+    public string TipoSolicitud { get; set; } = "Pedido";
+
+    [Required(ErrorMessage = "Ingrese un título."), StringLength(180, MinimumLength = 3)]
+    [Display(Name = "Título")]
+    public string Titulo { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Describa la solicitud."), StringLength(2000, MinimumLength = 5)]
+    [Display(Name = "Descripción")]
+    public string Descripcion { get; set; } = string.Empty;
+
+    [DataType(DataType.Date)]
+    [Display(Name = "Fecha requerida")]
+    public DateTime? FechaRequerida { get; set; }
+
+    [Display(Name = "Fecha propuesta para reunión")]
+    public DateTime? FechaReunionUtc { get; set; }
+    public PedidoOpcionesModel Opciones { get; set; } = new([], [], []);
+}
+
+public sealed class PedidoGestionViewModel
+{
+    public long PedidoId { get; set; }
+    [Required] public string Estado { get; set; } = "EnRevision";
+    [Display(Name = "Vendedor asignado")] public int? VendedorUsuarioId { get; set; }
+    [Range(0, 9999999999999999.99)] [Display(Name = "Monto cotizado")]
+    public decimal? MontoCotizado { get; set; }
+    [Display(Name = "Fecha de reunión")] public DateTime? FechaReunionUtc { get; set; }
+    [Url, StringLength(500)] [Display(Name = "Enlace de reunión")]
+    public string? EnlaceReunion { get; set; }
+    [StringLength(1000)] [Display(Name = "Comentario del cambio")]
+    public string? Comentario { get; set; }
+}
+
+public sealed class PedidoDetalleViewModel
+{
+    public PedidoDetalleModel Pedido { get; set; } = null!;
+    public PedidoOpcionesModel Opciones { get; set; } = new([], [], []);
+}

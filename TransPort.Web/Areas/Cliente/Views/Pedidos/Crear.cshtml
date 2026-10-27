@@ -1,0 +1,16 @@
+@model PedidoCrearViewModel
+@{ ViewData["Title"] = "Nueva solicitud"; }
+<section class="dashboard-page"><div class="container narrow">
+    <div class="page-heading"><div><a class="back-link" href="/cliente/pedidos">← Mis solicitudes</a><h1>Nueva solicitud</h1><p>Registre un pedido, solicite una cotización o proponga una reunión.</p></div></div>
+    <form method="post" class="entity-form"><div asp-validation-summary="ModelOnly" class="validation"></div>
+        <fieldset><legend>Servicio solicitado</legend><div class="form-grid">
+            <div><label asp-for="ClienteId"></label><select asp-for="ClienteId"><option value="0">Seleccione</option>@foreach(var x in Model.Opciones.Clientes){<option value="@x.Id">@x.Nombre</option>}</select><span asp-validation-for="ClienteId" class="validation"></span></div>
+            <div><label asp-for="GiroNegocioId"></label><select asp-for="GiroNegocioId"><option value="0">Seleccione</option>@foreach(var x in Model.Opciones.Giros){<option value="@x.Id">@x.Nombre</option>}</select><span asp-validation-for="GiroNegocioId" class="validation"></span></div>
+            <div><label asp-for="TipoSolicitud"></label><select asp-for="TipoSolicitud"><option value="Pedido">Pedido</option><option value="Cotizacion">Cotización</option><option value="Reunion">Reunión</option></select></div>
+            <div><label asp-for="FechaRequerida"></label><input asp-for="FechaRequerida" /></div>
+            <div><label asp-for="FechaReunionUtc"></label><input asp-for="FechaReunionUtc" type="datetime-local" /></div>
+            <div class="full-field"><label asp-for="Titulo"></label><input asp-for="Titulo" /><span asp-validation-for="Titulo" class="validation"></span></div>
+            <div class="full-field"><label asp-for="Descripcion"></label><textarea asp-for="Descripcion" rows="6"></textarea><span asp-validation-for="Descripcion" class="validation"></span></div>
+        </div></fieldset><div class="form-actions"><a class="text-link" href="/cliente/pedidos">Cancelar</a><button class="button" type="submit">Crear solicitud</button></div>
+    </form>
+</div></section>

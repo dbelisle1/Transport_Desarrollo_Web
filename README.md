@@ -1,6 +1,6 @@
 # TransPort — Base técnica y administración
 
-Base técnica del sistema TransPort construida con .NET 8, ASP.NET Core MVC, Web API, ADO.NET, SQL Server y Docker. Incluye organización, autenticación/autorización, paneles iniciales, visor de auditoría y CRUD administrativos de usuarios, clientes y catálogos. Los módulos comerciales todavía no están implementados.
+Sistema TransPort construido con .NET 8, ASP.NET Core MVC, Web API, ADO.NET, SQL Server y Docker. Incluye organización, autenticación/autorización, administración, auditoría y el flujo comercial de pedidos, cotizaciones y reuniones.
 
 ## Arquitectura
 
@@ -95,7 +95,7 @@ Estas claves son únicamente para desarrollo académico. Se almacenan en texto p
 
 ## Base de datos
 
-Tablas: `Usuario`, `Rol`, `UsuarioRol`, `GiroNegocio`, `Sede`, `SedeGiroNegocio`, `UsuarioGiroNegocio`, `UsuarioSede`, `Cliente`, `ClienteUsuario`, `ClienteGiroNegocio` y `Auditoria`.
+Tablas organizacionales: `Usuario`, `Rol`, `UsuarioRol`, `GiroNegocio`, `Sede`, `SedeGiroNegocio`, `UsuarioGiroNegocio`, `UsuarioSede`, `Cliente`, `ClienteUsuario`, `ClienteGiroNegocio` y `Auditoria`. El módulo comercial agrega `Pedido`, `PedidoHistorial` y `PedidoDocumento`.
 
 Procedimientos principales:
 
@@ -105,6 +105,8 @@ Procedimientos principales:
 - Auditoría: crear evento y consultar el historial con filtros y paginación.
 - Administración: resumen real de usuarios, clientes, giros y sedes.
 - Clientes: CRUD, filtros, eliminación lógica y asignación de usuarios y giros.
+- Pedidos: listado por alcance, detalle, opciones, creación, gestión comercial,
+  comentarios, documentos y eliminación lógica.
 
 Los repositorios no consultan tablas directamente cuando existe un procedimiento para la operación. La contraseña no aparece en listados, DTOs, tokens, auditoría ni logs.
 
@@ -125,13 +127,21 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 | `GET/PUT/DELETE` | `/api/catalogos/{tipo}/{id}` | AdministradorGeneral |
 | `GET` | `/api/administracion/resumen` | AdministradorGeneral |
 | `GET` | `/api/administracion/auditoria` | AdministradorGeneral |
+| `GET/POST` | `/api/pedidos` | AdministradorGeneral, Gerente, Vendedor o Cliente, según alcance |
+| `GET` | `/api/pedidos/{id}` | Roles comerciales, limitado por cliente o giro |
+| `PUT` | `/api/pedidos/{id}/gestion` | AdministradorGeneral, Gerente o Vendedor |
+| `POST` | `/api/pedidos/{id}/{comentarios|documentos}` | Roles comerciales, según alcance |
+| `DELETE` | `/api/pedidos/{id}` | AdministradorGeneral |
 
 ## Rutas web
 
 - `/`: sitio público y seis giros de negocio.
 - `/acceso`: login único.
 - `/cliente`: panel del cliente.
+- `/cliente/pedidos`: solicitudes y seguimiento del cliente.
+- `/cliente/pedidos/crear`: nuevo pedido, cotización o reunión.
 - `/gestion`: panel interno según roles, giros y sedes.
+- `/gestion/pedidos`: asignación, cotización y seguimiento comercial.
 - `/admin`: panel general con conteos reales.
 - `/admin/usuarios`: CRUD y filtros de usuarios.
 - `/admin/clientes`: CRUD, filtros y asociaciones de empresas cliente.
@@ -147,8 +157,8 @@ dotnet build TransPort.sln --no-restore
 dotnet test TransPort.sln --no-restore
 ```
 
-Las 16 pruebas actuales cubren firma y validación de JWT, rechazo de token alterado, requisito mínimo de clave de firma, login válido, auditoría segura del login fallido, cierre de sesión, controladores API de clientes y catálogos, protección del rol administrador y filtros/paginación/autorización del visor de auditoría.
+Las 21 pruebas actuales cubren seguridad JWT, autenticación, cierre de sesión, clientes, catálogos, auditoría y el controlador de pedidos: alcance del cliente, validación de estados, autorización comercial y eliminación administrativa.
 
 ## Pendiente para fases posteriores
 
-Pedidos, producción, abastecimiento entre giros, transporte y GPS, inventarios, construcción, alertas, comunicación, integraciones de terceros, reportes operativos/financieros y funcionamiento offline transaccional. Las tarjetas de esos módulos se muestran explícitamente como pendientes y no simulan datos reales.
+Producción, abastecimiento entre giros, transporte y GPS, inventarios, construcción, alertas, comunicación, integraciones de terceros, reportes operativos/financieros y funcionamiento offline transaccional. Las tarjetas de esos módulos se muestran explícitamente como pendientes y no simulan datos reales.

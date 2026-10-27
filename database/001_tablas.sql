@@ -155,3 +155,55 @@ CREATE TABLE dbo.Auditoria
     Detalle NVARCHAR(1000) NULL
 );
 GO
+
+IF OBJECT_ID(N'dbo.Pedido', N'U') IS NULL
+CREATE TABLE dbo.Pedido
+(
+    PedidoId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_Pedido PRIMARY KEY,
+    ClienteId INT NOT NULL,
+    GiroNegocioId INT NOT NULL,
+    SolicitanteUsuarioId INT NOT NULL,
+    VendedorUsuarioId INT NULL,
+    TipoSolicitud NVARCHAR(30) NOT NULL,
+    Titulo NVARCHAR(180) NOT NULL,
+    Descripcion NVARCHAR(2000) NOT NULL,
+    Estado NVARCHAR(30) NOT NULL CONSTRAINT DF_Pedido_Estado DEFAULT (N'Solicitado'),
+    FechaRequerida DATE NULL,
+    MontoCotizado DECIMAL(18,2) NULL,
+    FechaReunionUtc DATETIME2(0) NULL,
+    EnlaceReunion NVARCHAR(500) NULL,
+    Eliminado BIT NOT NULL CONSTRAINT DF_Pedido_Eliminado DEFAULT (0),
+    FechaCreacion DATETIME2(0) NOT NULL CONSTRAINT DF_Pedido_FechaCreacion DEFAULT (SYSUTCDATETIME()),
+    FechaModificacion DATETIME2(0) NULL,
+    CONSTRAINT CK_Pedido_TipoSolicitud CHECK (TipoSolicitud IN (N'Pedido',N'Cotizacion',N'Reunion')),
+    CONSTRAINT CK_Pedido_Estado CHECK (Estado IN (N'Solicitado',N'EnRevision',N'Cotizado',N'Aprobado',N'EnProceso',N'Completado',N'Rechazado',N'Cancelado')),
+    CONSTRAINT CK_Pedido_MontoCotizado CHECK (MontoCotizado IS NULL OR MontoCotizado >= 0)
+);
+GO
+
+IF OBJECT_ID(N'dbo.PedidoHistorial', N'U') IS NULL
+CREATE TABLE dbo.PedidoHistorial
+(
+    PedidoHistorialId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_PedidoHistorial PRIMARY KEY,
+    PedidoId BIGINT NOT NULL,
+    UsuarioId INT NOT NULL,
+    EstadoAnterior NVARCHAR(30) NULL,
+    EstadoNuevo NVARCHAR(30) NOT NULL,
+    Comentario NVARCHAR(1000) NULL,
+    Fecha DATETIME2(0) NOT NULL CONSTRAINT DF_PedidoHistorial_Fecha DEFAULT (SYSUTCDATETIME())
+);
+GO
+
+IF OBJECT_ID(N'dbo.PedidoDocumento', N'U') IS NULL
+CREATE TABLE dbo.PedidoDocumento
+(
+    PedidoDocumentoId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_PedidoDocumento PRIMARY KEY,
+    PedidoId BIGINT NOT NULL,
+    UsuarioId INT NOT NULL,
+    Nombre NVARCHAR(200) NOT NULL,
+    TipoDocumento NVARCHAR(60) NOT NULL,
+    Url NVARCHAR(1000) NOT NULL,
+    Eliminado BIT NOT NULL CONSTRAINT DF_PedidoDocumento_Eliminado DEFAULT (0),
+    FechaCreacion DATETIME2(0) NOT NULL CONSTRAINT DF_PedidoDocumento_FechaCreacion DEFAULT (SYSUTCDATETIME())
+);
+GO

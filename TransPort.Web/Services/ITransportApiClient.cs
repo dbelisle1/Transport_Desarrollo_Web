@@ -23,4 +23,12 @@ public interface ITransportApiClient
     Task<int> CrearCatalogoAsync(CatalogoFormViewModel model, CancellationToken ct);
     Task ActualizarCatalogoAsync(CatalogoFormViewModel model, CancellationToken ct);
     Task EliminarCatalogoAsync(string tipo, int id, CancellationToken ct);
+    Task<IReadOnlyList<PedidoListadoModel>> PedidosAsync(string? busqueda, string? estado, int? clienteId, int? giroId, CancellationToken ct);
+    Task<PedidoDetalleModel?> PedidoAsync(long id, CancellationToken ct);
+    Task<PedidoOpcionesModel> PedidoOpcionesAsync(CancellationToken ct);
+    Task<long> CrearPedidoAsync(PedidoCrearViewModel model, CancellationToken ct);
+    Task GestionarPedidoAsync(PedidoGestionViewModel model, CancellationToken ct);
+    Task ComentarPedidoAsync(long id, string comentario, CancellationToken ct);
+    Task AgregarDocumentoPedidoAsync(long id, string nombre, string tipoDocumento, string url, CancellationToken ct);
+    Task EliminarPedidoAsync(long id, CancellationToken ct);
 }

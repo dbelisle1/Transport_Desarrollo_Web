@@ -27,6 +27,22 @@ IF OBJECT_ID(N'dbo.FK_ClienteGiroNegocio_GiroNegocio', N'F') IS NULL
     ALTER TABLE dbo.ClienteGiroNegocio ADD CONSTRAINT FK_ClienteGiroNegocio_GiroNegocio FOREIGN KEY (GiroNegocioId) REFERENCES dbo.GiroNegocio(GiroNegocioId);
 IF OBJECT_ID(N'dbo.FK_Auditoria_Usuario', N'F') IS NULL
     ALTER TABLE dbo.Auditoria ADD CONSTRAINT FK_Auditoria_Usuario FOREIGN KEY (UsuarioId) REFERENCES dbo.Usuario(UsuarioId);
+IF OBJECT_ID(N'dbo.FK_Pedido_Cliente', N'F') IS NULL
+    ALTER TABLE dbo.Pedido ADD CONSTRAINT FK_Pedido_Cliente FOREIGN KEY (ClienteId) REFERENCES dbo.Cliente(ClienteId);
+IF OBJECT_ID(N'dbo.FK_Pedido_GiroNegocio', N'F') IS NULL
+    ALTER TABLE dbo.Pedido ADD CONSTRAINT FK_Pedido_GiroNegocio FOREIGN KEY (GiroNegocioId) REFERENCES dbo.GiroNegocio(GiroNegocioId);
+IF OBJECT_ID(N'dbo.FK_Pedido_SolicitanteUsuario', N'F') IS NULL
+    ALTER TABLE dbo.Pedido ADD CONSTRAINT FK_Pedido_SolicitanteUsuario FOREIGN KEY (SolicitanteUsuarioId) REFERENCES dbo.Usuario(UsuarioId);
+IF OBJECT_ID(N'dbo.FK_Pedido_VendedorUsuario', N'F') IS NULL
+    ALTER TABLE dbo.Pedido ADD CONSTRAINT FK_Pedido_VendedorUsuario FOREIGN KEY (VendedorUsuarioId) REFERENCES dbo.Usuario(UsuarioId);
+IF OBJECT_ID(N'dbo.FK_PedidoHistorial_Pedido', N'F') IS NULL
+    ALTER TABLE dbo.PedidoHistorial ADD CONSTRAINT FK_PedidoHistorial_Pedido FOREIGN KEY (PedidoId) REFERENCES dbo.Pedido(PedidoId);
+IF OBJECT_ID(N'dbo.FK_PedidoHistorial_Usuario', N'F') IS NULL
+    ALTER TABLE dbo.PedidoHistorial ADD CONSTRAINT FK_PedidoHistorial_Usuario FOREIGN KEY (UsuarioId) REFERENCES dbo.Usuario(UsuarioId);
+IF OBJECT_ID(N'dbo.FK_PedidoDocumento_Pedido', N'F') IS NULL
+    ALTER TABLE dbo.PedidoDocumento ADD CONSTRAINT FK_PedidoDocumento_Pedido FOREIGN KEY (PedidoId) REFERENCES dbo.Pedido(PedidoId);
+IF OBJECT_ID(N'dbo.FK_PedidoDocumento_Usuario', N'F') IS NULL
+    ALTER TABLE dbo.PedidoDocumento ADD CONSTRAINT FK_PedidoDocumento_Usuario FOREIGN KEY (UsuarioId) REFERENCES dbo.Usuario(UsuarioId);
 GO
 
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.Usuario') AND name = N'UX_Usuario_NombreUsuario')
@@ -57,4 +73,14 @@ IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.Clien
     CREATE UNIQUE INDEX UX_ClienteGiroNegocio_Activo ON dbo.ClienteGiroNegocio(ClienteId, GiroNegocioId) WHERE Eliminado = 0;
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.Auditoria') AND name = N'IX_Auditoria_Fecha')
     CREATE INDEX IX_Auditoria_Fecha ON dbo.Auditoria(Fecha DESC) INCLUDE (UsuarioId, Modulo, TipoOperacion, Resultado);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.Pedido') AND name = N'IX_Pedido_ClienteEstado')
+    CREATE INDEX IX_Pedido_ClienteEstado ON dbo.Pedido(ClienteId, Estado, FechaCreacion DESC) INCLUDE (GiroNegocioId, VendedorUsuarioId, Eliminado);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.Pedido') AND name = N'IX_Pedido_GiroEstado')
+    CREATE INDEX IX_Pedido_GiroEstado ON dbo.Pedido(GiroNegocioId, Estado, FechaCreacion DESC) INCLUDE (ClienteId, VendedorUsuarioId, Eliminado);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.Pedido') AND name = N'IX_Pedido_VendedorEstado')
+    CREATE INDEX IX_Pedido_VendedorEstado ON dbo.Pedido(VendedorUsuarioId, Estado, FechaCreacion DESC) INCLUDE (ClienteId, GiroNegocioId, Eliminado);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.PedidoHistorial') AND name = N'IX_PedidoHistorial_PedidoFecha')
+    CREATE INDEX IX_PedidoHistorial_PedidoFecha ON dbo.PedidoHistorial(PedidoId, Fecha DESC);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.PedidoDocumento') AND name = N'IX_PedidoDocumento_Pedido')
+    CREATE INDEX IX_PedidoDocumento_Pedido ON dbo.PedidoDocumento(PedidoId, FechaCreacion DESC) INCLUDE (Eliminado);
 GO

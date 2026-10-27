@@ -116,5 +116,13 @@ public sealed class AccesoControllerTests
         public Task<int> CrearCatalogoAsync(CatalogoFormViewModel model, CancellationToken ct) => throw NotUsed();
         public Task ActualizarCatalogoAsync(CatalogoFormViewModel model, CancellationToken ct) => throw NotUsed();
         public Task EliminarCatalogoAsync(string tipo, int id, CancellationToken ct) => throw NotUsed();
+        public Task<IReadOnlyList<PedidoListadoModel>> PedidosAsync(string? busqueda, string? estado, int? clienteId, int? giroId, CancellationToken ct) => throw NotUsed();
+        public Task<PedidoDetalleModel?> PedidoAsync(long id, CancellationToken ct) => throw NotUsed();
+        public Task<PedidoOpcionesModel> PedidoOpcionesAsync(CancellationToken ct) => throw NotUsed();
+        public Task<long> CrearPedidoAsync(PedidoCrearViewModel model, CancellationToken ct) => throw NotUsed();
+        public Task GestionarPedidoAsync(PedidoGestionViewModel model, CancellationToken ct) => throw NotUsed();
+        public Task ComentarPedidoAsync(long id, string comentario, CancellationToken ct) => throw NotUsed();
+        public Task AgregarDocumentoPedidoAsync(long id, string nombre, string tipoDocumento, string url, CancellationToken ct) => throw NotUsed();
+        public Task EliminarPedidoAsync(long id, CancellationToken ct) => throw NotUsed();
     }
 }

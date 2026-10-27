@@ -698,3 +698,253 @@ BEGIN
         EXEC dbo.sp_auditoria_crear_evento @UsuarioResponsableId,N'Clientes',N'RetirarGiro',@ClienteId,N'Exitoso',NULL;
 END;
 GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_pedido_leer_listado
+    @UsuarioId INT,
+    @EsAdministrador BIT,
+    @EsCliente BIT,
+    @Busqueda NVARCHAR(200) = NULL,
+    @Estado NVARCHAR(30) = NULL,
+    @ClienteId INT = NULL,
+    @GiroNegocioId INT = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET @Busqueda = NULLIF(LTRIM(RTRIM(@Busqueda)), N'');
+    SET @Estado = NULLIF(LTRIM(RTRIM(@Estado)), N'');
+
+    SELECT p.PedidoId, p.ClienteId, c.Nombre AS Cliente, p.GiroNegocioId, g.Nombre AS Giro,
+           p.TipoSolicitud, p.Titulo, p.Estado, p.FechaRequerida, p.MontoCotizado,
+           p.VendedorUsuarioId,
+           CASE WHEN v.UsuarioId IS NULL THEN NULL ELSE CONCAT(v.Nombre, N' ', v.Apellido) END AS Vendedor,
+           p.FechaCreacion, p.FechaModificacion
+    FROM dbo.Pedido p
+    INNER JOIN dbo.Cliente c ON c.ClienteId=p.ClienteId
+    INNER JOIN dbo.GiroNegocio g ON g.GiroNegocioId=p.GiroNegocioId
+    LEFT JOIN dbo.Usuario v ON v.UsuarioId=p.VendedorUsuarioId
+    WHERE p.Eliminado=0
+      AND (@Estado IS NULL OR p.Estado=@Estado)
+      AND (@ClienteId IS NULL OR p.ClienteId=@ClienteId)
+      AND (@GiroNegocioId IS NULL OR p.GiroNegocioId=@GiroNegocioId)
+      AND (@Busqueda IS NULL OR p.Titulo LIKE N'%' + @Busqueda + N'%' OR
+           p.Descripcion LIKE N'%' + @Busqueda + N'%' OR c.Nombre LIKE N'%' + @Busqueda + N'%' OR
+           g.Nombre LIKE N'%' + @Busqueda + N'%')
+      AND (
+          @EsAdministrador=1 OR
+          (@EsCliente=1 AND EXISTS(
+              SELECT 1 FROM dbo.ClienteUsuario cu
+              WHERE cu.ClienteId=p.ClienteId AND cu.UsuarioId=@UsuarioId AND cu.Eliminado=0)) OR
+          (@EsCliente=0 AND (p.VendedorUsuarioId=@UsuarioId OR EXISTS(
+              SELECT 1 FROM dbo.UsuarioGiroNegocio ug
+              WHERE ug.UsuarioId=@UsuarioId AND ug.GiroNegocioId=p.GiroNegocioId AND ug.Eliminado=0)))
+      )
+    ORDER BY p.FechaCreacion DESC, p.PedidoId DESC;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_pedido_leer_por_id
+    @PedidoId BIGINT,
+    @UsuarioId INT,
+    @EsAdministrador BIT,
+    @EsCliente BIT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT p.PedidoId, p.ClienteId, c.Nombre AS Cliente, p.GiroNegocioId, g.Nombre AS Giro,
+           p.SolicitanteUsuarioId, s.NombreUsuario AS Solicitante, p.VendedorUsuarioId,
+           CASE WHEN v.UsuarioId IS NULL THEN NULL ELSE CONCAT(v.Nombre, N' ', v.Apellido) END AS Vendedor,
+           p.TipoSolicitud, p.Titulo, p.Descripcion, p.Estado, p.FechaRequerida,
+           p.MontoCotizado, p.FechaReunionUtc, p.EnlaceReunion, p.FechaCreacion, p.FechaModificacion
+    FROM dbo.Pedido p
+    INNER JOIN dbo.Cliente c ON c.ClienteId=p.ClienteId
+    INNER JOIN dbo.GiroNegocio g ON g.GiroNegocioId=p.GiroNegocioId
+    INNER JOIN dbo.Usuario s ON s.UsuarioId=p.SolicitanteUsuarioId
+    LEFT JOIN dbo.Usuario v ON v.UsuarioId=p.VendedorUsuarioId
+    WHERE p.PedidoId=@PedidoId AND p.Eliminado=0
+      AND (
+          @EsAdministrador=1 OR
+          (@EsCliente=1 AND EXISTS(SELECT 1 FROM dbo.ClienteUsuario cu WHERE cu.ClienteId=p.ClienteId AND cu.UsuarioId=@UsuarioId AND cu.Eliminado=0)) OR
+          (@EsCliente=0 AND (p.VendedorUsuarioId=@UsuarioId OR EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio ug WHERE ug.UsuarioId=@UsuarioId AND ug.GiroNegocioId=p.GiroNegocioId AND ug.Eliminado=0)))
+      );
+
+    SELECT h.PedidoHistorialId, h.UsuarioId, u.NombreUsuario, h.EstadoAnterior, h.EstadoNuevo, h.Comentario, h.Fecha
+    FROM dbo.PedidoHistorial h
+    INNER JOIN dbo.Usuario u ON u.UsuarioId=h.UsuarioId
+    INNER JOIN dbo.Pedido p ON p.PedidoId=h.PedidoId
+    WHERE h.PedidoId=@PedidoId AND p.Eliminado=0
+      AND (@EsAdministrador=1 OR
+           (@EsCliente=1 AND EXISTS(SELECT 1 FROM dbo.ClienteUsuario cu WHERE cu.ClienteId=p.ClienteId AND cu.UsuarioId=@UsuarioId AND cu.Eliminado=0)) OR
+           (@EsCliente=0 AND (p.VendedorUsuarioId=@UsuarioId OR EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio ug WHERE ug.UsuarioId=@UsuarioId AND ug.GiroNegocioId=p.GiroNegocioId AND ug.Eliminado=0))))
+    ORDER BY h.Fecha DESC, h.PedidoHistorialId DESC;
+
+    SELECT d.PedidoDocumentoId, d.UsuarioId, u.NombreUsuario, d.Nombre, d.TipoDocumento, d.Url, d.FechaCreacion
+    FROM dbo.PedidoDocumento d
+    INNER JOIN dbo.Usuario u ON u.UsuarioId=d.UsuarioId
+    INNER JOIN dbo.Pedido p ON p.PedidoId=d.PedidoId
+    WHERE d.PedidoId=@PedidoId AND d.Eliminado=0 AND p.Eliminado=0
+      AND (@EsAdministrador=1 OR
+           (@EsCliente=1 AND EXISTS(SELECT 1 FROM dbo.ClienteUsuario cu WHERE cu.ClienteId=p.ClienteId AND cu.UsuarioId=@UsuarioId AND cu.Eliminado=0)) OR
+           (@EsCliente=0 AND (p.VendedorUsuarioId=@UsuarioId OR EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio ug WHERE ug.UsuarioId=@UsuarioId AND ug.GiroNegocioId=p.GiroNegocioId AND ug.Eliminado=0))))
+    ORDER BY d.FechaCreacion DESC, d.PedidoDocumentoId DESC;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_pedido_leer_opciones
+    @UsuarioId INT,
+    @EsAdministrador BIT,
+    @EsCliente BIT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT DISTINCT c.ClienteId AS Id, c.Nombre
+    FROM dbo.Cliente c
+    WHERE c.Eliminado=0 AND c.EsActivo=1
+      AND (@EsAdministrador=1 OR @EsCliente=0 OR EXISTS(
+          SELECT 1 FROM dbo.ClienteUsuario cu WHERE cu.ClienteId=c.ClienteId AND cu.UsuarioId=@UsuarioId AND cu.Eliminado=0))
+    ORDER BY c.Nombre;
+
+    SELECT DISTINCT g.GiroNegocioId AS Id, g.Nombre
+    FROM dbo.GiroNegocio g
+    WHERE g.Eliminado=0 AND g.EsActivo=1
+      AND (@EsAdministrador=1 OR
+           (@EsCliente=1 AND EXISTS(
+               SELECT 1 FROM dbo.ClienteGiroNegocio cg
+               INNER JOIN dbo.ClienteUsuario cu ON cu.ClienteId=cg.ClienteId AND cu.UsuarioId=@UsuarioId AND cu.Eliminado=0
+               WHERE cg.GiroNegocioId=g.GiroNegocioId AND cg.Eliminado=0)) OR
+           (@EsCliente=0 AND EXISTS(
+               SELECT 1 FROM dbo.UsuarioGiroNegocio ug WHERE ug.GiroNegocioId=g.GiroNegocioId AND ug.UsuarioId=@UsuarioId AND ug.Eliminado=0)))
+    ORDER BY g.Nombre;
+
+    SELECT DISTINCT u.UsuarioId AS Id, CONCAT(u.Nombre, N' ', u.Apellido) AS Nombre
+    FROM dbo.Usuario u
+    INNER JOIN dbo.UsuarioRol ur ON ur.UsuarioId=u.UsuarioId AND ur.Eliminado=0
+    INNER JOIN dbo.Rol r ON r.RolId=ur.RolId AND r.Eliminado=0 AND r.EsActivo=1
+    WHERE u.Eliminado=0 AND u.EsActivo=1 AND r.Nombre IN(N'Vendedor',N'AdministradorGeneral')
+    ORDER BY Nombre;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_pedido_crear_registro
+    @ClienteId INT,
+    @GiroNegocioId INT,
+    @TipoSolicitud NVARCHAR(30),
+    @Titulo NVARCHAR(180),
+    @Descripcion NVARCHAR(2000),
+    @FechaRequerida DATE = NULL,
+    @FechaReunionUtc DATETIME2(0) = NULL,
+    @UsuarioId INT,
+    @EsAdministrador BIT,
+    @EsCliente BIT
+AS
+BEGIN
+    SET NOCOUNT ON; SET XACT_ABORT ON;
+    BEGIN TRY
+        BEGIN TRANSACTION;
+        IF @TipoSolicitud NOT IN(N'Pedido',N'Cotizacion',N'Reunion') THROW 50002,N'Tipo de solicitud inválido.',1;
+        IF NOT EXISTS(SELECT 1 FROM dbo.Cliente WHERE ClienteId=@ClienteId AND Eliminado=0 AND EsActivo=1) THROW 50002,N'El cliente no está disponible.',1;
+        IF NOT EXISTS(SELECT 1 FROM dbo.ClienteGiroNegocio WHERE ClienteId=@ClienteId AND GiroNegocioId=@GiroNegocioId AND Eliminado=0) THROW 50002,N'El giro no está contratado por el cliente.',1;
+        IF @EsCliente=1 AND NOT EXISTS(SELECT 1 FROM dbo.ClienteUsuario WHERE ClienteId=@ClienteId AND UsuarioId=@UsuarioId AND Eliminado=0) THROW 50002,N'El usuario no pertenece al cliente.',1;
+        IF @EsCliente=0 AND @EsAdministrador=0 AND NOT EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio WHERE UsuarioId=@UsuarioId AND GiroNegocioId=@GiroNegocioId AND Eliminado=0) THROW 50002,N'El usuario no tiene acceso al giro.',1;
+
+        INSERT dbo.Pedido(ClienteId,GiroNegocioId,SolicitanteUsuarioId,TipoSolicitud,Titulo,Descripcion,FechaRequerida,FechaReunionUtc)
+        VALUES(@ClienteId,@GiroNegocioId,@UsuarioId,@TipoSolicitud,LTRIM(RTRIM(@Titulo)),LTRIM(RTRIM(@Descripcion)),@FechaRequerida,@FechaReunionUtc);
+        DECLARE @Id BIGINT=CONVERT(BIGINT,SCOPE_IDENTITY());
+        INSERT dbo.PedidoHistorial(PedidoId,UsuarioId,EstadoAnterior,EstadoNuevo,Comentario)
+        VALUES(@Id,@UsuarioId,NULL,N'Solicitado',N'Solicitud creada.');
+        EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'Pedidos',N'Crear',@Id,N'Exitoso',@TipoSolicitud;
+        COMMIT TRANSACTION;
+        SELECT @Id;
+    END TRY BEGIN CATCH IF XACT_STATE()<>0 ROLLBACK TRANSACTION; THROW; END CATCH
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_pedido_actualizar_gestion
+    @PedidoId BIGINT,
+    @Estado NVARCHAR(30),
+    @VendedorUsuarioId INT = NULL,
+    @MontoCotizado DECIMAL(18,2) = NULL,
+    @FechaReunionUtc DATETIME2(0) = NULL,
+    @EnlaceReunion NVARCHAR(500) = NULL,
+    @Comentario NVARCHAR(1000) = NULL,
+    @UsuarioId INT,
+    @EsAdministrador BIT
+AS
+BEGIN
+    SET NOCOUNT ON; SET XACT_ABORT ON;
+    BEGIN TRY
+        BEGIN TRANSACTION;
+        IF @Estado NOT IN(N'Solicitado',N'EnRevision',N'Cotizado',N'Aprobado',N'EnProceso',N'Completado',N'Rechazado',N'Cancelado') THROW 50002,N'Estado inválido.',1;
+        DECLARE @Anterior NVARCHAR(30),@GiroNegocioId INT;
+        SELECT @Anterior=Estado,@GiroNegocioId=GiroNegocioId FROM dbo.Pedido WHERE PedidoId=@PedidoId AND Eliminado=0;
+        IF @Anterior IS NULL THROW 50002,N'El pedido no existe.',1;
+        IF @EsAdministrador=0 AND NOT EXISTS(
+            SELECT 1 FROM dbo.Pedido p WHERE p.PedidoId=@PedidoId AND
+            (p.VendedorUsuarioId=@UsuarioId OR EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio ug WHERE ug.UsuarioId=@UsuarioId AND ug.GiroNegocioId=p.GiroNegocioId AND ug.Eliminado=0)))
+            THROW 50002,N'El usuario no puede gestionar este pedido.',1;
+        IF @VendedorUsuarioId IS NOT NULL AND NOT EXISTS(
+            SELECT 1 FROM dbo.Usuario u INNER JOIN dbo.UsuarioRol ur ON ur.UsuarioId=u.UsuarioId AND ur.Eliminado=0
+            INNER JOIN dbo.Rol r ON r.RolId=ur.RolId AND r.Eliminado=0
+            WHERE u.UsuarioId=@VendedorUsuarioId AND u.Eliminado=0 AND u.EsActivo=1 AND r.Nombre IN(N'Vendedor',N'AdministradorGeneral'))
+            THROW 50002,N'El vendedor seleccionado no es válido.',1;
+
+        UPDATE dbo.Pedido SET Estado=@Estado,VendedorUsuarioId=@VendedorUsuarioId,MontoCotizado=@MontoCotizado,
+            FechaReunionUtc=@FechaReunionUtc,EnlaceReunion=NULLIF(LTRIM(RTRIM(@EnlaceReunion)),N''),FechaModificacion=SYSUTCDATETIME()
+        WHERE PedidoId=@PedidoId;
+        INSERT dbo.PedidoHistorial(PedidoId,UsuarioId,EstadoAnterior,EstadoNuevo,Comentario)
+        VALUES(@PedidoId,@UsuarioId,@Anterior,@Estado,NULLIF(LTRIM(RTRIM(@Comentario)),N''));
+        EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'Pedidos',N'ActualizarGestion',@PedidoId,N'Exitoso',@Estado;
+        COMMIT TRANSACTION;
+        SELECT 1;
+    END TRY BEGIN CATCH IF XACT_STATE()<>0 ROLLBACK TRANSACTION; THROW; END CATCH
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_pedido_agregar_comentario
+    @PedidoId BIGINT,@Comentario NVARCHAR(1000),@UsuarioId INT,@EsAdministrador BIT,@EsCliente BIT
+AS
+BEGIN
+    SET NOCOUNT ON; SET XACT_ABORT ON;
+    DECLARE @Estado NVARCHAR(30),@Permitido BIT=0;
+    SELECT @Estado=p.Estado,@Permitido=CASE WHEN @EsAdministrador=1 OR
+        (@EsCliente=1 AND EXISTS(SELECT 1 FROM dbo.ClienteUsuario cu WHERE cu.ClienteId=p.ClienteId AND cu.UsuarioId=@UsuarioId AND cu.Eliminado=0)) OR
+        (@EsCliente=0 AND (p.VendedorUsuarioId=@UsuarioId OR EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio ug WHERE ug.UsuarioId=@UsuarioId AND ug.GiroNegocioId=p.GiroNegocioId AND ug.Eliminado=0))) THEN 1 ELSE 0 END
+    FROM dbo.Pedido p WHERE p.PedidoId=@PedidoId AND p.Eliminado=0;
+    IF @Estado IS NULL OR @Permitido=0 THROW 50002,N'El pedido no está disponible.',1;
+    INSERT dbo.PedidoHistorial(PedidoId,UsuarioId,EstadoAnterior,EstadoNuevo,Comentario)
+    VALUES(@PedidoId,@UsuarioId,@Estado,@Estado,LTRIM(RTRIM(@Comentario)));
+    EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'Pedidos',N'Comentar',@PedidoId,N'Exitoso',NULL;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_pedido_agregar_documento
+    @PedidoId BIGINT,@Nombre NVARCHAR(200),@TipoDocumento NVARCHAR(60),@Url NVARCHAR(1000),
+    @UsuarioId INT,@EsAdministrador BIT,@EsCliente BIT
+AS
+BEGIN
+    SET NOCOUNT ON; SET XACT_ABORT ON;
+    IF NOT EXISTS(SELECT 1 FROM dbo.Pedido p WHERE p.PedidoId=@PedidoId AND p.Eliminado=0 AND
+        (@EsAdministrador=1 OR
+         (@EsCliente=1 AND EXISTS(SELECT 1 FROM dbo.ClienteUsuario cu WHERE cu.ClienteId=p.ClienteId AND cu.UsuarioId=@UsuarioId AND cu.Eliminado=0)) OR
+         (@EsCliente=0 AND (p.VendedorUsuarioId=@UsuarioId OR EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio ug WHERE ug.UsuarioId=@UsuarioId AND ug.GiroNegocioId=p.GiroNegocioId AND ug.Eliminado=0)))))
+        THROW 50002,N'El pedido no está disponible.',1;
+    INSERT dbo.PedidoDocumento(PedidoId,UsuarioId,Nombre,TipoDocumento,Url)
+    VALUES(@PedidoId,@UsuarioId,LTRIM(RTRIM(@Nombre)),LTRIM(RTRIM(@TipoDocumento)),LTRIM(RTRIM(@Url)));
+    DECLARE @Id BIGINT=CONVERT(BIGINT,SCOPE_IDENTITY());
+    EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'Pedidos',N'AgregarDocumento',@PedidoId,N'Exitoso',@Nombre;
+    SELECT @Id;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_pedido_eliminar_logico
+    @PedidoId BIGINT,@UsuarioId INT
+AS
+BEGIN
+    SET NOCOUNT ON; SET XACT_ABORT ON;
+    UPDATE dbo.Pedido SET Eliminado=1,FechaModificacion=SYSUTCDATETIME() WHERE PedidoId=@PedidoId AND Eliminado=0;
+    DECLARE @Filas INT=@@ROWCOUNT;
+    IF @Filas>0 EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'Pedidos',N'EliminarLogico',@PedidoId,N'Exitoso',NULL;
+    SELECT @Filas;
+END;
+GO

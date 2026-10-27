@@ -185,6 +185,75 @@ public sealed class TransportApiClient(HttpClient http, IHttpContextAccessor con
         await EnsureAsync(response, ct);
     }
 
+    public async Task<IReadOnlyList<PedidoListadoModel>> PedidosAsync(
+        string? busqueda, string? estado, int? clienteId, int? giroId, CancellationToken ct)
+    {
+        var query = new List<string>();
+        Add(query, "busqueda", busqueda);
+        Add(query, "estado", estado);
+        if (clienteId.HasValue) query.Add($"clienteId={clienteId.Value}");
+        if (giroId.HasValue) query.Add($"giroId={giroId.Value}");
+        return await GetRequiredAsync<List<PedidoListadoModel>>(
+            "api/pedidos" + (query.Count > 0 ? "?" + string.Join('&', query) : ""), ct);
+    }
+
+    public async Task<PedidoDetalleModel?> PedidoAsync(long id, CancellationToken ct)
+    {
+        using var request = Request(HttpMethod.Get, $"api/pedidos/{id}");
+        using var response = await http.SendAsync(request, ct);
+        if (response.StatusCode == HttpStatusCode.NotFound) return null;
+        await EnsureAsync(response, ct);
+        return await response.Content.ReadFromJsonAsync<PedidoDetalleModel>(_json, ct);
+    }
+
+    public Task<PedidoOpcionesModel> PedidoOpcionesAsync(CancellationToken ct) =>
+        GetRequiredAsync<PedidoOpcionesModel>("api/pedidos/opciones", ct);
+
+    public async Task<long> CrearPedidoAsync(PedidoCrearViewModel model, CancellationToken ct)
+    {
+        using var request = Request(HttpMethod.Post, "api/pedidos", new
+        {
+            model.ClienteId, model.GiroNegocioId, model.TipoSolicitud, model.Titulo,
+            model.Descripcion, model.FechaRequerida, model.FechaReunionUtc
+        });
+        using var response = await http.SendAsync(request, ct);
+        await EnsureAsync(response, ct);
+        return (await response.Content.ReadFromJsonAsync<ResultadoIdModel>(_json, ct))!.Id;
+    }
+
+    public async Task GestionarPedidoAsync(PedidoGestionViewModel model, CancellationToken ct)
+    {
+        using var request = Request(HttpMethod.Put, $"api/pedidos/{model.PedidoId}/gestion", new
+        {
+            model.Estado, model.VendedorUsuarioId, model.MontoCotizado,
+            model.FechaReunionUtc, model.EnlaceReunion, model.Comentario
+        });
+        using var response = await http.SendAsync(request, ct);
+        await EnsureAsync(response, ct);
+    }
+
+    public async Task ComentarPedidoAsync(long id, string comentario, CancellationToken ct)
+    {
+        using var request = Request(HttpMethod.Post, $"api/pedidos/{id}/comentarios", new { comentario });
+        using var response = await http.SendAsync(request, ct);
+        await EnsureAsync(response, ct);
+    }
+
+    public async Task AgregarDocumentoPedidoAsync(
+        long id, string nombre, string tipoDocumento, string url, CancellationToken ct)
+    {
+        using var request = Request(HttpMethod.Post, $"api/pedidos/{id}/documentos", new { nombre, tipoDocumento, url });
+        using var response = await http.SendAsync(request, ct);
+        await EnsureAsync(response, ct);
+    }
+
+    public async Task EliminarPedidoAsync(long id, CancellationToken ct)
+    {
+        using var request = Request(HttpMethod.Delete, $"api/pedidos/{id}");
+        using var response = await http.SendAsync(request, ct);
+        await EnsureAsync(response, ct);
+    }
+
     private async Task<T> GetRequiredAsync<T>(string uri, CancellationToken ct)
     {
         using var request = Request(HttpMethod.Get, uri);
