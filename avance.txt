@@ -3,7 +3,7 @@ TRANSPORT - CONTROL DE AVANCE DE MÓDULOS
 
 Última actualización: 27 de octubre de 2026
 Etapa actual: Fase 3 - operación interna
-Módulo activo: Ninguno; M17 finalizado y verificado.
+Módulo activo: Ninguno; M18 finalizado y verificado.
 
 
 1. PROPÓSITO DE ESTE ARCHIVO
@@ -163,7 +163,7 @@ M11. Pruebas automatizadas iniciales                           [BASE IMPLEMENTAD
 - Pruebas del controlador API de catálogos para tipos válidos e inválidos,
   eliminación y protección del rol AdministradorGeneral.
 - Pruebas del visor de auditoría para filtros, paginación y autorización.
-- Resultado registrado: 48 pruebas aprobadas y 0 fallidas.
+- Resultado registrado: 53 pruebas aprobadas y 0 fallidas.
 - Falta cobertura de integración, autorización, controladores, repositorios y
   operaciones CRUD completas.
 
@@ -316,12 +316,20 @@ M17. Venta y alquiler de maquinaria                            [IMPLEMENTADO]
   mantenimiento no puede reservarse.
 - Alcance por giro/sede, auditoría, interfaz MVC y cinco pruebas unitarias.
 
-M18. Transporte y logística                                   [PENDIENTE]
+M18. Transporte y logística                                   [IMPLEMENTADO]
 
 - Flota, unidades de carga, conductores y asignaciones.
 - Viajes, rutas, cargas, entregas e incidencias.
 - Transporte de materia prima.
 - Transporte nacional e internacional entre puertos, fronteras y bodegas.
+- Catálogo de vehículos/unidades de carga y conductores con capacidad,
+  licencia, disponibilidad y sede.
+- Viajes de materia prima, nacionales e internacionales con origen, destino,
+  carga, cliente y fechas planificadas/reales.
+- Asignación exclusiva de vehículo y conductor, liberados al entregar o
+  cancelar; control de capacidad y habilitación internacional.
+- Incidencias con severidad, resolución, trazabilidad y auditoría.
+- Alcance por giro/sede, interfaz MVC y cinco pruebas unitarias.
 
 M19. GPS y monitoreo                                           [PENDIENTE]
 
@@ -550,4 +558,10 @@ OXX. Nombre del módulo                                          [OPCIONAL]
   125, completó mantenimiento y confirmó que volvió a Disponible.
 - Se impidió una reserva duplicada y se verificaron 409 por alcance y 403 para
   Cliente; se agregaron 5 pruebas, para 48 aprobadas y 0 fallidas.
+- Se implementó M18 Transporte y logística con flota, conductores, viajes,
+  cargas, rutas, entregas e incidencias.
+- El recorrido internacional asignó recursos de forma exclusiva, rechazó un
+  viaje duplicado, resolvió una incidencia y liberó los recursos al entregar.
+- Se agregaron 5 pruebas; el total pasó a 53 aprobadas y 0 fallidas, sin datos
+  temporales activos.
 

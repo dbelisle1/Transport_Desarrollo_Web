@@ -88,6 +88,14 @@ IF OBJECT_ID(N'dbo.FK_MaquinariaContrato_Cliente',N'F') IS NULL ALTER TABLE dbo.
 IF OBJECT_ID(N'dbo.FK_MaquinariaContrato_Responsable',N'F') IS NULL ALTER TABLE dbo.MaquinariaContrato ADD CONSTRAINT FK_MaquinariaContrato_Responsable FOREIGN KEY(ResponsableUsuarioId) REFERENCES dbo.Usuario(UsuarioId);
 IF OBJECT_ID(N'dbo.FK_MaquinariaMantenimiento_Equipo',N'F') IS NULL ALTER TABLE dbo.MaquinariaMantenimiento ADD CONSTRAINT FK_MaquinariaMantenimiento_Equipo FOREIGN KEY(MaquinariaEquipoId) REFERENCES dbo.MaquinariaEquipo(MaquinariaEquipoId);
 IF OBJECT_ID(N'dbo.FK_MaquinariaMantenimiento_Responsable',N'F') IS NULL ALTER TABLE dbo.MaquinariaMantenimiento ADD CONSTRAINT FK_MaquinariaMantenimiento_Responsable FOREIGN KEY(ResponsableUsuarioId) REFERENCES dbo.Usuario(UsuarioId);
+IF OBJECT_ID(N'dbo.FK_TransporteVehiculo_Sede',N'F') IS NULL ALTER TABLE dbo.TransporteVehiculo ADD CONSTRAINT FK_TransporteVehiculo_Sede FOREIGN KEY(SedeId) REFERENCES dbo.Sede(SedeId);
+IF OBJECT_ID(N'dbo.FK_TransporteViaje_Sede',N'F') IS NULL ALTER TABLE dbo.TransporteViaje ADD CONSTRAINT FK_TransporteViaje_Sede FOREIGN KEY(SedeId) REFERENCES dbo.Sede(SedeId);
+IF OBJECT_ID(N'dbo.FK_TransporteViaje_Vehiculo',N'F') IS NULL ALTER TABLE dbo.TransporteViaje ADD CONSTRAINT FK_TransporteViaje_Vehiculo FOREIGN KEY(TransporteVehiculoId) REFERENCES dbo.TransporteVehiculo(TransporteVehiculoId);
+IF OBJECT_ID(N'dbo.FK_TransporteViaje_Conductor',N'F') IS NULL ALTER TABLE dbo.TransporteViaje ADD CONSTRAINT FK_TransporteViaje_Conductor FOREIGN KEY(TransporteConductorId) REFERENCES dbo.TransporteConductor(TransporteConductorId);
+IF OBJECT_ID(N'dbo.FK_TransporteViaje_Cliente',N'F') IS NULL ALTER TABLE dbo.TransporteViaje ADD CONSTRAINT FK_TransporteViaje_Cliente FOREIGN KEY(ClienteId) REFERENCES dbo.Cliente(ClienteId);
+IF OBJECT_ID(N'dbo.FK_TransporteViaje_Responsable',N'F') IS NULL ALTER TABLE dbo.TransporteViaje ADD CONSTRAINT FK_TransporteViaje_Responsable FOREIGN KEY(ResponsableUsuarioId) REFERENCES dbo.Usuario(UsuarioId);
+IF OBJECT_ID(N'dbo.FK_TransporteIncidencia_Viaje',N'F') IS NULL ALTER TABLE dbo.TransporteIncidencia ADD CONSTRAINT FK_TransporteIncidencia_Viaje FOREIGN KEY(TransporteViajeId) REFERENCES dbo.TransporteViaje(TransporteViajeId);
+IF OBJECT_ID(N'dbo.FK_TransporteIncidencia_Usuario',N'F') IS NULL ALTER TABLE dbo.TransporteIncidencia ADD CONSTRAINT FK_TransporteIncidencia_Usuario FOREIGN KEY(UsuarioId) REFERENCES dbo.Usuario(UsuarioId);
 GO
 
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.Usuario') AND name = N'UX_Usuario_NombreUsuario')
@@ -148,4 +156,8 @@ IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.Producci
 IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.MaquinariaEquipo') AND name=N'UX_MaquinariaEquipo_Codigo') CREATE UNIQUE INDEX UX_MaquinariaEquipo_Codigo ON dbo.MaquinariaEquipo(Codigo) WHERE Eliminado=0;
 IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.MaquinariaContrato') AND name=N'IX_MaquinariaContrato_Equipo') CREATE INDEX IX_MaquinariaContrato_Equipo ON dbo.MaquinariaContrato(MaquinariaEquipoId,Estado,FechaInicio DESC) INCLUDE(ClienteId,Eliminado);
 IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.MaquinariaMantenimiento') AND name=N'IX_MaquinariaMantenimiento_Equipo') CREATE INDEX IX_MaquinariaMantenimiento_Equipo ON dbo.MaquinariaMantenimiento(MaquinariaEquipoId,Estado,FechaProgramada DESC);
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.TransporteVehiculo') AND name=N'UX_TransporteVehiculo_Placa') CREATE UNIQUE INDEX UX_TransporteVehiculo_Placa ON dbo.TransporteVehiculo(Placa) WHERE Eliminado=0;
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.TransporteConductor') AND name=N'UX_TransporteConductor_Licencia') CREATE UNIQUE INDEX UX_TransporteConductor_Licencia ON dbo.TransporteConductor(Licencia) WHERE Eliminado=0;
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.TransporteViaje') AND name=N'IX_TransporteViaje_SedeEstado') CREATE INDEX IX_TransporteViaje_SedeEstado ON dbo.TransporteViaje(SedeId,Estado,FechaSalidaPlanificada DESC) INCLUDE(TransporteVehiculoId,TransporteConductorId,Eliminado);
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.TransporteIncidencia') AND name=N'IX_TransporteIncidencia_Viaje') CREATE INDEX IX_TransporteIncidencia_Viaje ON dbo.TransporteIncidencia(TransporteViajeId,Resuelta,Fecha DESC);
 GO

@@ -119,6 +119,8 @@ Procedimientos principales:
   terminado, rendimiento, merma, costos e historial.
 - Maquinaria: equipos por sede, disponibilidad, venta/alquiler, contratos,
   devolución por horómetro y mantenimiento.
+- Transporte: flota, conductores, capacidades, viajes, rutas, cargas, entregas
+  e incidencias nacionales o internacionales.
 
 Los repositorios no consultan tablas directamente cuando existe un procedimiento para la operación. La contraseña no aparece en listados, DTOs, tokens, auditoría ni logs.
 
@@ -161,6 +163,9 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 | `GET/POST` | `/api/maquinarias` | Catálogo y alta de equipos según alcance |
 | `POST/PUT` | `/api/maquinarias/contratos` | Reservas, contratos y devoluciones |
 | `POST/PUT` | `/api/maquinarias/mantenimientos` | Programación y ejecución de mantenimiento |
+| `GET/POST` | `/api/transportes` | Viajes y asignaciones según alcance |
+| `POST` | `/api/transportes/{vehiculos|conductores}` | Catálogo de recursos logísticos |
+| `POST/PUT` | `/api/transportes/{id}/incidencias` | Incidencias y resolución del viaje |
 
 ## Rutas web
 
@@ -175,6 +180,7 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 - `/gestion/extracciones`: jornadas, balance, destinos e historial de extracción.
 - `/gestion/producciones`: órdenes, etapas, rendimiento, merma y costos.
 - `/gestion/maquinarias`: equipos, contratos, devoluciones y mantenimiento.
+- `/gestion/transportes`: flota, conductores, viajes, cargas e incidencias.
 - `/gestion/pedidos`: asignación, cotización y seguimiento comercial.
 - `/admin`: panel general con conteos reales.
 - `/admin/usuarios`: CRUD y filtros de usuarios.
@@ -191,7 +197,7 @@ dotnet build TransPort.sln --no-restore
 dotnet test TransPort.sln --no-restore
 ```
 
-Las 48 pruebas actuales cubren seguridad JWT, autenticación, cierre de sesión, clientes, catálogos, auditoría, pedidos, portal, inventarios, abastecimiento, extracción, producción y maquinaria: alcance, validaciones, autorización y operaciones críticas.
+Las 53 pruebas actuales cubren seguridad JWT, autenticación, cierre de sesión, clientes, catálogos, auditoría, pedidos, portal, inventarios, abastecimiento, extracción, producción, maquinaria y transporte: alcance, validaciones, autorización y operaciones críticas.
 
 ## Pendiente para fases posteriores
 

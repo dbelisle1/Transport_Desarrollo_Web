@@ -13,6 +13,7 @@ using TransPort.Api.Modules.PortalCliente.Repositories;
 using TransPort.Api.Modules.Produccion.Repositories;
 using TransPort.Api.Modules.Seguridad.Repositories;
 using TransPort.Api.Modules.Seguridad.Services;
+using TransPort.Api.Modules.Transporte.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +34,7 @@ builder.Services.AddScoped<ICatalogoRepository, CatalogoRepository>();
 builder.Services.AddScoped<IOperacionesRepository, OperacionesRepository>();
 builder.Services.AddScoped<IPortalClienteRepository, PortalClienteRepository>();
 builder.Services.AddScoped<IProduccionRepository, ProduccionRepository>();
+builder.Services.AddScoped<ITransporteRepository, TransporteRepository>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddAuthentication("Bearer")
