@@ -7,6 +7,7 @@ using TransPort.Api.Modules.Abastecimiento.Repositories;
 using TransPort.Api.Modules.Comercial.Repositories;
 using TransPort.Api.Modules.Construccion.Repositories;
 using TransPort.Api.Modules.Extraccion.Repositories;
+using TransPort.Api.Modules.Finanzas.Repositories;
 using TransPort.Api.Modules.Gps.Repositories;
 using TransPort.Api.Modules.Inventarios.Repositories;
 using TransPort.Api.Modules.Maquinaria.Repositories;
@@ -30,6 +31,7 @@ builder.Services.AddScoped<IAbastecimientoRepository, AbastecimientoRepository>(
 builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();
 builder.Services.AddScoped<IConstruccionRepository, ConstruccionRepository>();
 builder.Services.AddScoped<IExtraccionRepository, ExtraccionRepository>();
+builder.Services.AddScoped<IFinanzaRepository, FinanzaRepository>();
 builder.Services.AddScoped<IGpsRepository, GpsRepository>();
 builder.Services.AddScoped<IInventarioRepository, InventarioRepository>();
 builder.Services.AddScoped<IMaquinariaRepository, MaquinariaRepository>();

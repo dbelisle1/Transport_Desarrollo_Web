@@ -3,7 +3,7 @@ TRANSPORT - CONTROL DE AVANCE DE MÓDULOS
 
 Última actualización: 27 de octubre de 2026
 Etapa actual: Fase 3 - operación interna
-Módulo activo: Ninguno. Siguiente módulo obligatorio: M21 - Presupuestos y control de gastos.
+Módulo activo: Ninguno. Siguiente módulo obligatorio: M22 - Alertas y recordatorios.
 
 
 1. PROPÓSITO DE ESTE ARCHIVO
@@ -166,7 +166,7 @@ M11. Pruebas automatizadas iniciales                           [BASE IMPLEMENTAD
 - Pruebas del controlador API de catálogos para tipos válidos e inválidos,
   eliminación y protección del rol AdministradorGeneral.
 - Pruebas del visor de auditoría para filtros, paginación y autorización.
-- Resultado registrado: 63 pruebas aprobadas y 0 fallidas.
+- Resultado registrado: 68 pruebas aprobadas y 0 fallidas.
 - Falta cobertura de integración, autorización, controladores, repositorios y
   operaciones CRUD completas.
 
@@ -369,12 +369,22 @@ M20. Servicios de construcción                                [IMPLEMENTADO]
 - Recorrido HTTP real verificado con inventario 100→80, costo real 2,000, dos
   avances, cierre de obra, permisos y limpieza de datos temporales.
 
-M21. Presupuestos y control de gastos                          [PENDIENTE]
+M21. Presupuestos y control de gastos                          [IMPLEMENTADO]
 
 - Presupuesto independiente por giro de negocio.
 - Registro y clasificación de gastos.
 - Comparación presupuesto-real y consolidación administrativa.
 - Integración con pedidos, producción, transporte y construcción.
+- Presupuestos mensuales independientes por giro y sede, con monto, período,
+  estado, observación, gasto real, disponible y porcentaje ejecutado.
+- Gastos clasificados e inmutables con fecha, concepto, referencia y usuario.
+- Origen manual o vínculo validado contra un pedido, orden de producción,
+  viaje o proyecto de construcción del mismo giro/sede.
+- Cierre y cancelación bloquean nuevos gastos; eliminación lógica
+  administrativa disponible después del cierre.
+- Alcance por giro/sede en SQL y API, interfaz MVC, auditoría y cinco pruebas.
+- Recorrido real verificado con dos gastos por 3,000 sobre 10,000, rechazo de
+  origen incompatible, aislamiento, cierre e instalación idempotente.
 
 M22. Alertas y recordatorios                                   [PENDIENTE]
 
@@ -603,4 +613,11 @@ OXX. Nombre del módulo                                          [OPCIONAL]
 - Se comprobaron 409 para personal fuera del giro/sede, 403 para Cliente y 302
   para acceso web anónimo; se agregaron 5 pruebas, para 63 aprobadas y 0
   fallidas, y el instalador completo pasó dos veces.
+- Se implementó M21 Presupuestos y control de gastos con comparación mensual
+  presupuesto-real por giro y sede y vínculos con cuatro módulos operativos.
+- El recorrido real registró gastos manual y de construcción por 3,000 sobre
+  10,000, calculó 30 % ejecutado y 7,000 disponibles.
+- Se rechazaron un origen incompatible, un empleado fuera de alcance, un
+  cliente y un gasto posterior al cierre; se agregaron 5 pruebas, para 68
+  aprobadas y 0 fallidas, sin datos temporales activos.
 

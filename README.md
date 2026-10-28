@@ -125,6 +125,8 @@ Procedimientos principales:
   kilometraje y alertas, con simulador de fuente externa precargado.
 - Construcción: proyectos y obras, actividades, responsables, avances,
   materiales, maquinaria, personal, presupuestos y costos reales.
+- Finanzas: presupuestos mensuales por giro/sede, gastos, ejecución real y
+  vínculos con pedidos, producción, transporte y construcción.
 
 Los repositorios no consultan tablas directamente cuando existe un procedimiento para la operación. La contraseña no aparece en listados, DTOs, tokens, auditoría ni logs.
 
@@ -178,6 +180,10 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 | `POST` | `/api/construcciones/{id}/{actividades|recursos}` | Planificar actividades y asignar recursos |
 | `POST` | `/api/construcciones/actividades/{id}/avances` | Registrar avance físico e historial |
 | `PUT` | `/api/construcciones/{id}/estado` | Iniciar, suspender, reanudar, completar o cancelar |
+| `GET/POST` | `/api/finanzas` | Consultar o crear presupuestos por alcance |
+| `GET` | `/api/finanzas/{id}` | Comparación presupuesto-real y gastos |
+| `POST` | `/api/finanzas/{id}/gastos` | Registrar un gasto manual o vinculado |
+| `PUT` | `/api/finanzas/{id}/estado` | Cerrar o cancelar el presupuesto |
 
 ## Rutas web
 
@@ -195,6 +201,7 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 - `/gestion/transportes`: flota, conductores, viajes, cargas e incidencias.
 - `/gestion/gps`: dispositivos, simulación de datos, recorridos y alertas.
 - `/gestion/construcciones`: obras, actividades, recursos, costos y avances.
+- `/gestion/finanzas`: presupuestos, gastos y ejecución por giro/sede.
 - `/gestion/pedidos`: asignación, cotización y seguimiento comercial.
 - `/admin`: panel general con conteos reales.
 - `/admin/usuarios`: CRUD y filtros de usuarios.
@@ -211,8 +218,8 @@ dotnet build TransPort.sln --no-restore
 dotnet test TransPort.sln --no-restore
 ```
 
-Las 63 pruebas actuales cubren seguridad JWT, autenticación, cierre de sesión, clientes, catálogos, auditoría, pedidos, portal, inventarios, abastecimiento, extracción, producción, maquinaria, transporte, GPS y construcción: alcance, validaciones, autorización y operaciones críticas.
+Las 68 pruebas actuales cubren seguridad JWT, autenticación, cierre de sesión, clientes, catálogos, auditoría, pedidos, portal, inventarios, abastecimiento, extracción, producción, maquinaria, transporte, GPS, construcción y finanzas: alcance, validaciones, autorización y operaciones críticas.
 
 ## Pendiente para fases posteriores
 
-Presupuestos, alertas, comunicación, integraciones de terceros, reportes operativos/financieros y funcionamiento offline transaccional. Los módulos que dependan de una fuente externa se probarán con formularios de simulación y ejemplos funcionales precargados, identificando claramente el origen simulado.
+Alertas, comunicación, integraciones de terceros, reportes operativos/financieros y funcionamiento offline transaccional. Los módulos que dependan de una fuente externa se probarán con formularios de simulación y ejemplos funcionales precargados, identificando claramente el origen simulado.

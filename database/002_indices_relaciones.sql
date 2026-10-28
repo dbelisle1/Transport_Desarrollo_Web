@@ -186,3 +186,13 @@ IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.Construc
 IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.ConstruccionRecurso') AND name=N'IX_ConstruccionRecurso_Proyecto') CREATE INDEX IX_ConstruccionRecurso_Proyecto ON dbo.ConstruccionRecurso(ConstruccionProyectoId,Tipo,Fecha DESC);
 IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.ConstruccionAvance') AND name=N'IX_ConstruccionAvance_Actividad') CREATE INDEX IX_ConstruccionAvance_Actividad ON dbo.ConstruccionAvance(ConstruccionActividadId,Fecha DESC);
 GO
+
+IF NOT EXISTS(SELECT 1 FROM sys.foreign_keys WHERE name=N'FK_FinanzaPresupuesto_Giro') ALTER TABLE dbo.FinanzaPresupuesto ADD CONSTRAINT FK_FinanzaPresupuesto_Giro FOREIGN KEY(GiroNegocioId) REFERENCES dbo.GiroNegocio(GiroNegocioId);
+IF NOT EXISTS(SELECT 1 FROM sys.foreign_keys WHERE name=N'FK_FinanzaPresupuesto_Sede') ALTER TABLE dbo.FinanzaPresupuesto ADD CONSTRAINT FK_FinanzaPresupuesto_Sede FOREIGN KEY(SedeId) REFERENCES dbo.Sede(SedeId);
+IF NOT EXISTS(SELECT 1 FROM sys.foreign_keys WHERE name=N'FK_FinanzaPresupuesto_Usuario') ALTER TABLE dbo.FinanzaPresupuesto ADD CONSTRAINT FK_FinanzaPresupuesto_Usuario FOREIGN KEY(CreadoPorUsuarioId) REFERENCES dbo.Usuario(UsuarioId);
+IF NOT EXISTS(SELECT 1 FROM sys.foreign_keys WHERE name=N'FK_FinanzaGasto_Presupuesto') ALTER TABLE dbo.FinanzaGasto ADD CONSTRAINT FK_FinanzaGasto_Presupuesto FOREIGN KEY(FinanzaPresupuestoId) REFERENCES dbo.FinanzaPresupuesto(FinanzaPresupuestoId);
+IF NOT EXISTS(SELECT 1 FROM sys.foreign_keys WHERE name=N'FK_FinanzaGasto_Usuario') ALTER TABLE dbo.FinanzaGasto ADD CONSTRAINT FK_FinanzaGasto_Usuario FOREIGN KEY(UsuarioId) REFERENCES dbo.Usuario(UsuarioId);
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.FinanzaPresupuesto') AND name=N'UX_FinanzaPresupuesto_Periodo') CREATE UNIQUE INDEX UX_FinanzaPresupuesto_Periodo ON dbo.FinanzaPresupuesto(GiroNegocioId,SedeId,Anio,Mes) WHERE Eliminado=0;
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.FinanzaGasto') AND name=N'IX_FinanzaGasto_PresupuestoFecha') CREATE INDEX IX_FinanzaGasto_PresupuestoFecha ON dbo.FinanzaGasto(FinanzaPresupuestoId,Fecha DESC) INCLUDE(Monto,Categoria,OrigenModulo);
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.FinanzaGasto') AND name=N'IX_FinanzaGasto_Origen') CREATE INDEX IX_FinanzaGasto_Origen ON dbo.FinanzaGasto(OrigenModulo,OrigenRegistroId) WHERE OrigenRegistroId IS NOT NULL;
+GO

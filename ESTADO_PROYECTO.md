@@ -1,7 +1,7 @@
 # Estado actual del proyecto TransPort
 
 **Fecha de revisión:** 27 de octubre de 2026
-**Etapa evaluada:** Fase 4 — servicios operativos completados hasta construcción
+**Etapa evaluada:** Fase 5 — capacidades transversales en desarrollo
 
 ## 1. Resumen ejecutivo
 
@@ -20,7 +20,7 @@ La Fase 1 está implementada en sus componentes principales:
 - Contenedores independientes para MVC y API.
 - Pruebas unitarias iniciales para seguridad y cierre de sesión.
 
-Los módulos operativos implementados incluyen pedidos, portal del cliente, inventarios, abastecimiento, extracción, producción, maquinaria, transporte, GPS simulado y construcción. Presupuestos, alertas, comunicación, integraciones y reportes consolidados continúan pendientes.
+Los módulos operativos implementados incluyen pedidos, portal del cliente, inventarios, abastecimiento, extracción, producción, maquinaria, transporte, GPS simulado, construcción y presupuestos/control de gastos. Alertas, comunicación, integraciones y reportes consolidados continúan pendientes.
 
 Después del cierre de la Fase 1 se implementó y verificó el módulo administrativo de clientes: CRUD, filtros, asociaciones transaccionales de usuarios y giros, eliminación lógica, auditoría, API, vistas MVC y pruebas. El recorrido MVC–API–SQL Server se validó con ambos contenedores activos.
 
@@ -79,7 +79,7 @@ Leyenda:
 | Solución .NET 8 con MVC y API | Completo | Dos proyectos principales y dos proyectos de pruebas en `TransPort.sln`. |
 | Separación MVC → API → SQL Server | Completo | El MVC no accede directamente a la base. |
 | ADO.NET y procedimientos almacenados | Completo | Repositorios con `Microsoft.Data.SqlClient`; no se utiliza Entity Framework. |
-| Base de datos actual | Completo | 40 tablas, 82 claves foráneas, 45 índices y 118 procedimientos definidos. |
+| Base de datos actual | Completo | 42 tablas, 87 claves foráneas, 48 índices y 125 procedimientos definidos. |
 | Datos de demostración | Completo | Script idempotente con giros, sedes, roles y usuarios demo. |
 | Login único `/acceso` | Completo | Credenciales validadas por la API y SQL Server. |
 | JWT MVC–API | Completo | Firma configurable, expiración y envío como Bearer. |
@@ -362,9 +362,20 @@ Incluye:
 - Estados y transiciones protegidas; el cierre exige actividades al 100 %.
 - Alcance por giro/sede, auditoría, interfaz MVC y cinco pruebas nuevas.
 
+### 4.19 Presupuestos y control de gastos
+
+**Estado: implementado y verificado**
+
+- Presupuestos mensuales independientes por giro y sede.
+- Comparación de monto asignado, gasto real, disponible y porcentaje ejecutado.
+- Gastos clasificados, trazables e inmutables con usuario y referencia.
+- Vínculos validados con pedidos, producción, transporte y construcción.
+- Cierre/cancelación con bloqueo de nuevos gastos y eliminación lógica.
+- Alcance por giro/sede, auditoría, interfaz MVC y cinco pruebas nuevas.
+
 ## 5. Inventario de base de datos
 
-### Tablas implementadas (40)
+### Tablas implementadas (42)
 
 1. `Usuario`
 2. `Rol`
@@ -406,17 +417,20 @@ Incluye:
 38. `ConstruccionActividad`
 39. `ConstruccionRecurso`
 40. `ConstruccionAvance`
+41. `FinanzaPresupuesto`
+42. `FinanzaGasto`
 
 También se implementaron:
 
-- 82 claves foráneas.
-- 45 índices normales o únicos.
+- 87 claves foráneas.
+- 48 índices normales o únicos.
 - Eliminación lógica en entidades y relaciones.
 - Fechas UTC mediante `DATETIME2`/`SYSUTCDATETIME()`.
 - Transacciones y `XACT_ABORT` en operaciones compuestas.
-- 118 procedimientos almacenados para usuarios, catálogos, asociaciones,
+- 125 procedimientos almacenados para usuarios, catálogos, asociaciones,
   clientes, pedidos, portal, inventarios, abastecimiento, extracción,
-  producción, maquinaria, transporte, GPS, construcción, dashboard y auditoría.
+  producción, maquinaria, transporte, GPS, construcción, finanzas, dashboard y
+  auditoría.
 
 ## 6. Rutas y endpoints disponibles
 
@@ -439,6 +453,7 @@ También se implementaron:
 | `/gestion/transportes` | Flota, viajes, entregas e incidencias | Personal interno autorizado por sede |
 | `/gestion/gps` | Posiciones, recorridos, simulación y alertas | Personal interno autorizado por activo |
 | `/gestion/construcciones` | Obras, actividades, recursos, costos y avances | Personal interno autorizado por giro y sede |
+| `/gestion/finanzas` | Presupuestos, gastos y ejecución mensual | Personal interno autorizado por giro y sede |
 | `/admin` | Dashboard administrativo | AdministradorGeneral |
 | `/admin/usuarios` | Administración de usuarios | AdministradorGeneral |
 | `/admin/clientes` | Administración de empresas cliente | AdministradorGeneral |
@@ -494,6 +509,10 @@ También se implementaron:
 | `POST` | `/api/construcciones/{id}/{actividades|recursos}` | Planificar y asignar recursos |
 | `POST` | `/api/construcciones/actividades/{id}/avances` | Registrar avance e historial |
 | `PUT` | `/api/construcciones/{id}/estado` | Ejecutar una transición de la obra |
+| `GET/POST` | `/api/finanzas` | Consultar o crear presupuestos según alcance |
+| `GET` | `/api/finanzas/{id}` | Comparación presupuesto-real y gastos |
+| `POST` | `/api/finanzas/{id}/gastos` | Registrar gasto manual o vinculado |
+| `PUT` | `/api/finanzas/{id}/estado` | Cerrar o cancelar el presupuesto |
 
 ## 7. Componentes parciales y mejoras pendientes de la base
 
@@ -536,7 +555,7 @@ Los siguientes módulos todavía no están desarrollados:
 
 - Reportes por giro de negocio.
 - Consolidación administrativa general.
-- Presupuestos y control de gastos.
+- Consumo de presupuestos ya implementados en indicadores consolidados.
 - Indicadores operativos y financieros.
 - Reportes disponibles para clientes según sus asociaciones.
 
@@ -547,9 +566,9 @@ Revisión del 27 de octubre de 2026:
 | Validación | Resultado |
 |---|---|
 | Compilación durante `dotnet test TransPort.sln --no-restore` | Correcta |
-| Pruebas de API | 62 aprobadas, 0 fallidas |
+| Pruebas de API | 67 aprobadas, 0 fallidas |
 | Pruebas de MVC | 1 aprobada, 0 fallidas |
-| Total | **63 aprobadas, 0 fallidas** |
+| Total | **68 aprobadas, 0 fallidas** |
 | `docker-compose config -q` | Configuración válida |
 | Contenedores activos durante esta revisión | API y Web activos; `/salud`, `/` y `/admin/auditoria` respondieron correctamente |
 | Smoke test de clientes | CRUD, filtro, asignaciones, auditoría y eliminación lógica correctos |
@@ -565,6 +584,7 @@ Revisión del 27 de octubre de 2026:
 | Smoke test de transporte | Recursos, viaje internacional, incidencia, entrega y permisos correctos |
 | Smoke test de GPS | JSON externo, Ciudad de Guatemala, recorrido, alertas y permisos correctos |
 | Smoke test de construcción | Inventario, recursos, costo, avances, cierre, MVC y permisos correctos |
+| Smoke test de finanzas | Presupuesto-real, origen operativo, cierre, MVC y permisos correctos |
 
 Cobertura actual:
 
@@ -589,6 +609,8 @@ Cobertura actual:
   de maquinaria.
 - Propagación de alcance, creación, avances y autorización del controlador de
   construcción.
+- Propagación de alcance, creación, gastos y autorización del controlador de
+  finanzas.
 
 El smoke test creó un cliente temporal, consultó y actualizó sus datos, validó el filtro y las asignaciones de usuario/giro, y ejecutó su eliminación lógica. SQL Server confirmó cero relaciones activas, cinco eventos de auditoría y ningún cliente de prueba visible al finalizar.
 
@@ -623,5 +645,5 @@ registros temporales.
 
 ## 12. Conclusión
 
-El proyecto dispone de una base técnica coherente y extensible. La Fase 1 cubre el acceso, la estructura organizacional, el control de usuarios, los portales iniciales, la persistencia y el despliegue local. Pedidos, portal, inventarios, abastecimiento, extracción, producción, maquinaria, transporte, GPS y construcción ya están conectados; el siguiente paso es presupuestos y control de gastos.
+El proyecto dispone de una base técnica coherente y extensible. La Fase 1 cubre el acceso, la estructura organizacional, el control de usuarios, los portales iniciales, la persistencia y el despliegue local. Pedidos, portal, inventarios, abastecimiento, extracción, producción, maquinaria, transporte, GPS, construcción y finanzas ya están conectados; el siguiente paso es alertas y recordatorios.
 
