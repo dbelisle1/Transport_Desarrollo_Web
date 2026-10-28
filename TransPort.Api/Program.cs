@@ -7,6 +7,7 @@ using TransPort.Api.Modules.Abastecimiento.Repositories;
 using TransPort.Api.Modules.Comercial.Repositories;
 using TransPort.Api.Modules.Extraccion.Repositories;
 using TransPort.Api.Modules.Inventarios.Repositories;
+using TransPort.Api.Modules.Maquinaria.Repositories;
 using TransPort.Api.Modules.Organizacion.Repositories;
 using TransPort.Api.Modules.PortalCliente.Repositories;
 using TransPort.Api.Modules.Produccion.Repositories;
@@ -26,6 +27,7 @@ builder.Services.AddScoped<IAbastecimientoRepository, AbastecimientoRepository>(
 builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();
 builder.Services.AddScoped<IExtraccionRepository, ExtraccionRepository>();
 builder.Services.AddScoped<IInventarioRepository, InventarioRepository>();
+builder.Services.AddScoped<IMaquinariaRepository, MaquinariaRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<ICatalogoRepository, CatalogoRepository>();
 builder.Services.AddScoped<IOperacionesRepository, OperacionesRepository>();

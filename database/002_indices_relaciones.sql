@@ -82,6 +82,12 @@ IF OBJECT_ID(N'dbo.FK_ProduccionOrden_Responsable',N'F') IS NULL ALTER TABLE dbo
 IF OBJECT_ID(N'dbo.FK_ProduccionEtapa_Orden',N'F') IS NULL ALTER TABLE dbo.ProduccionEtapa ADD CONSTRAINT FK_ProduccionEtapa_Orden FOREIGN KEY(ProduccionOrdenId) REFERENCES dbo.ProduccionOrden(ProduccionOrdenId);
 IF OBJECT_ID(N'dbo.FK_ProduccionHistorial_Orden',N'F') IS NULL ALTER TABLE dbo.ProduccionHistorial ADD CONSTRAINT FK_ProduccionHistorial_Orden FOREIGN KEY(ProduccionOrdenId) REFERENCES dbo.ProduccionOrden(ProduccionOrdenId);
 IF OBJECT_ID(N'dbo.FK_ProduccionHistorial_Usuario',N'F') IS NULL ALTER TABLE dbo.ProduccionHistorial ADD CONSTRAINT FK_ProduccionHistorial_Usuario FOREIGN KEY(UsuarioId) REFERENCES dbo.Usuario(UsuarioId);
+IF OBJECT_ID(N'dbo.FK_MaquinariaEquipo_Sede',N'F') IS NULL ALTER TABLE dbo.MaquinariaEquipo ADD CONSTRAINT FK_MaquinariaEquipo_Sede FOREIGN KEY(SedeId) REFERENCES dbo.Sede(SedeId);
+IF OBJECT_ID(N'dbo.FK_MaquinariaContrato_Equipo',N'F') IS NULL ALTER TABLE dbo.MaquinariaContrato ADD CONSTRAINT FK_MaquinariaContrato_Equipo FOREIGN KEY(MaquinariaEquipoId) REFERENCES dbo.MaquinariaEquipo(MaquinariaEquipoId);
+IF OBJECT_ID(N'dbo.FK_MaquinariaContrato_Cliente',N'F') IS NULL ALTER TABLE dbo.MaquinariaContrato ADD CONSTRAINT FK_MaquinariaContrato_Cliente FOREIGN KEY(ClienteId) REFERENCES dbo.Cliente(ClienteId);
+IF OBJECT_ID(N'dbo.FK_MaquinariaContrato_Responsable',N'F') IS NULL ALTER TABLE dbo.MaquinariaContrato ADD CONSTRAINT FK_MaquinariaContrato_Responsable FOREIGN KEY(ResponsableUsuarioId) REFERENCES dbo.Usuario(UsuarioId);
+IF OBJECT_ID(N'dbo.FK_MaquinariaMantenimiento_Equipo',N'F') IS NULL ALTER TABLE dbo.MaquinariaMantenimiento ADD CONSTRAINT FK_MaquinariaMantenimiento_Equipo FOREIGN KEY(MaquinariaEquipoId) REFERENCES dbo.MaquinariaEquipo(MaquinariaEquipoId);
+IF OBJECT_ID(N'dbo.FK_MaquinariaMantenimiento_Responsable',N'F') IS NULL ALTER TABLE dbo.MaquinariaMantenimiento ADD CONSTRAINT FK_MaquinariaMantenimiento_Responsable FOREIGN KEY(ResponsableUsuarioId) REFERENCES dbo.Usuario(UsuarioId);
 GO
 
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.Usuario') AND name = N'UX_Usuario_NombreUsuario')
@@ -139,4 +145,7 @@ IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.Extracci
 IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.ProduccionOrden') AND name=N'IX_ProduccionOrden_SedeFecha') CREATE INDEX IX_ProduccionOrden_SedeFecha ON dbo.ProduccionOrden(SedeId,FechaPlanificada DESC,Estado) INCLUDE(ArticuloEntradaId,ArticuloSalidaId,Eliminado);
 IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.ProduccionEtapa') AND name=N'UX_ProduccionEtapa_OrdenSecuencia') CREATE UNIQUE INDEX UX_ProduccionEtapa_OrdenSecuencia ON dbo.ProduccionEtapa(ProduccionOrdenId,Secuencia);
 IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.ProduccionHistorial') AND name=N'IX_ProduccionHistorial_Orden') CREATE INDEX IX_ProduccionHistorial_Orden ON dbo.ProduccionHistorial(ProduccionOrdenId,Fecha DESC);
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.MaquinariaEquipo') AND name=N'UX_MaquinariaEquipo_Codigo') CREATE UNIQUE INDEX UX_MaquinariaEquipo_Codigo ON dbo.MaquinariaEquipo(Codigo) WHERE Eliminado=0;
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.MaquinariaContrato') AND name=N'IX_MaquinariaContrato_Equipo') CREATE INDEX IX_MaquinariaContrato_Equipo ON dbo.MaquinariaContrato(MaquinariaEquipoId,Estado,FechaInicio DESC) INCLUDE(ClienteId,Eliminado);
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.MaquinariaMantenimiento') AND name=N'IX_MaquinariaMantenimiento_Equipo') CREATE INDEX IX_MaquinariaMantenimiento_Equipo ON dbo.MaquinariaMantenimiento(MaquinariaEquipoId,Estado,FechaProgramada DESC);
 GO

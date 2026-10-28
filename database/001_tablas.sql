@@ -347,3 +347,26 @@ CREATE TABLE dbo.ProduccionHistorial
  EstadoAnterior NVARCHAR(30) NULL,EstadoNuevo NVARCHAR(30) NOT NULL,Comentario NVARCHAR(500) NULL,Fecha DATETIME2(0) NOT NULL CONSTRAINT DF_ProduccionHistorial_Fecha DEFAULT(SYSUTCDATETIME())
 );
 GO
+
+IF OBJECT_ID(N'dbo.MaquinariaEquipo',N'U') IS NULL
+CREATE TABLE dbo.MaquinariaEquipo
+(
+ MaquinariaEquipoId INT IDENTITY(1,1) NOT NULL CONSTRAINT PK_MaquinariaEquipo PRIMARY KEY,SedeId INT NOT NULL,Codigo NVARCHAR(50) NOT NULL,Tipo NVARCHAR(80) NOT NULL,Marca NVARCHAR(80) NOT NULL,Modelo NVARCHAR(80) NOT NULL,Anio SMALLINT NULL,
+ Estado NVARCHAR(30) NOT NULL CONSTRAINT DF_MaquinariaEquipo_Estado DEFAULT(N'Disponible'),PrecioVenta DECIMAL(18,2) NULL,TarifaDiaria DECIMAL(18,2) NULL,HorasUso DECIMAL(18,2) NOT NULL CONSTRAINT DF_MaquinariaEquipo_Horas DEFAULT(0),Observacion NVARCHAR(500) NULL,
+ Eliminado BIT NOT NULL CONSTRAINT DF_MaquinariaEquipo_Eliminado DEFAULT(0),FechaCreacion DATETIME2(0) NOT NULL CONSTRAINT DF_MaquinariaEquipo_Fecha DEFAULT(SYSUTCDATETIME()),FechaModificacion DATETIME2(0) NULL,
+ CONSTRAINT CK_MaquinariaEquipo_Estado CHECK(Estado IN(N'Disponible',N'Reservada',N'Alquilada',N'Mantenimiento',N'Vendida',N'Baja')),CONSTRAINT CK_MaquinariaEquipo_Valores CHECK((PrecioVenta IS NULL OR PrecioVenta>=0) AND (TarifaDiaria IS NULL OR TarifaDiaria>=0) AND HorasUso>=0)
+);
+GO
+IF OBJECT_ID(N'dbo.MaquinariaContrato',N'U') IS NULL
+CREATE TABLE dbo.MaquinariaContrato
+(
+ MaquinariaContratoId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_MaquinariaContrato PRIMARY KEY,MaquinariaEquipoId INT NOT NULL,ClienteId INT NOT NULL,Tipo NVARCHAR(20) NOT NULL,FechaInicio DATE NOT NULL,FechaFin DATE NULL,MontoTotal DECIMAL(18,2) NOT NULL,Deposito DECIMAL(18,2) NOT NULL CONSTRAINT DF_MaquinariaContrato_Deposito DEFAULT(0),Estado NVARCHAR(20) NOT NULL CONSTRAINT DF_MaquinariaContrato_Estado DEFAULT(N'Reservado'),HorasEntrega DECIMAL(18,2) NULL,HorasDevolucion DECIMAL(18,2) NULL,ResponsableUsuarioId INT NOT NULL,Observacion NVARCHAR(500) NULL,Eliminado BIT NOT NULL CONSTRAINT DF_MaquinariaContrato_Eliminado DEFAULT(0),FechaCreacion DATETIME2(0) NOT NULL CONSTRAINT DF_MaquinariaContrato_Fecha DEFAULT(SYSUTCDATETIME()),FechaModificacion DATETIME2(0) NULL,
+ CONSTRAINT CK_MaquinariaContrato_Tipo CHECK(Tipo IN(N'Venta',N'Alquiler')),CONSTRAINT CK_MaquinariaContrato_Estado CHECK(Estado IN(N'Reservado',N'Activo',N'Finalizado',N'Cancelado')),CONSTRAINT CK_MaquinariaContrato_Valores CHECK(MontoTotal>=0 AND Deposito>=0 AND (HorasDevolucion IS NULL OR HorasEntrega IS NULL OR HorasDevolucion>=HorasEntrega))
+);
+GO
+IF OBJECT_ID(N'dbo.MaquinariaMantenimiento',N'U') IS NULL
+CREATE TABLE dbo.MaquinariaMantenimiento
+(
+ MaquinariaMantenimientoId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_MaquinariaMantenimiento PRIMARY KEY,MaquinariaEquipoId INT NOT NULL,Tipo NVARCHAR(80) NOT NULL,FechaProgramada DATE NOT NULL,FechaCompletada DATE NULL,Costo DECIMAL(18,2) NOT NULL CONSTRAINT DF_MaquinariaMantenimiento_Costo DEFAULT(0),Estado NVARCHAR(20) NOT NULL CONSTRAINT DF_MaquinariaMantenimiento_Estado DEFAULT(N'Programado'),ResponsableUsuarioId INT NOT NULL,Observacion NVARCHAR(500) NULL,FechaCreacion DATETIME2(0) NOT NULL CONSTRAINT DF_MaquinariaMantenimiento_Fecha DEFAULT(SYSUTCDATETIME()),CONSTRAINT CK_MaquinariaMantenimiento_Estado CHECK(Estado IN(N'Programado',N'EnProceso',N'Completado',N'Cancelado')),CONSTRAINT CK_MaquinariaMantenimiento_Costo CHECK(Costo>=0)
+);
+GO

@@ -3,7 +3,7 @@ TRANSPORT - CONTROL DE AVANCE DE MÓDULOS
 
 Última actualización: 27 de octubre de 2026
 Etapa actual: Fase 3 - operación interna
-Módulo activo: Ninguno; M16 finalizado y verificado.
+Módulo activo: Ninguno; M17 finalizado y verificado.
 
 
 1. PROPÓSITO DE ESTE ARCHIVO
@@ -163,7 +163,7 @@ M11. Pruebas automatizadas iniciales                           [BASE IMPLEMENTAD
 - Pruebas del controlador API de catálogos para tipos válidos e inválidos,
   eliminación y protección del rol AdministradorGeneral.
 - Pruebas del visor de auditoría para filtros, paginación y autorización.
-- Resultado registrado: 43 pruebas aprobadas y 0 fallidas.
+- Resultado registrado: 48 pruebas aprobadas y 0 fallidas.
 - Falta cobertura de integración, autorización, controladores, repositorios y
   operaciones CRUD completas.
 
@@ -302,11 +302,19 @@ M16. Producción y procesamiento de materia prima               [IMPLEMENTADO]
 - Cinco pruebas unitarias y recorrido real con saldos, cierre prematuro,
   permisos, instalación idempotente y limpieza de datos temporales.
 
-M17. Venta y alquiler de maquinaria                            [PENDIENTE]
+M17. Venta y alquiler de maquinaria                            [IMPLEMENTADO]
 
 - Catálogo y disponibilidad de maquinaria.
 - Venta, alquiler, reservas, contratos y devoluciones.
 - Asignación por sede, mantenimiento y tiempo de uso.
+- Catálogo de equipos con código único, sede, estado, tarifas, precio y
+  horómetro.
+- Reservas y contratos de venta o alquiler con cliente, fechas, monto,
+  depósito, activación, cancelación y finalización.
+- Devolución de alquiler con validación del horómetro y disponibilidad.
+- Mantenimiento programado, en proceso, completado o cancelado; un equipo en
+  mantenimiento no puede reservarse.
+- Alcance por giro/sede, auditoría, interfaz MVC y cinco pruebas unitarias.
 
 M18. Transporte y logística                                   [PENDIENTE]
 
@@ -536,4 +544,10 @@ OXX. Nombre del módulo                                          [OPCIONAL]
   agregaron 5 pruebas, para 43 aprobadas y 0 fallidas.
 - El instalador completo pasó dos veces y no quedaron órdenes ni artículos de
   prueba activos.
+- Se implementó M17 Venta y alquiler de maquinaria con catálogo, disponibilidad,
+  contratos, devoluciones por horómetro y mantenimiento.
+- El recorrido real reservó y alquiló un equipo, actualizó sus horas de 100 a
+  125, completó mantenimiento y confirmó que volvió a Disponible.
+- Se impidió una reserva duplicada y se verificaron 409 por alcance y 403 para
+  Cliente; se agregaron 5 pruebas, para 48 aprobadas y 0 fallidas.
 

@@ -79,7 +79,7 @@ Leyenda:
 | Solución .NET 8 con MVC y API | Completo | Dos proyectos principales y dos proyectos de pruebas en `TransPort.sln`. |
 | Separación MVC → API → SQL Server | Completo | El MVC no accede directamente a la base. |
 | ADO.NET y procedimientos almacenados | Completo | Repositorios con `Microsoft.Data.SqlClient`; no se utiliza Entity Framework. |
-| Base de datos actual | Completo | 26 tablas, 50 claves foráneas, 31 índices y 82 procedimientos definidos. |
+| Base de datos actual | Completo | 29 tablas, 56 claves foráneas, 34 índices y 91 procedimientos definidos. |
 | Datos de demostración | Completo | Script idempotente con giros, sedes, roles y usuarios demo. |
 | Login único `/acceso` | Completo | Credenciales validadas por la API y SQL Server. |
 | JWT MVC–API | Completo | Firma configurable, expiración y envío como Bearer. |
@@ -98,7 +98,7 @@ Leyenda:
 | PWA y responsive | Completo para Fase 1 | Manifest, ícono, service worker público y breakpoints 768/1100/1920 px. |
 | Docker | Completo en configuración | Dos Dockerfiles multietapa, red interna, volumen de claves y Compose válido. |
 | Documentación de inicio | Completo | `README.md`, `.env.example`, `.gitignore` e `instruccionesInicio.txt`. |
-| Pruebas automatizadas | Parcial | 43 pruebas aprobadas; faltan pruebas amplias de integración de todos los módulos. |
+| Pruebas automatizadas | Parcial | 48 pruebas aprobadas; faltan pruebas amplias de integración de todos los módulos. |
 
 ## 4. Módulos desarrollados
 
@@ -318,9 +318,19 @@ Incluye:
 - Salida real, merma, costo unitario, rendimiento, historial y auditoría.
 - Autorización por giro/sede y cinco pruebas unitarias nuevas.
 
+### 4.15 Venta y alquiler de maquinaria
+
+**Estado: implementado y verificado**
+
+- Catálogo, sede, disponibilidad, tarifas, precio y horómetro.
+- Reservas y contratos de venta o alquiler por cliente.
+- Activación, devolución, cancelación y cierre de contratos.
+- Mantenimiento programado y control de indisponibilidad.
+- Alcance por giro/sede, auditoría, interfaz MVC y cinco pruebas nuevas.
+
 ## 5. Inventario de base de datos
 
-### Tablas implementadas (26)
+### Tablas implementadas (29)
 
 1. `Usuario`
 2. `Rol`
@@ -348,17 +358,20 @@ Incluye:
 24. `ProduccionOrden`
 25. `ProduccionEtapa`
 26. `ProduccionHistorial`
+27. `MaquinariaEquipo`
+28. `MaquinariaContrato`
+29. `MaquinariaMantenimiento`
 
 También se implementaron:
 
-- 50 claves foráneas.
-- 31 índices normales o únicos.
+- 56 claves foráneas.
+- 34 índices normales o únicos.
 - Eliminación lógica en entidades y relaciones.
 - Fechas UTC mediante `DATETIME2`/`SYSUTCDATETIME()`.
 - Transacciones y `XACT_ABORT` en operaciones compuestas.
-- 82 procedimientos almacenados para usuarios, catálogos, asociaciones,
+- 91 procedimientos almacenados para usuarios, catálogos, asociaciones,
   clientes, pedidos, portal, inventarios, abastecimiento, extracción,
-  producción, dashboard y auditoría.
+  producción, maquinaria, dashboard y auditoría.
 
 ## 6. Rutas y endpoints disponibles
 
@@ -377,6 +390,7 @@ También se implementaron:
 | `/gestion/abastecimientos` | Solicitudes entre giros | Personal interno autorizado |
 | `/gestion/extracciones` | Jornadas y trazabilidad de extracción | Personal interno autorizado por planta |
 | `/gestion/producciones` | Órdenes, etapas y resultados de producción | Personal interno autorizado por planta |
+| `/gestion/maquinarias` | Equipos, contratos y mantenimiento | Personal interno autorizado por sede |
 | `/admin` | Dashboard administrativo | AdministradorGeneral |
 | `/admin/usuarios` | Administración de usuarios | AdministradorGeneral |
 | `/admin/clientes` | Administración de empresas cliente | AdministradorGeneral |
@@ -418,6 +432,9 @@ También se implementaron:
 | `GET/POST` | `/api/producciones` | Consultar o crear órdenes según alcance |
 | `PUT` | `/api/producciones/{id}/estado` | Iniciar, completar o cancelar una orden |
 | `PUT` | `/api/producciones/{id}/etapas/{etapaId}/completar` | Completar la etapa activa |
+| `GET/POST` | `/api/maquinarias` | Consultar o crear equipos según alcance |
+| `POST/PUT` | `/api/maquinarias/contratos` | Reservar, activar y finalizar contratos |
+| `POST/PUT` | `/api/maquinarias/mantenimientos` | Programar y completar mantenimiento |
 
 ## 7. Componentes parciales y mejoras pendientes de la base
 
@@ -434,14 +451,6 @@ Estos puntos mejoran la plataforma actual, aunque varios no eran obligatorios pa
 ## 8. Módulos pendientes para fases posteriores
 
 Los siguientes módulos todavía no están desarrollados:
-
-### 8.4 Maquinaria
-
-- Catálogo de maquinaria.
-- Venta y alquiler.
-- Disponibilidad y reservas.
-- Mantenimiento y uso.
-- Contratos y entregas.
 
 ### 8.5 Transporte y logística
 
@@ -503,9 +512,9 @@ Revisión del 27 de octubre de 2026:
 | Validación | Resultado |
 |---|---|
 | Compilación durante `dotnet test TransPort.sln --no-restore` | Correcta |
-| Pruebas de API | 42 aprobadas, 0 fallidas |
+| Pruebas de API | 47 aprobadas, 0 fallidas |
 | Pruebas de MVC | 1 aprobada, 0 fallidas |
-| Total | **43 aprobadas, 0 fallidas** |
+| Total | **48 aprobadas, 0 fallidas** |
 | `docker-compose config -q` | Configuración válida |
 | Contenedores activos durante esta revisión | API y Web activos; `/salud`, `/` y `/admin/auditoria` respondieron correctamente |
 | Smoke test de clientes | CRUD, filtro, asignaciones, auditoría y eliminación lógica correctos |
@@ -517,6 +526,7 @@ Revisión del 27 de octubre de 2026:
 | Smoke test de abastecimiento | Reserva, despacho, recepción, historial, MVC y permisos correctos |
 | Smoke test de extracción | Balance, entrada/salida de inventario, historial, MVC y permisos correctos |
 | Smoke test de producción | Consumo, etapas, producto terminado, merma, costos y permisos correctos |
+| Smoke test de maquinaria | Reserva, alquiler, devolución, horómetro, mantenimiento y permisos correctos |
 
 Cobertura actual:
 
@@ -537,6 +547,8 @@ Cobertura actual:
   controlador de extracción.
 - Propagación de alcance, creación, etapas y autorización del controlador de
   producción.
+- Propagación de alcance, creación, contratos y autorización del controlador
+  de maquinaria.
 
 El smoke test creó un cliente temporal, consultó y actualizó sus datos, validó el filtro y las asignaciones de usuario/giro, y ejecutó su eliminación lógica. SQL Server confirmó cero relaciones activas, cinco eventos de auditoría y ningún cliente de prueba visible al finalizar.
 
@@ -570,5 +582,5 @@ registros temporales.
 
 ## 12. Conclusión
 
-El proyecto dispone de una base técnica coherente y extensible. La Fase 1 cubre el acceso, la estructura organizacional, el control de usuarios, los portales iniciales, la persistencia y el despliegue local. Pedidos, portal, inventarios, abastecimiento, extracción y producción ya están conectados; el siguiente paso es maquinaria.
+El proyecto dispone de una base técnica coherente y extensible. La Fase 1 cubre el acceso, la estructura organizacional, el control de usuarios, los portales iniciales, la persistencia y el despliegue local. Pedidos, portal, inventarios, abastecimiento, extracción, producción y maquinaria ya están conectados; el siguiente paso es transporte y logística.
 
