@@ -1,6 +1,6 @@
 # TransPort — Base técnica y administración
 
-Sistema TransPort construido con .NET 8, ASP.NET Core MVC, Web API, ADO.NET, SQL Server y Docker. Incluye organización, autenticación/autorización, administración, auditoría y el flujo comercial de pedidos, cotizaciones y reuniones.
+Sistema TransPort construido con .NET 8, ASP.NET Core MVC, Web API, ADO.NET, SQL Server y Docker. Incluye organización, autenticación/autorización, administración, auditoría y módulos comerciales y operativos conectados de extremo a extremo.
 
 ## Arquitectura
 
@@ -123,6 +123,8 @@ Procedimientos principales:
   e incidencias nacionales o internacionales.
 - GPS: dispositivos, posiciones, recorridos, velocidad, tiempo de uso,
   kilometraje y alertas, con simulador de fuente externa precargado.
+- Construcción: proyectos y obras, actividades, responsables, avances,
+  materiales, maquinaria, personal, presupuestos y costos reales.
 
 Los repositorios no consultan tablas directamente cuando existe un procedimiento para la operación. La contraseña no aparece en listados, DTOs, tokens, auditoría ni logs.
 
@@ -171,6 +173,11 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 | `GET` | `/api/gps` | Dispositivos, últimas posiciones y alertas según alcance |
 | `POST` | `/api/gps/simular` | Simular texto JSON recibido de una fuente GPS externa |
 | `GET` | `/api/gps/dispositivos/{id}/recorrido` | Historial de posiciones del activo |
+| `GET/POST` | `/api/construcciones` | Listar o crear proyectos según giro y sede |
+| `GET` | `/api/construcciones/{id}` | Detalle, actividades, recursos y avances |
+| `POST` | `/api/construcciones/{id}/{actividades|recursos}` | Planificar actividades y asignar recursos |
+| `POST` | `/api/construcciones/actividades/{id}/avances` | Registrar avance físico e historial |
+| `PUT` | `/api/construcciones/{id}/estado` | Iniciar, suspender, reanudar, completar o cancelar |
 
 ## Rutas web
 
@@ -187,6 +194,7 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 - `/gestion/maquinarias`: equipos, contratos, devoluciones y mantenimiento.
 - `/gestion/transportes`: flota, conductores, viajes, cargas e incidencias.
 - `/gestion/gps`: dispositivos, simulación de datos, recorridos y alertas.
+- `/gestion/construcciones`: obras, actividades, recursos, costos y avances.
 - `/gestion/pedidos`: asignación, cotización y seguimiento comercial.
 - `/admin`: panel general con conteos reales.
 - `/admin/usuarios`: CRUD y filtros de usuarios.
@@ -203,8 +211,8 @@ dotnet build TransPort.sln --no-restore
 dotnet test TransPort.sln --no-restore
 ```
 
-Las 58 pruebas actuales cubren seguridad JWT, autenticación, cierre de sesión, clientes, catálogos, auditoría, pedidos, portal, inventarios, abastecimiento, extracción, producción, maquinaria, transporte y GPS: alcance, validaciones, autorización y operaciones críticas.
+Las 63 pruebas actuales cubren seguridad JWT, autenticación, cierre de sesión, clientes, catálogos, auditoría, pedidos, portal, inventarios, abastecimiento, extracción, producción, maquinaria, transporte, GPS y construcción: alcance, validaciones, autorización y operaciones críticas.
 
 ## Pendiente para fases posteriores
 
-Construcción, presupuestos, alertas, comunicación, integraciones de terceros, reportes operativos/financieros y funcionamiento offline transaccional. Las tarjetas de esos módulos se muestran explícitamente como pendientes y no simulan datos reales.
+Presupuestos, alertas, comunicación, integraciones de terceros, reportes operativos/financieros y funcionamiento offline transaccional. Los módulos que dependan de una fuente externa se probarán con formularios de simulación y ejemplos funcionales precargados, identificando claramente el origen simulado.

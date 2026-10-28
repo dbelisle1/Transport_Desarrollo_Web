@@ -1,7 +1,7 @@
 # Estado actual del proyecto TransPort
 
 **Fecha de revisión:** 27 de octubre de 2026
-**Etapa evaluada:** Fase 2 — flujo de pedidos y gestión comercial completado
+**Etapa evaluada:** Fase 4 — servicios operativos completados hasta construcción
 
 ## 1. Resumen ejecutivo
 
@@ -20,7 +20,7 @@ La Fase 1 está implementada en sus componentes principales:
 - Contenedores independientes para MVC y API.
 - Pruebas unitarias iniciales para seguridad y cierre de sesión.
 
-Los módulos operativos implementados incluyen pedidos, portal del cliente, inventarios, abastecimiento, extracción, producción, maquinaria, transporte y GPS simulado. Construcción, presupuestos, alertas, comunicación, integraciones y reportes consolidados continúan pendientes.
+Los módulos operativos implementados incluyen pedidos, portal del cliente, inventarios, abastecimiento, extracción, producción, maquinaria, transporte, GPS simulado y construcción. Presupuestos, alertas, comunicación, integraciones y reportes consolidados continúan pendientes.
 
 Después del cierre de la Fase 1 se implementó y verificó el módulo administrativo de clientes: CRUD, filtros, asociaciones transaccionales de usuarios y giros, eliminación lógica, auditoría, API, vistas MVC y pruebas. El recorrido MVC–API–SQL Server se validó con ambos contenedores activos.
 
@@ -79,7 +79,7 @@ Leyenda:
 | Solución .NET 8 con MVC y API | Completo | Dos proyectos principales y dos proyectos de pruebas en `TransPort.sln`. |
 | Separación MVC → API → SQL Server | Completo | El MVC no accede directamente a la base. |
 | ADO.NET y procedimientos almacenados | Completo | Repositorios con `Microsoft.Data.SqlClient`; no se utiliza Entity Framework. |
-| Base de datos actual | Completo | 36 tablas, 70 claves foráneas, 41 índices y 109 procedimientos definidos. |
+| Base de datos actual | Completo | 40 tablas, 82 claves foráneas, 45 índices y 118 procedimientos definidos. |
 | Datos de demostración | Completo | Script idempotente con giros, sedes, roles y usuarios demo. |
 | Login único `/acceso` | Completo | Credenciales validadas por la API y SQL Server. |
 | JWT MVC–API | Completo | Firma configurable, expiración y envío como Bearer. |
@@ -350,9 +350,21 @@ Incluye:
 - La activación del proveedor real requiere únicamente adaptar su contrato de
   datos y credenciales, sin afectar el dominio ni la interfaz de prueba.
 
+### 4.18 Servicios de construcción
+
+**Estado: implementado y verificado**
+
+- Proyectos de puentes, carreteras, edificios u otras obras por sede y cliente.
+- Planificación de actividades, responsables, fechas, presupuesto y avance.
+- Recursos de material, maquinaria, personal u otros, con costo real calculado.
+- Consumo transaccional de materiales contra el inventario de la sede.
+- Historial inmutable de avances y evidencias por enlace.
+- Estados y transiciones protegidas; el cierre exige actividades al 100 %.
+- Alcance por giro/sede, auditoría, interfaz MVC y cinco pruebas nuevas.
+
 ## 5. Inventario de base de datos
 
-### Tablas implementadas (36)
+### Tablas implementadas (40)
 
 1. `Usuario`
 2. `Rol`
@@ -390,17 +402,21 @@ Incluye:
 34. `GpsDispositivo`
 35. `GpsPosicion`
 36. `GpsAlerta`
+37. `ConstruccionProyecto`
+38. `ConstruccionActividad`
+39. `ConstruccionRecurso`
+40. `ConstruccionAvance`
 
 También se implementaron:
 
-- 70 claves foráneas.
-- 41 índices normales o únicos.
+- 82 claves foráneas.
+- 45 índices normales o únicos.
 - Eliminación lógica en entidades y relaciones.
 - Fechas UTC mediante `DATETIME2`/`SYSUTCDATETIME()`.
 - Transacciones y `XACT_ABORT` en operaciones compuestas.
-- 109 procedimientos almacenados para usuarios, catálogos, asociaciones,
+- 118 procedimientos almacenados para usuarios, catálogos, asociaciones,
   clientes, pedidos, portal, inventarios, abastecimiento, extracción,
-  producción, maquinaria, transporte, GPS, dashboard y auditoría.
+  producción, maquinaria, transporte, GPS, construcción, dashboard y auditoría.
 
 ## 6. Rutas y endpoints disponibles
 
@@ -422,6 +438,7 @@ También se implementaron:
 | `/gestion/maquinarias` | Equipos, contratos y mantenimiento | Personal interno autorizado por sede |
 | `/gestion/transportes` | Flota, viajes, entregas e incidencias | Personal interno autorizado por sede |
 | `/gestion/gps` | Posiciones, recorridos, simulación y alertas | Personal interno autorizado por activo |
+| `/gestion/construcciones` | Obras, actividades, recursos, costos y avances | Personal interno autorizado por giro y sede |
 | `/admin` | Dashboard administrativo | AdministradorGeneral |
 | `/admin/usuarios` | Administración de usuarios | AdministradorGeneral |
 | `/admin/clientes` | Administración de empresas cliente | AdministradorGeneral |
@@ -472,6 +489,11 @@ También se implementaron:
 | `GET` | `/api/gps` | Resumen de dispositivos y alertas |
 | `POST` | `/api/gps/simular` | Ingresar un evento externo simulado en JSON |
 | `GET` | `/api/gps/dispositivos/{id}/recorrido` | Consultar posiciones autorizadas |
+| `GET/POST` | `/api/construcciones` | Consultar o crear obras según alcance |
+| `GET` | `/api/construcciones/{id}` | Detalle, actividades, recursos y avances |
+| `POST` | `/api/construcciones/{id}/{actividades|recursos}` | Planificar y asignar recursos |
+| `POST` | `/api/construcciones/actividades/{id}/avances` | Registrar avance e historial |
+| `PUT` | `/api/construcciones/{id}/estado` | Ejecutar una transición de la obra |
 
 ## 7. Componentes parciales y mejoras pendientes de la base
 
@@ -489,36 +511,28 @@ Estos puntos mejoran la plataforma actual, aunque varios no eran obligatorios pa
 
 Los siguientes módulos todavía no están desarrollados:
 
-### 8.7 Construcción
-
-- Proyectos y obras.
-- Presupuestos.
-- Avance físico y financiero.
-- Personal, materiales y maquinaria asignada.
-- Control de puentes, carreteras y edificios.
-
-### 8.8 Alertas y recordatorios
+### 8.7 Alertas y recordatorios
 
 - Alertas según rol, giro y sede.
 - Recordatorios operativos y administrativos.
 - Notificaciones por eventos de negocio.
 - Preferencias y confirmación de lectura.
 
-### 8.9 Comunicación y gestión comercial
+### 8.8 Comunicación y gestión comercial
 
 - Mensajería con clientes.
 - Solicitud y agenda de reuniones.
 - Asignación de vendedores.
 - Seguimiento de oportunidades y acuerdos.
 
-### 8.10 Integraciones externas
+### 8.9 Integraciones externas
 
 - API REST y webhooks para terceros.
 - Intercambio EDI/CSV.
 - Integraciones con clientes y proveedores.
 - Sincronización y manejo de errores.
 
-### 8.11 Reportes consolidados
+### 8.10 Reportes consolidados
 
 - Reportes por giro de negocio.
 - Consolidación administrativa general.
@@ -533,9 +547,9 @@ Revisión del 27 de octubre de 2026:
 | Validación | Resultado |
 |---|---|
 | Compilación durante `dotnet test TransPort.sln --no-restore` | Correcta |
-| Pruebas de API | 57 aprobadas, 0 fallidas |
+| Pruebas de API | 62 aprobadas, 0 fallidas |
 | Pruebas de MVC | 1 aprobada, 0 fallidas |
-| Total | **58 aprobadas, 0 fallidas** |
+| Total | **63 aprobadas, 0 fallidas** |
 | `docker-compose config -q` | Configuración válida |
 | Contenedores activos durante esta revisión | API y Web activos; `/salud`, `/` y `/admin/auditoria` respondieron correctamente |
 | Smoke test de clientes | CRUD, filtro, asignaciones, auditoría y eliminación lógica correctos |
@@ -550,6 +564,7 @@ Revisión del 27 de octubre de 2026:
 | Smoke test de maquinaria | Reserva, alquiler, devolución, horómetro, mantenimiento y permisos correctos |
 | Smoke test de transporte | Recursos, viaje internacional, incidencia, entrega y permisos correctos |
 | Smoke test de GPS | JSON externo, Ciudad de Guatemala, recorrido, alertas y permisos correctos |
+| Smoke test de construcción | Inventario, recursos, costo, avances, cierre, MVC y permisos correctos |
 
 Cobertura actual:
 
@@ -572,6 +587,8 @@ Cobertura actual:
   producción.
 - Propagación de alcance, creación, contratos y autorización del controlador
   de maquinaria.
+- Propagación de alcance, creación, avances y autorización del controlador de
+  construcción.
 
 El smoke test creó un cliente temporal, consultó y actualizó sus datos, validó el filtro y las asignaciones de usuario/giro, y ejecutó su eliminación lógica. SQL Server confirmó cero relaciones activas, cinco eventos de auditoría y ningún cliente de prueba visible al finalizar.
 
@@ -606,5 +623,5 @@ registros temporales.
 
 ## 12. Conclusión
 
-El proyecto dispone de una base técnica coherente y extensible. La Fase 1 cubre el acceso, la estructura organizacional, el control de usuarios, los portales iniciales, la persistencia y el despliegue local. Pedidos, portal, inventarios, abastecimiento, extracción, producción, maquinaria, transporte y GPS ya están conectados; el siguiente paso es construcción.
+El proyecto dispone de una base técnica coherente y extensible. La Fase 1 cubre el acceso, la estructura organizacional, el control de usuarios, los portales iniciales, la persistencia y el despliegue local. Pedidos, portal, inventarios, abastecimiento, extracción, producción, maquinaria, transporte, GPS y construcción ya están conectados; el siguiente paso es presupuestos y control de gastos.
 

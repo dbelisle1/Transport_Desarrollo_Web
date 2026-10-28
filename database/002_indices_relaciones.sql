@@ -102,6 +102,18 @@ IF OBJECT_ID(N'dbo.FK_GpsPosicion_Dispositivo',N'F') IS NULL ALTER TABLE dbo.Gps
 IF OBJECT_ID(N'dbo.FK_GpsAlerta_Dispositivo',N'F') IS NULL ALTER TABLE dbo.GpsAlerta ADD CONSTRAINT FK_GpsAlerta_Dispositivo FOREIGN KEY(GpsDispositivoId) REFERENCES dbo.GpsDispositivo(GpsDispositivoId);
 IF OBJECT_ID(N'dbo.FK_GpsAlerta_Posicion',N'F') IS NULL ALTER TABLE dbo.GpsAlerta ADD CONSTRAINT FK_GpsAlerta_Posicion FOREIGN KEY(GpsPosicionId) REFERENCES dbo.GpsPosicion(GpsPosicionId);
 IF OBJECT_ID(N'dbo.FK_GpsAlerta_Usuario',N'F') IS NULL ALTER TABLE dbo.GpsAlerta ADD CONSTRAINT FK_GpsAlerta_Usuario FOREIGN KEY(AtendidaPorUsuarioId) REFERENCES dbo.Usuario(UsuarioId);
+IF OBJECT_ID(N'dbo.FK_ConstruccionProyecto_Sede',N'F') IS NULL ALTER TABLE dbo.ConstruccionProyecto ADD CONSTRAINT FK_ConstruccionProyecto_Sede FOREIGN KEY(SedeId) REFERENCES dbo.Sede(SedeId);
+IF OBJECT_ID(N'dbo.FK_ConstruccionProyecto_Cliente',N'F') IS NULL ALTER TABLE dbo.ConstruccionProyecto ADD CONSTRAINT FK_ConstruccionProyecto_Cliente FOREIGN KEY(ClienteId) REFERENCES dbo.Cliente(ClienteId);
+IF OBJECT_ID(N'dbo.FK_ConstruccionProyecto_Responsable',N'F') IS NULL ALTER TABLE dbo.ConstruccionProyecto ADD CONSTRAINT FK_ConstruccionProyecto_Responsable FOREIGN KEY(ResponsableUsuarioId) REFERENCES dbo.Usuario(UsuarioId);
+IF OBJECT_ID(N'dbo.FK_ConstruccionActividad_Proyecto',N'F') IS NULL ALTER TABLE dbo.ConstruccionActividad ADD CONSTRAINT FK_ConstruccionActividad_Proyecto FOREIGN KEY(ConstruccionProyectoId) REFERENCES dbo.ConstruccionProyecto(ConstruccionProyectoId);
+IF OBJECT_ID(N'dbo.FK_ConstruccionActividad_Responsable',N'F') IS NULL ALTER TABLE dbo.ConstruccionActividad ADD CONSTRAINT FK_ConstruccionActividad_Responsable FOREIGN KEY(ResponsableUsuarioId) REFERENCES dbo.Usuario(UsuarioId);
+IF OBJECT_ID(N'dbo.FK_ConstruccionRecurso_Proyecto',N'F') IS NULL ALTER TABLE dbo.ConstruccionRecurso ADD CONSTRAINT FK_ConstruccionRecurso_Proyecto FOREIGN KEY(ConstruccionProyectoId) REFERENCES dbo.ConstruccionProyecto(ConstruccionProyectoId);
+IF OBJECT_ID(N'dbo.FK_ConstruccionRecurso_Actividad',N'F') IS NULL ALTER TABLE dbo.ConstruccionRecurso ADD CONSTRAINT FK_ConstruccionRecurso_Actividad FOREIGN KEY(ConstruccionActividadId) REFERENCES dbo.ConstruccionActividad(ConstruccionActividadId);
+IF OBJECT_ID(N'dbo.FK_ConstruccionRecurso_Articulo',N'F') IS NULL ALTER TABLE dbo.ConstruccionRecurso ADD CONSTRAINT FK_ConstruccionRecurso_Articulo FOREIGN KEY(InventarioArticuloId) REFERENCES dbo.InventarioArticulo(InventarioArticuloId);
+IF OBJECT_ID(N'dbo.FK_ConstruccionRecurso_Maquinaria',N'F') IS NULL ALTER TABLE dbo.ConstruccionRecurso ADD CONSTRAINT FK_ConstruccionRecurso_Maquinaria FOREIGN KEY(MaquinariaEquipoId) REFERENCES dbo.MaquinariaEquipo(MaquinariaEquipoId);
+IF OBJECT_ID(N'dbo.FK_ConstruccionRecurso_Usuario',N'F') IS NULL ALTER TABLE dbo.ConstruccionRecurso ADD CONSTRAINT FK_ConstruccionRecurso_Usuario FOREIGN KEY(UsuarioId) REFERENCES dbo.Usuario(UsuarioId);
+IF OBJECT_ID(N'dbo.FK_ConstruccionAvance_Actividad',N'F') IS NULL ALTER TABLE dbo.ConstruccionAvance ADD CONSTRAINT FK_ConstruccionAvance_Actividad FOREIGN KEY(ConstruccionActividadId) REFERENCES dbo.ConstruccionActividad(ConstruccionActividadId);
+IF OBJECT_ID(N'dbo.FK_ConstruccionAvance_Usuario',N'F') IS NULL ALTER TABLE dbo.ConstruccionAvance ADD CONSTRAINT FK_ConstruccionAvance_Usuario FOREIGN KEY(UsuarioId) REFERENCES dbo.Usuario(UsuarioId);
 GO
 
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.Usuario') AND name = N'UX_Usuario_NombreUsuario')
@@ -169,4 +181,8 @@ IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.Transpor
 IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.GpsDispositivo') AND name=N'UX_GpsDispositivo_Externo') CREATE UNIQUE INDEX UX_GpsDispositivo_Externo ON dbo.GpsDispositivo(IdentificadorExterno) WHERE Eliminado=0;
 IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.GpsPosicion') AND name=N'IX_GpsPosicion_DispositivoFecha') CREATE INDEX IX_GpsPosicion_DispositivoFecha ON dbo.GpsPosicion(GpsDispositivoId,FechaEvento DESC);
 IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.GpsAlerta') AND name=N'IX_GpsAlerta_Atendida') CREATE INDEX IX_GpsAlerta_Atendida ON dbo.GpsAlerta(Atendida,Fecha DESC) INCLUDE(GpsDispositivoId,Severidad);
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.ConstruccionProyecto') AND name=N'IX_ConstruccionProyecto_SedeEstado') CREATE INDEX IX_ConstruccionProyecto_SedeEstado ON dbo.ConstruccionProyecto(SedeId,Estado,FechaInicioPlanificada DESC) INCLUDE(ClienteId,Presupuesto,Eliminado);
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.ConstruccionActividad') AND name=N'IX_ConstruccionActividad_Proyecto') CREATE INDEX IX_ConstruccionActividad_Proyecto ON dbo.ConstruccionActividad(ConstruccionProyectoId,Estado,FechaInicio);
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.ConstruccionRecurso') AND name=N'IX_ConstruccionRecurso_Proyecto') CREATE INDEX IX_ConstruccionRecurso_Proyecto ON dbo.ConstruccionRecurso(ConstruccionProyectoId,Tipo,Fecha DESC);
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.ConstruccionAvance') AND name=N'IX_ConstruccionAvance_Actividad') CREATE INDEX IX_ConstruccionAvance_Actividad ON dbo.ConstruccionAvance(ConstruccionActividadId,Fecha DESC);
 GO

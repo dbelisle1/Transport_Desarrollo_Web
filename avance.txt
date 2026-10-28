@@ -3,7 +3,7 @@ TRANSPORT - CONTROL DE AVANCE DE MÓDULOS
 
 Última actualización: 27 de octubre de 2026
 Etapa actual: Fase 3 - operación interna
-Módulo activo: Ninguno; M19 finalizado y verificado.
+Módulo activo: Ninguno. Siguiente módulo obligatorio: M21 - Presupuestos y control de gastos.
 
 
 1. PROPÓSITO DE ESTE ARCHIVO
@@ -166,7 +166,7 @@ M11. Pruebas automatizadas iniciales                           [BASE IMPLEMENTAD
 - Pruebas del controlador API de catálogos para tipos válidos e inválidos,
   eliminación y protección del rol AdministradorGeneral.
 - Pruebas del visor de auditoría para filtros, paginación y autorización.
-- Resultado registrado: 58 pruebas aprobadas y 0 fallidas.
+- Resultado registrado: 63 pruebas aprobadas y 0 fallidas.
 - Falta cobertura de integración, autorización, controladores, repositorios y
   operaciones CRUD completas.
 
@@ -350,11 +350,24 @@ M19. GPS y monitoreo                                           [IMPLEMENTADO]
   GPS-Inversiones queda preparada sin exigir credenciales para las pruebas.
 - Alcance por activo/sede, interfaz MVC, auditoría y cinco pruebas unitarias.
 
-M20. Servicios de construcción                                [PENDIENTE]
+M20. Servicios de construcción                                [IMPLEMENTADO]
 
 - Proyectos y obras de puentes, carreteras y edificios.
 - Planificación, responsables, actividades y avances.
 - Materiales, maquinaria, costos y presupuesto del proyecto.
+- Proyectos por sede y cliente, con fechas, responsable, presupuesto y estados
+  Planificado, EnEjecucion, Suspendido, Completado o Cancelado.
+- Actividades con responsable, presupuesto, avance porcentual y estado
+  calculado; historial inmutable de avances y evidencias por enlace.
+- Asignación de materiales, maquinaria, personal u otros recursos y cálculo de
+  costo real por actividad y por obra.
+- El consumo de materiales descuenta inventario transaccionalmente y deja un
+  movimiento referenciado con la obra.
+- No se permite completar un proyecto mientras existan actividades incompletas.
+- Alcance por giro de Construcción y sede, interfaz MVC, auditoría y cinco
+  pruebas unitarias.
+- Recorrido HTTP real verificado con inventario 100→80, costo real 2,000, dos
+  avances, cierre de obra, permisos y limpieza de datos temporales.
 
 M21. Presupuestos y control de gastos                          [PENDIENTE]
 
@@ -583,4 +596,11 @@ OXX. Nombre del módulo                                          [OPCIONAL]
   y evento SOS, luego verificó su atención.
 - Se agregaron 5 pruebas, para 58 aprobadas y 0 fallidas; los datos temporales
   quedaron eliminados lógicamente.
+- Se implementó M20 Servicios de construcción con proyectos, actividades,
+  responsables, recursos, presupuesto, costo real e historial de avances.
+- El recorrido real consumió 20 unidades de inventario, calculó un costo de
+  2,000, completó una actividad mediante dos avances y cerró la obra.
+- Se comprobaron 409 para personal fuera del giro/sede, 403 para Cliente y 302
+  para acceso web anónimo; se agregaron 5 pruebas, para 63 aprobadas y 0
+  fallidas, y el instalador completo pasó dos veces.
 
