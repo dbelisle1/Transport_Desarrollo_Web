@@ -1266,3 +1266,60 @@ BEGIN
  SET NOCOUNT ON;IF EXISTS(SELECT 1 FROM dbo.AbastecimientoSolicitud WHERE AbastecimientoSolicitudId=@Id AND Estado IN(N'Aprobado',N'Preparacion',N'Despachado') AND Eliminado=0) THROW 50002,N'No puede eliminar una solicitud activa.',1;UPDATE dbo.AbastecimientoSolicitud SET Eliminado=1,FechaModificacion=SYSUTCDATETIME() WHERE AbastecimientoSolicitudId=@Id AND Eliminado=0;DECLARE @F INT=@@ROWCOUNT;IF @F>0 EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'Abastecimiento',N'Eliminar',@Id,N'Exitoso',NULL;SELECT @F;
 END;
 GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_extraccion_leer_listado @UsuarioId INT,@EsAdministrador BIT,@Estado NVARCHAR(30)=NULL,@SedeId INT=NULL,@FechaDesde DATE=NULL,@FechaHasta DATE=NULL
+AS
+BEGIN
+ SET NOCOUNT ON;DECLARE @GiroId INT=(SELECT GiroNegocioId FROM dbo.GiroNegocio WHERE Nombre=N'Extracción minera' AND Eliminado=0);
+ SELECT e.ExtraccionJornadaId,e.SedeId,s.Nombre Sede,e.InventarioArticuloId,a.Codigo,a.Nombre Articulo,a.UnidadMedida,e.FechaOperacion,e.Turno,e.FrenteExtraccion,e.CantidadExtraida,e.CantidadRechazada,e.CantidadAprovechable,e.DestinoTipo,e.DestinoDescripcion,e.Estado,u.NombreUsuario Responsable,e.FechaCreacion
+ FROM dbo.ExtraccionJornada e JOIN dbo.Sede s ON s.SedeId=e.SedeId JOIN dbo.InventarioArticulo a ON a.InventarioArticuloId=e.InventarioArticuloId JOIN dbo.Usuario u ON u.UsuarioId=e.ResponsableUsuarioId
+ WHERE e.Eliminado=0 AND (@Estado IS NULL OR e.Estado=@Estado) AND (@SedeId IS NULL OR e.SedeId=@SedeId) AND (@FechaDesde IS NULL OR e.FechaOperacion>=@FechaDesde) AND (@FechaHasta IS NULL OR e.FechaOperacion<=@FechaHasta)
+ AND (@EsAdministrador=1 OR (EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio x WHERE x.UsuarioId=@UsuarioId AND x.GiroNegocioId=@GiroId AND x.Eliminado=0) AND EXISTS(SELECT 1 FROM dbo.UsuarioSede x WHERE x.UsuarioId=@UsuarioId AND x.SedeId=e.SedeId AND x.Eliminado=0)))
+ ORDER BY e.FechaOperacion DESC,e.ExtraccionJornadaId DESC;
+END;
+GO
+CREATE OR ALTER PROCEDURE dbo.sp_extraccion_leer_por_id @Id BIGINT,@UsuarioId INT,@EsAdministrador BIT
+AS
+BEGIN
+ SET NOCOUNT ON;DECLARE @GiroId INT=(SELECT GiroNegocioId FROM dbo.GiroNegocio WHERE Nombre=N'Extracción minera' AND Eliminado=0);
+ SELECT e.ExtraccionJornadaId,e.SedeId,s.Nombre Sede,e.InventarioArticuloId,a.Codigo,a.Nombre Articulo,a.UnidadMedida,e.FechaOperacion,e.Turno,e.FrenteExtraccion,e.CantidadExtraida,e.CantidadRechazada,e.CantidadAprovechable,e.DestinoTipo,e.DestinoDescripcion,e.Estado,e.ResponsableUsuarioId,u.NombreUsuario Responsable,e.Observacion,e.FechaCreacion,e.FechaModificacion
+ FROM dbo.ExtraccionJornada e JOIN dbo.Sede s ON s.SedeId=e.SedeId JOIN dbo.InventarioArticulo a ON a.InventarioArticuloId=e.InventarioArticuloId JOIN dbo.Usuario u ON u.UsuarioId=e.ResponsableUsuarioId
+ WHERE e.ExtraccionJornadaId=@Id AND e.Eliminado=0 AND (@EsAdministrador=1 OR (EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio x WHERE x.UsuarioId=@UsuarioId AND x.GiroNegocioId=@GiroId AND x.Eliminado=0) AND EXISTS(SELECT 1 FROM dbo.UsuarioSede x WHERE x.UsuarioId=@UsuarioId AND x.SedeId=e.SedeId AND x.Eliminado=0)));
+ SELECT h.ExtraccionHistorialId,h.UsuarioId,u.NombreUsuario,h.EstadoAnterior,h.EstadoNuevo,h.Comentario,h.Fecha FROM dbo.ExtraccionHistorial h JOIN dbo.Usuario u ON u.UsuarioId=h.UsuarioId WHERE h.ExtraccionJornadaId=@Id ORDER BY h.Fecha DESC,h.ExtraccionHistorialId DESC;
+END;
+GO
+CREATE OR ALTER PROCEDURE dbo.sp_extraccion_leer_opciones @UsuarioId INT,@EsAdministrador BIT
+AS
+BEGIN
+ SET NOCOUNT ON;DECLARE @GiroId INT=(SELECT GiroNegocioId FROM dbo.GiroNegocio WHERE Nombre=N'Extracción minera' AND Eliminado=0);
+ SELECT s.SedeId Id,s.Nombre FROM dbo.Sede s JOIN dbo.SedeGiroNegocio sg ON sg.SedeId=s.SedeId AND sg.GiroNegocioId=@GiroId AND sg.Eliminado=0 WHERE s.Eliminado=0 AND s.EsActivo=1 AND (@EsAdministrador=1 OR EXISTS(SELECT 1 FROM dbo.UsuarioSede x WHERE x.UsuarioId=@UsuarioId AND x.SedeId=s.SedeId AND x.Eliminado=0)) ORDER BY s.Nombre;
+ SELECT a.InventarioArticuloId Id,CONCAT(a.Codigo,N' · ',a.Nombre) Nombre FROM dbo.InventarioArticulo a WHERE a.GiroNegocioId=@GiroId AND a.Eliminado=0 AND a.EsActivo=1 AND (@EsAdministrador=1 OR EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio x WHERE x.UsuarioId=@UsuarioId AND x.GiroNegocioId=@GiroId AND x.Eliminado=0)) ORDER BY a.Nombre;
+END;
+GO
+CREATE OR ALTER PROCEDURE dbo.sp_extraccion_crear @SedeId INT,@InventarioArticuloId INT,@FechaOperacion DATE,@Turno NVARCHAR(30),@FrenteExtraccion NVARCHAR(120),@CantidadExtraida DECIMAL(18,3),@CantidadRechazada DECIMAL(18,3),@DestinoTipo NVARCHAR(30),@DestinoDescripcion NVARCHAR(200)=NULL,@Observacion NVARCHAR(500)=NULL,@UsuarioId INT,@EsAdministrador BIT
+AS
+BEGIN
+ SET NOCOUNT ON;SET XACT_ABORT ON;BEGIN TRY BEGIN TRANSACTION;DECLARE @GiroId INT=(SELECT GiroNegocioId FROM dbo.GiroNegocio WHERE Nombre=N'Extracción minera' AND Eliminado=0);
+ IF @DestinoTipo NOT IN(N'Inventario',N'Procesamiento',N'Transporte',N'Tercero') THROW 50002,N'Destino inválido.',1;IF @CantidadExtraida<=0 OR @CantidadRechazada<0 OR @CantidadRechazada>=@CantidadExtraida THROW 50002,N'Cantidades inválidas.',1;
+ IF NOT EXISTS(SELECT 1 FROM dbo.InventarioArticulo WHERE InventarioArticuloId=@InventarioArticuloId AND GiroNegocioId=@GiroId AND Eliminado=0 AND EsActivo=1) THROW 50002,N'El artículo no corresponde a extracción.',1;
+ IF NOT EXISTS(SELECT 1 FROM dbo.SedeGiroNegocio WHERE SedeId=@SedeId AND GiroNegocioId=@GiroId AND Eliminado=0) THROW 50002,N'La sede no corresponde a extracción.',1;
+ IF @EsAdministrador=0 AND (NOT EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio WHERE UsuarioId=@UsuarioId AND GiroNegocioId=@GiroId AND Eliminado=0) OR NOT EXISTS(SELECT 1 FROM dbo.UsuarioSede WHERE UsuarioId=@UsuarioId AND SedeId=@SedeId AND Eliminado=0)) THROW 50002,N'El usuario no tiene acceso a la planta.',1;
+ INSERT dbo.ExtraccionJornada(SedeId,InventarioArticuloId,FechaOperacion,Turno,FrenteExtraccion,CantidadExtraida,CantidadRechazada,DestinoTipo,DestinoDescripcion,ResponsableUsuarioId,Observacion) VALUES(@SedeId,@InventarioArticuloId,@FechaOperacion,LTRIM(RTRIM(@Turno)),LTRIM(RTRIM(@FrenteExtraccion)),@CantidadExtraida,@CantidadRechazada,@DestinoTipo,NULLIF(LTRIM(RTRIM(@DestinoDescripcion)),N''),@UsuarioId,NULLIF(LTRIM(RTRIM(@Observacion)),N''));
+ DECLARE @Id BIGINT=CONVERT(BIGINT,SCOPE_IDENTITY());INSERT dbo.ExtraccionHistorial(ExtraccionJornadaId,UsuarioId,EstadoNuevo,Comentario) VALUES(@Id,@UsuarioId,N'Registrada',N'Jornada registrada.');EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'Extraccion',N'Crear',@Id,N'Exitoso',@DestinoTipo;COMMIT;SELECT @Id;END TRY BEGIN CATCH IF XACT_STATE()<>0 ROLLBACK;THROW;END CATCH
+END;
+GO
+CREATE OR ALTER PROCEDURE dbo.sp_extraccion_actualizar_estado @Id BIGINT,@Estado NVARCHAR(30),@Comentario NVARCHAR(500)=NULL,@UsuarioId INT,@EsAdministrador BIT
+AS
+BEGIN
+ SET NOCOUNT ON;SET XACT_ABORT ON;BEGIN TRY BEGIN TRANSACTION;DECLARE @Anterior NVARCHAR(30),@SedeId INT,@ArticuloId INT,@Cantidad DECIMAL(18,3),@GiroId INT=(SELECT GiroNegocioId FROM dbo.GiroNegocio WHERE Nombre=N'Extracción minera' AND Eliminado=0);SELECT @Anterior=Estado,@SedeId=SedeId,@ArticuloId=InventarioArticuloId,@Cantidad=CantidadAprovechable FROM dbo.ExtraccionJornada WITH(UPDLOCK) WHERE ExtraccionJornadaId=@Id AND Eliminado=0;
+ IF @Anterior IS NULL THROW 50002,N'La jornada no existe.',1;IF NOT((@Anterior=N'Registrada' AND @Estado IN(N'Confirmada',N'Cancelada')) OR (@Anterior=N'Confirmada' AND @Estado=N'Entregada')) THROW 50002,N'Transición inválida.',1;
+ IF @EsAdministrador=0 AND (NOT EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio WHERE UsuarioId=@UsuarioId AND GiroNegocioId=@GiroId AND Eliminado=0) OR NOT EXISTS(SELECT 1 FROM dbo.UsuarioSede WHERE UsuarioId=@UsuarioId AND SedeId=@SedeId AND Eliminado=0)) THROW 50002,N'El usuario no tiene acceso a la planta.',1;
+ IF @Estado=N'Confirmada' BEGIN IF NOT EXISTS(SELECT 1 FROM dbo.InventarioExistencia WHERE InventarioArticuloId=@ArticuloId AND SedeId=@SedeId) INSERT dbo.InventarioExistencia(InventarioArticuloId,SedeId) VALUES(@ArticuloId,@SedeId);UPDATE dbo.InventarioExistencia SET Cantidad=Cantidad+@Cantidad,FechaModificacion=SYSUTCDATETIME() WHERE InventarioArticuloId=@ArticuloId AND SedeId=@SedeId;INSERT dbo.InventarioMovimiento(InventarioArticuloId,Tipo,SedeDestinoId,Cantidad,Referencia,Observacion,UsuarioId) VALUES(@ArticuloId,N'Entrada',@SedeId,@Cantidad,CONCAT(N'EXT-',@Id),N'Producción de extracción',@UsuarioId);END;
+ IF @Estado=N'Entregada' BEGIN IF NOT EXISTS(SELECT 1 FROM dbo.InventarioExistencia WHERE InventarioArticuloId=@ArticuloId AND SedeId=@SedeId AND Cantidad-CantidadReservada>=@Cantidad) THROW 50002,N'La cantidad aprovechable ya no está disponible.',1;UPDATE dbo.InventarioExistencia SET Cantidad=Cantidad-@Cantidad,FechaModificacion=SYSUTCDATETIME() WHERE InventarioArticuloId=@ArticuloId AND SedeId=@SedeId;INSERT dbo.InventarioMovimiento(InventarioArticuloId,Tipo,SedeOrigenId,Cantidad,Referencia,Observacion,UsuarioId) VALUES(@ArticuloId,N'Salida',@SedeId,@Cantidad,CONCAT(N'EXT-',@Id),N'Entrega de extracción',@UsuarioId);END;
+ UPDATE dbo.ExtraccionJornada SET Estado=@Estado,FechaModificacion=SYSUTCDATETIME() WHERE ExtraccionJornadaId=@Id;INSERT dbo.ExtraccionHistorial(ExtraccionJornadaId,UsuarioId,EstadoAnterior,EstadoNuevo,Comentario) VALUES(@Id,@UsuarioId,@Anterior,@Estado,NULLIF(LTRIM(RTRIM(@Comentario)),N''));EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'Extraccion',N'CambiarEstado',@Id,N'Exitoso',@Estado;COMMIT;SELECT 1;END TRY BEGIN CATCH IF XACT_STATE()<>0 ROLLBACK;THROW;END CATCH
+END;
+GO
+CREATE OR ALTER PROCEDURE dbo.sp_extraccion_eliminar @Id BIGINT,@UsuarioId INT
+AS
+BEGIN SET NOCOUNT ON;UPDATE dbo.ExtraccionJornada SET Eliminado=1,FechaModificacion=SYSUTCDATETIME() WHERE ExtraccionJornadaId=@Id AND Eliminado=0 AND Estado IN(N'Entregada',N'Cancelada');DECLARE @F INT=@@ROWCOUNT;IF @F>0 EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'Extraccion',N'Eliminar',@Id,N'Exitoso',NULL;SELECT @F;END;
+GO

@@ -70,6 +70,11 @@ IF OBJECT_ID(N'dbo.FK_AbastecimientoDetalle_Proveedor',N'F') IS NULL ALTER TABLE
 IF OBJECT_ID(N'dbo.FK_AbastecimientoDetalle_Destino',N'F') IS NULL ALTER TABLE dbo.AbastecimientoDetalle ADD CONSTRAINT FK_AbastecimientoDetalle_Destino FOREIGN KEY(ArticuloDestinoId) REFERENCES dbo.InventarioArticulo(InventarioArticuloId);
 IF OBJECT_ID(N'dbo.FK_AbastecimientoHistorial_Solicitud',N'F') IS NULL ALTER TABLE dbo.AbastecimientoHistorial ADD CONSTRAINT FK_AbastecimientoHistorial_Solicitud FOREIGN KEY(AbastecimientoSolicitudId) REFERENCES dbo.AbastecimientoSolicitud(AbastecimientoSolicitudId);
 IF OBJECT_ID(N'dbo.FK_AbastecimientoHistorial_Usuario',N'F') IS NULL ALTER TABLE dbo.AbastecimientoHistorial ADD CONSTRAINT FK_AbastecimientoHistorial_Usuario FOREIGN KEY(UsuarioId) REFERENCES dbo.Usuario(UsuarioId);
+IF OBJECT_ID(N'dbo.FK_ExtraccionJornada_Sede',N'F') IS NULL ALTER TABLE dbo.ExtraccionJornada ADD CONSTRAINT FK_ExtraccionJornada_Sede FOREIGN KEY(SedeId) REFERENCES dbo.Sede(SedeId);
+IF OBJECT_ID(N'dbo.FK_ExtraccionJornada_Articulo',N'F') IS NULL ALTER TABLE dbo.ExtraccionJornada ADD CONSTRAINT FK_ExtraccionJornada_Articulo FOREIGN KEY(InventarioArticuloId) REFERENCES dbo.InventarioArticulo(InventarioArticuloId);
+IF OBJECT_ID(N'dbo.FK_ExtraccionJornada_Responsable',N'F') IS NULL ALTER TABLE dbo.ExtraccionJornada ADD CONSTRAINT FK_ExtraccionJornada_Responsable FOREIGN KEY(ResponsableUsuarioId) REFERENCES dbo.Usuario(UsuarioId);
+IF OBJECT_ID(N'dbo.FK_ExtraccionHistorial_Jornada',N'F') IS NULL ALTER TABLE dbo.ExtraccionHistorial ADD CONSTRAINT FK_ExtraccionHistorial_Jornada FOREIGN KEY(ExtraccionJornadaId) REFERENCES dbo.ExtraccionJornada(ExtraccionJornadaId);
+IF OBJECT_ID(N'dbo.FK_ExtraccionHistorial_Usuario',N'F') IS NULL ALTER TABLE dbo.ExtraccionHistorial ADD CONSTRAINT FK_ExtraccionHistorial_Usuario FOREIGN KEY(UsuarioId) REFERENCES dbo.Usuario(UsuarioId);
 GO
 
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.Usuario') AND name = N'UX_Usuario_NombreUsuario')
@@ -122,4 +127,6 @@ IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.Abasteci
 IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.AbastecimientoSolicitud') AND name=N'IX_Abastecimiento_Proveedor') CREATE INDEX IX_Abastecimiento_Proveedor ON dbo.AbastecimientoSolicitud(GiroProveedorId,SedeProveedorId,Estado,FechaCreacion DESC) INCLUDE(GiroSolicitanteId,SedeSolicitanteId,Eliminado);
 IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.AbastecimientoDetalle') AND name=N'IX_AbastecimientoDetalle_Solicitud') CREATE INDEX IX_AbastecimientoDetalle_Solicitud ON dbo.AbastecimientoDetalle(AbastecimientoSolicitudId);
 IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.AbastecimientoHistorial') AND name=N'IX_AbastecimientoHistorial_Solicitud') CREATE INDEX IX_AbastecimientoHistorial_Solicitud ON dbo.AbastecimientoHistorial(AbastecimientoSolicitudId,Fecha DESC);
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.ExtraccionJornada') AND name=N'IX_ExtraccionJornada_SedeFecha') CREATE INDEX IX_ExtraccionJornada_SedeFecha ON dbo.ExtraccionJornada(SedeId,FechaOperacion DESC,Estado) INCLUDE(InventarioArticuloId,CantidadExtraida,CantidadRechazada,Eliminado);
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.ExtraccionHistorial') AND name=N'IX_ExtraccionHistorial_Jornada') CREATE INDEX IX_ExtraccionHistorial_Jornada ON dbo.ExtraccionHistorial(ExtraccionJornadaId,Fecha DESC);
 GO

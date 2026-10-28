@@ -44,4 +44,10 @@ public interface ITransportApiClient
     Task CambiarEstadoAbastecimientoAsync(long id,string estado,string? comentario,CancellationToken ct);
     Task ComentarAbastecimientoAsync(long id,string comentario,CancellationToken ct);
     Task EliminarAbastecimientoAsync(long id,CancellationToken ct);
+    Task<IReadOnlyList<ExtraccionListadoModel>> ExtraccionesAsync(string? estado,int? sedeId,DateTime? fechaDesde,DateTime? fechaHasta,CancellationToken ct);
+    Task<ExtraccionDetalleModel?> ExtraccionAsync(long id,CancellationToken ct);
+    Task<ExtraccionOpcionesModel> ExtraccionOpcionesAsync(CancellationToken ct);
+    Task<long> CrearExtraccionAsync(ExtraccionCrearViewModel model,CancellationToken ct);
+    Task CambiarEstadoExtraccionAsync(long id,string estado,string? comentario,CancellationToken ct);
+    Task EliminarExtraccionAsync(long id,CancellationToken ct);
 }

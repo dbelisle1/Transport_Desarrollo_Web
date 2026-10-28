@@ -79,7 +79,7 @@ Leyenda:
 | Solución .NET 8 con MVC y API | Completo | Dos proyectos principales y dos proyectos de pruebas en `TransPort.sln`. |
 | Separación MVC → API → SQL Server | Completo | El MVC no accede directamente a la base. |
 | ADO.NET y procedimientos almacenados | Completo | Repositorios con `Microsoft.Data.SqlClient`; no se utiliza Entity Framework. |
-| Base de datos actual | Completo | 21 tablas, 38 claves foráneas, 26 índices y 69 procedimientos definidos. |
+| Base de datos actual | Completo | 23 tablas, 43 claves foráneas, 28 índices y 75 procedimientos definidos. |
 | Datos de demostración | Completo | Script idempotente con giros, sedes, roles y usuarios demo. |
 | Login único `/acceso` | Completo | Credenciales validadas por la API y SQL Server. |
 | JWT MVC–API | Completo | Firma configurable, expiración y envío como Bearer. |
@@ -98,7 +98,7 @@ Leyenda:
 | PWA y responsive | Completo para Fase 1 | Manifest, ícono, service worker público y breakpoints 768/1100/1920 px. |
 | Docker | Completo en configuración | Dos Dockerfiles multietapa, red interna, volumen de claves y Compose válido. |
 | Documentación de inicio | Completo | `README.md`, `.env.example`, `.gitignore` e `instruccionesInicio.txt`. |
-| Pruebas automatizadas | Parcial | 33 pruebas aprobadas; faltan pruebas amplias de integración de todos los módulos. |
+| Pruebas automatizadas | Parcial | 38 pruebas aprobadas; faltan pruebas amplias de integración de todos los módulos. |
 
 ## 4. Módulos desarrollados
 
@@ -297,9 +297,20 @@ Incluye:
 - Reserva, salida y entrada de inventario dentro de transacciones SQL.
 - Historial, comentarios, auditoría y permisos por giro/sede participante.
 
+### 4.13 Extracción minera
+
+**Estado: implementado y verificado**
+
+- Jornadas por planta, fecha, turno y frente de extracción.
+- Cantidades extraída, rechazada y aprovechable con balance calculado.
+- Destinos de inventario, procesamiento, transporte o terceros.
+- Confirmación y entrega integradas con entradas y salidas de inventario.
+- Historial, auditoría, filtros y autorización por giro y sede.
+- Cinco pruebas unitarias y recorrido HTTP real con aislamiento y limpieza.
+
 ## 5. Inventario de base de datos
 
-### Tablas implementadas (21)
+### Tablas implementadas (23)
 
 1. `Usuario`
 2. `Rol`
@@ -322,16 +333,19 @@ Incluye:
 19. `AbastecimientoSolicitud`
 20. `AbastecimientoDetalle`
 21. `AbastecimientoHistorial`
+22. `ExtraccionJornada`
+23. `ExtraccionHistorial`
 
 También se implementaron:
 
-- 38 claves foráneas.
-- 26 índices normales o únicos.
+- 43 claves foráneas.
+- 28 índices normales o únicos.
 - Eliminación lógica en entidades y relaciones.
 - Fechas UTC mediante `DATETIME2`/`SYSUTCDATETIME()`.
 - Transacciones y `XACT_ABORT` en operaciones compuestas.
-- 69 procedimientos almacenados para usuarios, catálogos, asociaciones,
-  clientes, pedidos, portal, inventarios, abastecimiento, dashboard y auditoría.
+- 75 procedimientos almacenados para usuarios, catálogos, asociaciones,
+  clientes, pedidos, portal, inventarios, abastecimiento, extracción, dashboard
+  y auditoría.
 
 ## 6. Rutas y endpoints disponibles
 
@@ -348,6 +362,7 @@ También se implementaron:
 | `/gestion/pedidos` | Gestión de pedidos y cotizaciones | AdministradorGeneral, Gerente o Vendedor |
 | `/gestion/inventarios` | Existencias y movimientos por sede | Personal interno autorizado |
 | `/gestion/abastecimientos` | Solicitudes entre giros | Personal interno autorizado |
+| `/gestion/extracciones` | Jornadas y trazabilidad de extracción | Personal interno autorizado por planta |
 | `/admin` | Dashboard administrativo | AdministradorGeneral |
 | `/admin/usuarios` | Administración de usuarios | AdministradorGeneral |
 | `/admin/clientes` | Administración de empresas cliente | AdministradorGeneral |
@@ -383,6 +398,9 @@ También se implementaron:
 | `POST/DELETE` | `/api/inventarios/articulos` | Crear o eliminar lógicamente artículos |
 | `GET/POST` | `/api/abastecimientos` | Listar o crear solicitudes internas |
 | `PUT` | `/api/abastecimientos/{id}/estado` | Ejecutar transición operativa |
+| `GET/POST` | `/api/extracciones` | Consultar o registrar jornadas según alcance |
+| `GET` | `/api/extracciones/{id}` | Detalle e historial de la jornada |
+| `PUT` | `/api/extracciones/{id}/estado` | Confirmar, entregar o cancelar una jornada |
 
 ## 7. Componentes parciales y mejoras pendientes de la base
 
@@ -476,9 +494,9 @@ Revisión del 27 de octubre de 2026:
 | Validación | Resultado |
 |---|---|
 | Compilación durante `dotnet test TransPort.sln --no-restore` | Correcta |
-| Pruebas de API | 32 aprobadas, 0 fallidas |
+| Pruebas de API | 37 aprobadas, 0 fallidas |
 | Pruebas de MVC | 1 aprobada, 0 fallidas |
-| Total | **33 aprobadas, 0 fallidas** |
+| Total | **38 aprobadas, 0 fallidas** |
 | `docker-compose config -q` | Configuración válida |
 | Contenedores activos durante esta revisión | API y Web activos; `/salud`, `/` y `/admin/auditoria` respondieron correctamente |
 | Smoke test de clientes | CRUD, filtro, asignaciones, auditoría y eliminación lógica correctos |
@@ -488,6 +506,7 @@ Revisión del 27 de octubre de 2026:
 | Smoke test del portal cliente | Empresas, servicios, indicadores, MVC, aislamiento entre clientes y autorización correctos |
 | Smoke test de inventarios | Cinco tipos de movimiento, saldos, mínimos, MVC y aislamiento por sede correctos |
 | Smoke test de abastecimiento | Reserva, despacho, recepción, historial, MVC y permisos correctos |
+| Smoke test de extracción | Balance, entrada/salida de inventario, historial, MVC y permisos correctos |
 
 Cobertura actual:
 
@@ -504,6 +523,8 @@ Cobertura actual:
 - Alcance de cliente, estados válidos, autorización comercial y eliminación en
   el controlador de pedidos.
 - Propagación de identidad y autorización del resumen del portal cliente.
+- Propagación de alcance, creación, consulta, transición y autorización del
+  controlador de extracción.
 
 El smoke test creó un cliente temporal, consultó y actualizó sus datos, validó el filtro y las asignaciones de usuario/giro, y ejecutó su eliminación lógica. SQL Server confirmó cero relaciones activas, cinco eventos de auditoría y ningún cliente de prueba visible al finalizar.
 
@@ -537,5 +558,5 @@ registros temporales.
 
 ## 12. Conclusión
 
-El proyecto dispone de una base técnica coherente y extensible. La Fase 1 cubre el acceso, la estructura organizacional, el control de usuarios, los portales iniciales, la persistencia y el despliegue local. Pedidos, portal, inventarios y abastecimiento ya están conectados; el siguiente paso es extracción y producción.
+El proyecto dispone de una base técnica coherente y extensible. La Fase 1 cubre el acceso, la estructura organizacional, el control de usuarios, los portales iniciales, la persistencia y el despliegue local. Pedidos, portal, inventarios, abastecimiento y extracción ya están conectados; el siguiente paso es producción y procesamiento.
 

@@ -324,3 +324,22 @@ public sealed class AbastecimientoCrearViewModel
  [DataType(DataType.Date)]public DateTime FechaNecesaria{get;set;}=DateTime.Today.AddDays(1);[Required,StringLength(500,MinimumLength=5)]public string Motivo{get;set;}=string.Empty;
  [Range(1,int.MaxValue)]public int ArticuloProveedorId{get;set;}[Range(1,int.MaxValue)]public int ArticuloDestinoId{get;set;}[Range(0.001,999999999999999.999)]public decimal Cantidad{get;set;}
 }
+
+public sealed record ExtraccionListadoModel(long ExtraccionJornadaId,int SedeId,string Sede,int InventarioArticuloId,string Codigo,string Articulo,string UnidadMedida,DateTime FechaOperacion,string Turno,string FrenteExtraccion,decimal CantidadExtraida,decimal CantidadRechazada,decimal CantidadAprovechable,string DestinoTipo,string? DestinoDescripcion,string Estado,string Responsable,DateTime FechaCreacion);
+public sealed record ExtraccionHistorialModel(long ExtraccionHistorialId,int UsuarioId,string NombreUsuario,string? EstadoAnterior,string EstadoNuevo,string? Comentario,DateTime Fecha);
+public sealed record ExtraccionDetalleModel(long ExtraccionJornadaId,int SedeId,string Sede,int InventarioArticuloId,string Codigo,string Articulo,string UnidadMedida,DateTime FechaOperacion,string Turno,string FrenteExtraccion,decimal CantidadExtraida,decimal CantidadRechazada,decimal CantidadAprovechable,string DestinoTipo,string? DestinoDescripcion,string Estado,int ResponsableUsuarioId,string Responsable,string? Observacion,DateTime FechaCreacion,DateTime? FechaModificacion,IReadOnlyList<ExtraccionHistorialModel> Historial);
+public sealed record ExtraccionOpcionesModel(IReadOnlyList<CatalogoModel> Sedes,IReadOnlyList<CatalogoModel> Articulos);
+public sealed class ExtraccionPaginaViewModel{public string? Estado{get;set;}public int? SedeId{get;set;}public DateTime? FechaDesde{get;set;}public DateTime? FechaHasta{get;set;}public IReadOnlyList<ExtraccionListadoModel> Jornadas{get;set;}=[];public ExtraccionOpcionesModel Opciones{get;set;}=new([],[]);}
+public sealed class ExtraccionCrearViewModel
+{
+ [System.ComponentModel.DataAnnotations.Range(1,int.MaxValue)]public int SedeId{get;set;}
+ [System.ComponentModel.DataAnnotations.Range(1,int.MaxValue)]public int InventarioArticuloId{get;set;}
+ public DateTime FechaOperacion{get;set;}=DateTime.Today;
+ [System.ComponentModel.DataAnnotations.Required,System.ComponentModel.DataAnnotations.StringLength(30,MinimumLength=2)]public string Turno{get;set;}=string.Empty;
+ [System.ComponentModel.DataAnnotations.Required,System.ComponentModel.DataAnnotations.StringLength(120,MinimumLength=2)]public string FrenteExtraccion{get;set;}=string.Empty;
+ [System.ComponentModel.DataAnnotations.Range(0.001,999999999999999.999)]public decimal CantidadExtraida{get;set;}
+ [System.ComponentModel.DataAnnotations.Range(0,999999999999999.999)]public decimal CantidadRechazada{get;set;}
+ [System.ComponentModel.DataAnnotations.Required,System.ComponentModel.DataAnnotations.StringLength(30)]public string DestinoTipo{get;set;}=string.Empty;
+ [System.ComponentModel.DataAnnotations.StringLength(200)]public string? DestinoDescripcion{get;set;}
+ [System.ComponentModel.DataAnnotations.StringLength(500)]public string? Observacion{get;set;}
+}

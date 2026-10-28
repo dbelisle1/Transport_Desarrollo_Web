@@ -15,12 +15,12 @@ cd Transport
 PASO 2 - CREAR LA BASE DE DATOS
 Abra PowerShell en la carpeta database y ejecute, para SQLEXPRESS con Windows Authentication:
 
-  sqlcmd -S ".\SQLEXPRESS" -E -i .\000_instalar_todo.sql
+  sqlcmd -S ".\SQLEXPRESS" -E -f 65001 -i .\000_instalar_todo.sql
 
 Si utiliza un login de SQL Server, no escriba la contraseña en un archivo ni en Git. Puede solicitarla sin mostrarla:
 
   $env:SQLCMDPASSWORD = Read-Host "Contraseña SQL"
-  sqlcmd -S ".\SQLEXPRESS" -U SU_USUARIO -i .\000_instalar_todo.sql
+  sqlcmd -S ".\SQLEXPRESS" -U SU_USUARIO -f 65001 -i .\000_instalar_todo.sql
   Remove-Item Env:SQLCMDPASSWORD
 
 El usuario SQL debe tener una contraseña definitiva. Si SQL Server indica que debe cambiarla, inicie sesión en SSMS y complete el cambio antes de continuar.

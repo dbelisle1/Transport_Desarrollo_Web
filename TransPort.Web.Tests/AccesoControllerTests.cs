@@ -137,5 +137,11 @@ public sealed class AccesoControllerTests
         public Task CambiarEstadoAbastecimientoAsync(long id,string estado,string? comentario,CancellationToken ct)=>throw NotUsed();
         public Task ComentarAbastecimientoAsync(long id,string comentario,CancellationToken ct)=>throw NotUsed();
         public Task EliminarAbastecimientoAsync(long id,CancellationToken ct)=>throw NotUsed();
+        public Task<IReadOnlyList<ExtraccionListadoModel>> ExtraccionesAsync(string? estado,int? sedeId,DateTime? fechaDesde,DateTime? fechaHasta,CancellationToken ct)=>throw NotUsed();
+        public Task<ExtraccionDetalleModel?> ExtraccionAsync(long id,CancellationToken ct)=>throw NotUsed();
+        public Task<ExtraccionOpcionesModel> ExtraccionOpcionesAsync(CancellationToken ct)=>throw NotUsed();
+        public Task<long> CrearExtraccionAsync(ExtraccionCrearViewModel model,CancellationToken ct)=>throw NotUsed();
+        public Task CambiarEstadoExtraccionAsync(long id,string estado,string? comentario,CancellationToken ct)=>throw NotUsed();
+        public Task EliminarExtraccionAsync(long id,CancellationToken ct)=>throw NotUsed();
     }
 }

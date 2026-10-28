@@ -289,3 +289,29 @@ CREATE TABLE dbo.AbastecimientoHistorial
     Comentario NVARCHAR(1000) NULL,Fecha DATETIME2(0) NOT NULL CONSTRAINT DF_AbastecimientoHistorial_Fecha DEFAULT(SYSUTCDATETIME())
 );
 GO
+IF OBJECT_ID(N'dbo.ExtraccionJornada',N'U') IS NULL
+CREATE TABLE dbo.ExtraccionJornada
+(
+ ExtraccionJornadaId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_ExtraccionJornada PRIMARY KEY,SedeId INT NOT NULL,InventarioArticuloId INT NOT NULL,
+ FechaOperacion DATE NOT NULL,Turno NVARCHAR(30) NOT NULL,FrenteExtraccion NVARCHAR(120) NOT NULL,CantidadExtraida DECIMAL(18,3) NOT NULL,CantidadRechazada DECIMAL(18,3) NOT NULL CONSTRAINT DF_Extraccion_Rechazada DEFAULT(0),
+ CantidadAprovechable AS (CantidadExtraida-CantidadRechazada) PERSISTED,DestinoTipo NVARCHAR(30) NOT NULL,DestinoDescripcion NVARCHAR(200) NULL,
+ Estado NVARCHAR(30) NOT NULL CONSTRAINT DF_Extraccion_Estado DEFAULT(N'Registrada'),ResponsableUsuarioId INT NOT NULL,Observacion NVARCHAR(500) NULL,
+ Eliminado BIT NOT NULL CONSTRAINT DF_Extraccion_Eliminado DEFAULT(0),FechaCreacion DATETIME2(0) NOT NULL CONSTRAINT DF_Extraccion_Fecha DEFAULT(SYSUTCDATETIME()),FechaModificacion DATETIME2(0) NULL,
+ CONSTRAINT CK_Extraccion_Cantidades CHECK(CantidadExtraida>0 AND CantidadRechazada>=0 AND CantidadRechazada<CantidadExtraida),
+ CONSTRAINT CK_Extraccion_Destino CHECK(DestinoTipo IN(N'Inventario',N'Procesamiento',N'Transporte',N'Tercero')),
+ CONSTRAINT CK_Extraccion_Estado CHECK(Estado IN(N'Registrada',N'Confirmada',N'Entregada',N'Cancelada'))
+);
+GO
+IF OBJECT_ID(N'dbo.ExtraccionJornada',N'U') IS NOT NULL AND OBJECT_ID(N'dbo.CK_Extraccion_Cantidades',N'C') IS NOT NULL
+BEGIN
+ ALTER TABLE dbo.ExtraccionJornada DROP CONSTRAINT CK_Extraccion_Cantidades;
+ ALTER TABLE dbo.ExtraccionJornada WITH CHECK ADD CONSTRAINT CK_Extraccion_Cantidades CHECK(CantidadExtraida>0 AND CantidadRechazada>=0 AND CantidadRechazada<CantidadExtraida);
+END;
+GO
+IF OBJECT_ID(N'dbo.ExtraccionHistorial',N'U') IS NULL
+CREATE TABLE dbo.ExtraccionHistorial
+(
+ ExtraccionHistorialId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_ExtraccionHistorial PRIMARY KEY,ExtraccionJornadaId BIGINT NOT NULL,UsuarioId INT NOT NULL,
+ EstadoAnterior NVARCHAR(30) NULL,EstadoNuevo NVARCHAR(30) NOT NULL,Comentario NVARCHAR(500) NULL,Fecha DATETIME2(0) NOT NULL CONSTRAINT DF_ExtraccionHistorial_Fecha DEFAULT(SYSUTCDATETIME())
+);
+GO

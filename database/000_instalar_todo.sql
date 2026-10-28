@@ -1,6 +1,6 @@
 /*
   Instalador para SQLCMD. Ejecútelo desde la carpeta database:
-  sqlcmd -S localhost -E -C -i 000_instalar_todo.sql
+  sqlcmd -S localhost -E -C -f 65001 -i 000_instalar_todo.sql
 */
 :ON ERROR EXIT
 :r .\000_crear_base.sql
