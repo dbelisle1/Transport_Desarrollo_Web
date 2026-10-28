@@ -130,5 +130,12 @@ public sealed class AccesoControllerTests
         public Task<InventarioOpcionesModel> InventarioOpcionesAsync(CancellationToken ct)=>throw NotUsed();
         public Task CrearInventarioArticuloAsync(InventarioArticuloFormModel model,CancellationToken ct)=>throw NotUsed();
         public Task RegistrarInventarioMovimientoAsync(InventarioMovimientoFormModel model,CancellationToken ct)=>throw NotUsed();
+        public Task<IReadOnlyList<AbastecimientoListadoModel>> AbastecimientosAsync(string? estado,string? busqueda,CancellationToken ct)=>throw NotUsed();
+        public Task<AbastecimientoDetalleModel?> AbastecimientoAsync(long id,CancellationToken ct)=>throw NotUsed();
+        public Task<AbastecimientoOpcionesModel> AbastecimientoOpcionesAsync(CancellationToken ct)=>throw NotUsed();
+        public Task<long> CrearAbastecimientoAsync(AbastecimientoCrearViewModel model,CancellationToken ct)=>throw NotUsed();
+        public Task CambiarEstadoAbastecimientoAsync(long id,string estado,string? comentario,CancellationToken ct)=>throw NotUsed();
+        public Task ComentarAbastecimientoAsync(long id,string comentario,CancellationToken ct)=>throw NotUsed();
+        public Task EliminarAbastecimientoAsync(long id,CancellationToken ct)=>throw NotUsed();
     }
 }

@@ -111,6 +111,8 @@ Procedimientos principales:
   solicitudes recientes con aislamiento por identidad.
 - Inventarios: artículos, existencias por sede, movimientos, reservas,
   transferencias, mínimos y trazabilidad por giro/sede.
+- Abastecimiento: solicitudes entre giros con aprobación, preparación,
+  despacho, recepción e integración transaccional con inventarios.
 
 Los repositorios no consultan tablas directamente cuando existe un procedimiento para la operación. La contraseña no aparece en listados, DTOs, tokens, auditoría ni logs.
 
@@ -141,6 +143,9 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 | `GET` | `/api/inventarios/movimientos` | Trazabilidad de inventario autorizada |
 | `POST` | `/api/inventarios/articulos` | AdministradorGeneral o Gerente |
 | `POST` | `/api/inventarios/movimientos` | Personal interno autorizado |
+| `GET/POST` | `/api/abastecimientos` | Personal interno según giro y sede |
+| `GET` | `/api/abastecimientos/{id}` | Detalle e historial autorizado |
+| `PUT` | `/api/abastecimientos/{id}/estado` | Flujo de aprobación, despacho y recepción |
 
 ## Rutas web
 
@@ -151,6 +156,7 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 - `/cliente/pedidos/crear`: nuevo pedido, cotización o reunión.
 - `/gestion`: panel interno según roles, giros y sedes.
 - `/gestion/inventarios`: existencias, mínimos, artículos y movimientos.
+- `/gestion/abastecimientos`: solicitudes y trazabilidad entre giros.
 - `/gestion/pedidos`: asignación, cotización y seguimiento comercial.
 - `/admin`: panel general con conteos reales.
 - `/admin/usuarios`: CRUD y filtros de usuarios.
@@ -167,8 +173,8 @@ dotnet build TransPort.sln --no-restore
 dotnet test TransPort.sln --no-restore
 ```
 
-Las 29 pruebas actuales cubren seguridad JWT, autenticación, cierre de sesión, clientes, catálogos, auditoría, pedidos, portal del cliente e inventarios: alcance, validaciones, autorización y operaciones críticas.
+Las 33 pruebas actuales cubren seguridad JWT, autenticación, cierre de sesión, clientes, catálogos, auditoría, pedidos, portal, inventarios y abastecimiento: alcance, validaciones, autorización y operaciones críticas.
 
 ## Pendiente para fases posteriores
 
-Producción, abastecimiento entre giros, transporte y GPS, construcción, alertas, comunicación, integraciones de terceros, reportes operativos/financieros y funcionamiento offline transaccional. Las tarjetas de esos módulos se muestran explícitamente como pendientes y no simulan datos reales.
+Producción, transporte y GPS, construcción, alertas, comunicación, integraciones de terceros, reportes operativos/financieros y funcionamiento offline transaccional. Las tarjetas de esos módulos se muestran explícitamente como pendientes y no simulan datos reales.

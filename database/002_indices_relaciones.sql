@@ -60,6 +60,16 @@ IF OBJECT_ID(N'dbo.FK_InventarioMovimiento_SedeDestino', N'F') IS NULL
     ALTER TABLE dbo.InventarioMovimiento ADD CONSTRAINT FK_InventarioMovimiento_SedeDestino FOREIGN KEY (SedeDestinoId) REFERENCES dbo.Sede(SedeId);
 IF OBJECT_ID(N'dbo.FK_InventarioMovimiento_Usuario', N'F') IS NULL
     ALTER TABLE dbo.InventarioMovimiento ADD CONSTRAINT FK_InventarioMovimiento_Usuario FOREIGN KEY (UsuarioId) REFERENCES dbo.Usuario(UsuarioId);
+IF OBJECT_ID(N'dbo.FK_Abastecimiento_GiroSolicitante',N'F') IS NULL ALTER TABLE dbo.AbastecimientoSolicitud ADD CONSTRAINT FK_Abastecimiento_GiroSolicitante FOREIGN KEY(GiroSolicitanteId) REFERENCES dbo.GiroNegocio(GiroNegocioId);
+IF OBJECT_ID(N'dbo.FK_Abastecimiento_GiroProveedor',N'F') IS NULL ALTER TABLE dbo.AbastecimientoSolicitud ADD CONSTRAINT FK_Abastecimiento_GiroProveedor FOREIGN KEY(GiroProveedorId) REFERENCES dbo.GiroNegocio(GiroNegocioId);
+IF OBJECT_ID(N'dbo.FK_Abastecimiento_SedeSolicitante',N'F') IS NULL ALTER TABLE dbo.AbastecimientoSolicitud ADD CONSTRAINT FK_Abastecimiento_SedeSolicitante FOREIGN KEY(SedeSolicitanteId) REFERENCES dbo.Sede(SedeId);
+IF OBJECT_ID(N'dbo.FK_Abastecimiento_SedeProveedor',N'F') IS NULL ALTER TABLE dbo.AbastecimientoSolicitud ADD CONSTRAINT FK_Abastecimiento_SedeProveedor FOREIGN KEY(SedeProveedorId) REFERENCES dbo.Sede(SedeId);
+IF OBJECT_ID(N'dbo.FK_Abastecimiento_Solicitante',N'F') IS NULL ALTER TABLE dbo.AbastecimientoSolicitud ADD CONSTRAINT FK_Abastecimiento_Solicitante FOREIGN KEY(SolicitanteUsuarioId) REFERENCES dbo.Usuario(UsuarioId);
+IF OBJECT_ID(N'dbo.FK_AbastecimientoDetalle_Solicitud',N'F') IS NULL ALTER TABLE dbo.AbastecimientoDetalle ADD CONSTRAINT FK_AbastecimientoDetalle_Solicitud FOREIGN KEY(AbastecimientoSolicitudId) REFERENCES dbo.AbastecimientoSolicitud(AbastecimientoSolicitudId);
+IF OBJECT_ID(N'dbo.FK_AbastecimientoDetalle_Proveedor',N'F') IS NULL ALTER TABLE dbo.AbastecimientoDetalle ADD CONSTRAINT FK_AbastecimientoDetalle_Proveedor FOREIGN KEY(ArticuloProveedorId) REFERENCES dbo.InventarioArticulo(InventarioArticuloId);
+IF OBJECT_ID(N'dbo.FK_AbastecimientoDetalle_Destino',N'F') IS NULL ALTER TABLE dbo.AbastecimientoDetalle ADD CONSTRAINT FK_AbastecimientoDetalle_Destino FOREIGN KEY(ArticuloDestinoId) REFERENCES dbo.InventarioArticulo(InventarioArticuloId);
+IF OBJECT_ID(N'dbo.FK_AbastecimientoHistorial_Solicitud',N'F') IS NULL ALTER TABLE dbo.AbastecimientoHistorial ADD CONSTRAINT FK_AbastecimientoHistorial_Solicitud FOREIGN KEY(AbastecimientoSolicitudId) REFERENCES dbo.AbastecimientoSolicitud(AbastecimientoSolicitudId);
+IF OBJECT_ID(N'dbo.FK_AbastecimientoHistorial_Usuario',N'F') IS NULL ALTER TABLE dbo.AbastecimientoHistorial ADD CONSTRAINT FK_AbastecimientoHistorial_Usuario FOREIGN KEY(UsuarioId) REFERENCES dbo.Usuario(UsuarioId);
 GO
 
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.Usuario') AND name = N'UX_Usuario_NombreUsuario')
@@ -108,4 +118,8 @@ IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.Inven
     CREATE UNIQUE INDEX UX_InventarioExistencia_ArticuloSede ON dbo.InventarioExistencia(InventarioArticuloId,SedeId);
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.InventarioMovimiento') AND name = N'IX_InventarioMovimiento_ArticuloFecha')
     CREATE INDEX IX_InventarioMovimiento_ArticuloFecha ON dbo.InventarioMovimiento(InventarioArticuloId,Fecha DESC) INCLUDE (Tipo,SedeOrigenId,SedeDestinoId,Cantidad);
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.AbastecimientoSolicitud') AND name=N'IX_Abastecimiento_Solicitante') CREATE INDEX IX_Abastecimiento_Solicitante ON dbo.AbastecimientoSolicitud(GiroSolicitanteId,SedeSolicitanteId,Estado,FechaCreacion DESC) INCLUDE(GiroProveedorId,SedeProveedorId,Eliminado);
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.AbastecimientoSolicitud') AND name=N'IX_Abastecimiento_Proveedor') CREATE INDEX IX_Abastecimiento_Proveedor ON dbo.AbastecimientoSolicitud(GiroProveedorId,SedeProveedorId,Estado,FechaCreacion DESC) INCLUDE(GiroSolicitanteId,SedeSolicitanteId,Eliminado);
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.AbastecimientoDetalle') AND name=N'IX_AbastecimientoDetalle_Solicitud') CREATE INDEX IX_AbastecimientoDetalle_Solicitud ON dbo.AbastecimientoDetalle(AbastecimientoSolicitudId);
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.AbastecimientoHistorial') AND name=N'IX_AbastecimientoHistorial_Solicitud') CREATE INDEX IX_AbastecimientoHistorial_Solicitud ON dbo.AbastecimientoHistorial(AbastecimientoSolicitudId,Fecha DESC);
 GO

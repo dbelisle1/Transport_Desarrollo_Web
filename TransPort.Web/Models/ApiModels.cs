@@ -312,3 +312,15 @@ public sealed class InventarioMovimientoFormModel
     [StringLength(120)]public string? Referencia{get;set;}
     [StringLength(500)]public string? Observacion{get;set;}
 }
+public sealed record AbastecimientoListadoModel(long AbastecimientoSolicitudId,string Estado,DateTime FechaNecesaria,string Motivo,int GiroSolicitanteId,string GiroSolicitante,int SedeSolicitanteId,string SedeSolicitante,int GiroProveedorId,string GiroProveedor,int SedeProveedorId,string SedeProveedor,string Solicitante,DateTime FechaCreacion,DateTime? FechaModificacion,int Lineas);
+public sealed record AbastecimientoLineaModel(long AbastecimientoDetalleId,int ArticuloProveedorId,string CodigoProveedor,string ArticuloProveedor,int ArticuloDestinoId,string CodigoDestino,string ArticuloDestino,decimal Cantidad,string UnidadMedida);
+public sealed record AbastecimientoHistorialModel(long AbastecimientoHistorialId,int UsuarioId,string NombreUsuario,string? EstadoAnterior,string EstadoNuevo,string? Comentario,DateTime Fecha);
+public sealed record AbastecimientoDetalleModel(long AbastecimientoSolicitudId,string Estado,DateTime FechaNecesaria,string Motivo,int GiroSolicitanteId,string GiroSolicitante,int SedeSolicitanteId,string SedeSolicitante,int GiroProveedorId,string GiroProveedor,int SedeProveedorId,string SedeProveedor,int SolicitanteUsuarioId,string Solicitante,DateTime FechaCreacion,DateTime? FechaModificacion,IReadOnlyList<AbastecimientoLineaModel> Detalles,IReadOnlyList<AbastecimientoHistorialModel> Historial);
+public sealed record AbastecimientoOpcionesModel(IReadOnlyList<CatalogoModel> GirosSolicitante,IReadOnlyList<CatalogoModel> SedesSolicitante,IReadOnlyList<CatalogoModel> GirosProveedor,IReadOnlyList<CatalogoModel> SedesProveedor,IReadOnlyList<CatalogoModel> Articulos);
+public sealed class AbastecimientoPaginaViewModel{public string? Estado{get;set;}public string? Busqueda{get;set;}public IReadOnlyList<AbastecimientoListadoModel> Solicitudes{get;set;}=[];public AbastecimientoOpcionesModel Opciones{get;set;}=new([],[],[],[],[]);}
+public sealed class AbastecimientoCrearViewModel
+{
+ [Range(1,int.MaxValue)]public int GiroSolicitanteId{get;set;}[Range(1,int.MaxValue)]public int SedeSolicitanteId{get;set;}[Range(1,int.MaxValue)]public int GiroProveedorId{get;set;}[Range(1,int.MaxValue)]public int SedeProveedorId{get;set;}
+ [DataType(DataType.Date)]public DateTime FechaNecesaria{get;set;}=DateTime.Today.AddDays(1);[Required,StringLength(500,MinimumLength=5)]public string Motivo{get;set;}=string.Empty;
+ [Range(1,int.MaxValue)]public int ArticuloProveedorId{get;set;}[Range(1,int.MaxValue)]public int ArticuloDestinoId{get;set;}[Range(0.001,999999999999999.999)]public decimal Cantidad{get;set;}
+}

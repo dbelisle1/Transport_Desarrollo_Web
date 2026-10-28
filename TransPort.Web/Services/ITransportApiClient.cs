@@ -37,4 +37,11 @@ public interface ITransportApiClient
     Task<InventarioOpcionesModel> InventarioOpcionesAsync(CancellationToken ct);
     Task CrearInventarioArticuloAsync(InventarioArticuloFormModel model,CancellationToken ct);
     Task RegistrarInventarioMovimientoAsync(InventarioMovimientoFormModel model,CancellationToken ct);
+    Task<IReadOnlyList<AbastecimientoListadoModel>> AbastecimientosAsync(string? estado,string? busqueda,CancellationToken ct);
+    Task<AbastecimientoDetalleModel?> AbastecimientoAsync(long id,CancellationToken ct);
+    Task<AbastecimientoOpcionesModel> AbastecimientoOpcionesAsync(CancellationToken ct);
+    Task<long> CrearAbastecimientoAsync(AbastecimientoCrearViewModel model,CancellationToken ct);
+    Task CambiarEstadoAbastecimientoAsync(long id,string estado,string? comentario,CancellationToken ct);
+    Task ComentarAbastecimientoAsync(long id,string comentario,CancellationToken ct);
+    Task EliminarAbastecimientoAsync(long id,CancellationToken ct);
 }

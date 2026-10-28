@@ -1141,3 +1141,128 @@ BEGIN
     SELECT @Filas;
 END;
 GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_abastecimiento_leer_listado
+    @UsuarioId INT,@EsAdministrador BIT,@Estado NVARCHAR(30)=NULL,@Busqueda NVARCHAR(200)=NULL
+AS
+BEGIN
+ SET NOCOUNT ON;SET @Estado=NULLIF(LTRIM(RTRIM(@Estado)),N'');SET @Busqueda=NULLIF(LTRIM(RTRIM(@Busqueda)),N'');
+ SELECT a.AbastecimientoSolicitudId,a.Estado,a.FechaNecesaria,a.Motivo,a.GiroSolicitanteId,gs.Nombre GiroSolicitante,a.SedeSolicitanteId,ss.Nombre SedeSolicitante,
+        a.GiroProveedorId,gp.Nombre GiroProveedor,a.SedeProveedorId,sp.Nombre SedeProveedor,u.NombreUsuario Solicitante,a.FechaCreacion,a.FechaModificacion,
+        (SELECT COUNT(*) FROM dbo.AbastecimientoDetalle d WHERE d.AbastecimientoSolicitudId=a.AbastecimientoSolicitudId) Lineas
+ FROM dbo.AbastecimientoSolicitud a JOIN dbo.GiroNegocio gs ON gs.GiroNegocioId=a.GiroSolicitanteId JOIN dbo.GiroNegocio gp ON gp.GiroNegocioId=a.GiroProveedorId
+ JOIN dbo.Sede ss ON ss.SedeId=a.SedeSolicitanteId JOIN dbo.Sede sp ON sp.SedeId=a.SedeProveedorId JOIN dbo.Usuario u ON u.UsuarioId=a.SolicitanteUsuarioId
+ WHERE a.Eliminado=0 AND (@Estado IS NULL OR a.Estado=@Estado) AND (@Busqueda IS NULL OR a.Motivo LIKE N'%'+@Busqueda+N'%' OR gs.Nombre LIKE N'%'+@Busqueda+N'%' OR gp.Nombre LIKE N'%'+@Busqueda+N'%')
+ AND (@EsAdministrador=1 OR
+   (EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio x WHERE x.UsuarioId=@UsuarioId AND x.GiroNegocioId=a.GiroSolicitanteId AND x.Eliminado=0) AND EXISTS(SELECT 1 FROM dbo.UsuarioSede x WHERE x.UsuarioId=@UsuarioId AND x.SedeId=a.SedeSolicitanteId AND x.Eliminado=0)) OR
+   (EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio x WHERE x.UsuarioId=@UsuarioId AND x.GiroNegocioId=a.GiroProveedorId AND x.Eliminado=0) AND EXISTS(SELECT 1 FROM dbo.UsuarioSede x WHERE x.UsuarioId=@UsuarioId AND x.SedeId=a.SedeProveedorId AND x.Eliminado=0)))
+ ORDER BY a.FechaCreacion DESC,a.AbastecimientoSolicitudId DESC;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_abastecimiento_leer_por_id @Id BIGINT,@UsuarioId INT,@EsAdministrador BIT
+AS
+BEGIN
+ SET NOCOUNT ON;
+ SELECT a.AbastecimientoSolicitudId,a.Estado,a.FechaNecesaria,a.Motivo,a.GiroSolicitanteId,gs.Nombre GiroSolicitante,a.SedeSolicitanteId,ss.Nombre SedeSolicitante,a.GiroProveedorId,gp.Nombre GiroProveedor,a.SedeProveedorId,sp.Nombre SedeProveedor,a.SolicitanteUsuarioId,u.NombreUsuario Solicitante,a.FechaCreacion,a.FechaModificacion
+ FROM dbo.AbastecimientoSolicitud a JOIN dbo.GiroNegocio gs ON gs.GiroNegocioId=a.GiroSolicitanteId JOIN dbo.GiroNegocio gp ON gp.GiroNegocioId=a.GiroProveedorId JOIN dbo.Sede ss ON ss.SedeId=a.SedeSolicitanteId JOIN dbo.Sede sp ON sp.SedeId=a.SedeProveedorId JOIN dbo.Usuario u ON u.UsuarioId=a.SolicitanteUsuarioId
+ WHERE a.AbastecimientoSolicitudId=@Id AND a.Eliminado=0 AND (@EsAdministrador=1 OR
+   (EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio x WHERE x.UsuarioId=@UsuarioId AND x.GiroNegocioId=a.GiroSolicitanteId AND x.Eliminado=0) AND EXISTS(SELECT 1 FROM dbo.UsuarioSede x WHERE x.UsuarioId=@UsuarioId AND x.SedeId=a.SedeSolicitanteId AND x.Eliminado=0)) OR
+   (EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio x WHERE x.UsuarioId=@UsuarioId AND x.GiroNegocioId=a.GiroProveedorId AND x.Eliminado=0) AND EXISTS(SELECT 1 FROM dbo.UsuarioSede x WHERE x.UsuarioId=@UsuarioId AND x.SedeId=a.SedeProveedorId AND x.Eliminado=0)));
+ SELECT d.AbastecimientoDetalleId,d.ArticuloProveedorId,ap.Codigo CodigoProveedor,ap.Nombre ArticuloProveedor,d.ArticuloDestinoId,ad.Codigo CodigoDestino,ad.Nombre ArticuloDestino,d.Cantidad,ap.UnidadMedida
+ FROM dbo.AbastecimientoDetalle d JOIN dbo.InventarioArticulo ap ON ap.InventarioArticuloId=d.ArticuloProveedorId JOIN dbo.InventarioArticulo ad ON ad.InventarioArticuloId=d.ArticuloDestinoId WHERE d.AbastecimientoSolicitudId=@Id ORDER BY d.AbastecimientoDetalleId;
+ SELECT h.AbastecimientoHistorialId,h.UsuarioId,u.NombreUsuario,h.EstadoAnterior,h.EstadoNuevo,h.Comentario,h.Fecha FROM dbo.AbastecimientoHistorial h JOIN dbo.Usuario u ON u.UsuarioId=h.UsuarioId WHERE h.AbastecimientoSolicitudId=@Id ORDER BY h.Fecha DESC,h.AbastecimientoHistorialId DESC;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_abastecimiento_leer_opciones @UsuarioId INT,@EsAdministrador BIT
+AS
+BEGIN
+ SET NOCOUNT ON;
+ SELECT g.GiroNegocioId Id,g.Nombre FROM dbo.GiroNegocio g WHERE g.Eliminado=0 AND g.EsActivo=1 AND (@EsAdministrador=1 OR EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio x WHERE x.UsuarioId=@UsuarioId AND x.GiroNegocioId=g.GiroNegocioId AND x.Eliminado=0)) ORDER BY g.Nombre;
+ SELECT s.SedeId Id,s.Nombre FROM dbo.Sede s WHERE s.Eliminado=0 AND s.EsActivo=1 AND (@EsAdministrador=1 OR EXISTS(SELECT 1 FROM dbo.UsuarioSede x WHERE x.UsuarioId=@UsuarioId AND x.SedeId=s.SedeId AND x.Eliminado=0)) ORDER BY s.Nombre;
+ SELECT g.GiroNegocioId Id,g.Nombre FROM dbo.GiroNegocio g WHERE g.Eliminado=0 AND g.EsActivo=1 ORDER BY g.Nombre;
+ SELECT s.SedeId Id,s.Nombre FROM dbo.Sede s WHERE s.Eliminado=0 AND s.EsActivo=1 ORDER BY s.Nombre;
+ SELECT a.InventarioArticuloId Id,CONCAT(a.Codigo,N' · ',a.Nombre,N' [',g.Nombre,N']') Nombre FROM dbo.InventarioArticulo a JOIN dbo.GiroNegocio g ON g.GiroNegocioId=a.GiroNegocioId WHERE a.Eliminado=0 AND a.EsActivo=1 ORDER BY g.Nombre,a.Nombre;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_abastecimiento_crear
+ @GiroSolicitanteId INT,@SedeSolicitanteId INT,@GiroProveedorId INT,@SedeProveedorId INT,@FechaNecesaria DATE,@Motivo NVARCHAR(500),@Detalles NVARCHAR(MAX),@UsuarioId INT,@EsAdministrador BIT
+AS
+BEGIN
+ SET NOCOUNT ON;SET XACT_ABORT ON;BEGIN TRY BEGIN TRANSACTION;
+ IF @GiroSolicitanteId=@GiroProveedorId THROW 50002,N'Los giros deben ser diferentes.',1;
+ IF @FechaNecesaria<CONVERT(DATE,SYSUTCDATETIME()) THROW 50002,N'La fecha necesaria no puede estar en el pasado.',1;
+ IF NOT EXISTS(SELECT 1 FROM dbo.SedeGiroNegocio WHERE SedeId=@SedeSolicitanteId AND GiroNegocioId=@GiroSolicitanteId AND Eliminado=0) THROW 50002,N'La sede solicitante no corresponde al giro.',1;
+ IF NOT EXISTS(SELECT 1 FROM dbo.SedeGiroNegocio WHERE SedeId=@SedeProveedorId AND GiroNegocioId=@GiroProveedorId AND Eliminado=0) THROW 50002,N'La sede proveedora no corresponde al giro.',1;
+ IF @EsAdministrador=0 AND (NOT EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio WHERE UsuarioId=@UsuarioId AND GiroNegocioId=@GiroSolicitanteId AND Eliminado=0) OR NOT EXISTS(SELECT 1 FROM dbo.UsuarioSede WHERE UsuarioId=@UsuarioId AND SedeId=@SedeSolicitanteId AND Eliminado=0)) THROW 50002,N'El usuario no puede solicitar para ese giro y sede.',1;
+ DECLARE @Lineas TABLE(ArticuloProveedorId INT,ArticuloDestinoId INT,Cantidad DECIMAL(18,3));
+ INSERT @Lineas SELECT ArticuloProveedorId,ArticuloDestinoId,SUM(Cantidad) FROM OPENJSON(@Detalles) WITH(ArticuloProveedorId INT '$.articuloProveedorId',ArticuloDestinoId INT '$.articuloDestinoId',Cantidad DECIMAL(18,3) '$.cantidad') GROUP BY ArticuloProveedorId,ArticuloDestinoId;
+ IF NOT EXISTS(SELECT 1 FROM @Lineas) OR EXISTS(SELECT 1 FROM @Lineas WHERE Cantidad<=0) THROW 50002,N'Debe agregar cantidades válidas.',1;
+ IF EXISTS(SELECT 1 FROM @Lineas l LEFT JOIN dbo.InventarioArticulo a ON a.InventarioArticuloId=l.ArticuloProveedorId AND a.GiroNegocioId=@GiroProveedorId AND a.Eliminado=0 WHERE a.InventarioArticuloId IS NULL) THROW 50002,N'Un artículo proveedor no corresponde al giro.',1;
+ IF EXISTS(SELECT 1 FROM @Lineas l LEFT JOIN dbo.InventarioArticulo a ON a.InventarioArticuloId=l.ArticuloDestinoId AND a.GiroNegocioId=@GiroSolicitanteId AND a.Eliminado=0 WHERE a.InventarioArticuloId IS NULL) THROW 50002,N'Un artículo destino no corresponde al giro solicitante.',1;
+ INSERT dbo.AbastecimientoSolicitud(GiroSolicitanteId,SedeSolicitanteId,GiroProveedorId,SedeProveedorId,SolicitanteUsuarioId,FechaNecesaria,Motivo) VALUES(@GiroSolicitanteId,@SedeSolicitanteId,@GiroProveedorId,@SedeProveedorId,@UsuarioId,@FechaNecesaria,LTRIM(RTRIM(@Motivo)));
+ DECLARE @Id BIGINT=CONVERT(BIGINT,SCOPE_IDENTITY());INSERT dbo.AbastecimientoDetalle(AbastecimientoSolicitudId,ArticuloProveedorId,ArticuloDestinoId,Cantidad) SELECT @Id,ArticuloProveedorId,ArticuloDestinoId,Cantidad FROM @Lineas;
+ INSERT dbo.AbastecimientoHistorial(AbastecimientoSolicitudId,UsuarioId,EstadoNuevo,Comentario) VALUES(@Id,@UsuarioId,N'Solicitado',N'Solicitud creada.');EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'Abastecimiento',N'Crear',@Id,N'Exitoso',@Motivo;
+ COMMIT TRANSACTION;SELECT @Id;END TRY BEGIN CATCH IF XACT_STATE()<>0 ROLLBACK TRANSACTION;THROW;END CATCH
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_abastecimiento_actualizar_estado @Id BIGINT,@Estado NVARCHAR(30),@Comentario NVARCHAR(1000)=NULL,@UsuarioId INT,@EsAdministrador BIT
+AS
+BEGIN
+ SET NOCOUNT ON;SET XACT_ABORT ON;BEGIN TRY BEGIN TRANSACTION;
+ DECLARE @Anterior NVARCHAR(30),@Gs INT,@Ss INT,@Gp INT,@Sp INT;SELECT @Anterior=Estado,@Gs=GiroSolicitanteId,@Ss=SedeSolicitanteId,@Gp=GiroProveedorId,@Sp=SedeProveedorId FROM dbo.AbastecimientoSolicitud WITH(UPDLOCK) WHERE AbastecimientoSolicitudId=@Id AND Eliminado=0;
+ IF @Anterior IS NULL THROW 50002,N'La solicitud no existe.',1;
+ IF NOT ((@Anterior=N'Solicitado' AND @Estado IN(N'Aprobado',N'Rechazado',N'Cancelado')) OR (@Anterior=N'Aprobado' AND @Estado IN(N'Preparacion',N'Cancelado')) OR (@Anterior=N'Preparacion' AND @Estado IN(N'Despachado',N'Cancelado')) OR (@Anterior=N'Despachado' AND @Estado=N'Recibido')) THROW 50002,N'Transición de estado inválida.',1;
+ DECLARE @Proveedor BIT=CASE WHEN @EsAdministrador=1 OR (EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio WHERE UsuarioId=@UsuarioId AND GiroNegocioId=@Gp AND Eliminado=0) AND EXISTS(SELECT 1 FROM dbo.UsuarioSede WHERE UsuarioId=@UsuarioId AND SedeId=@Sp AND Eliminado=0)) THEN 1 ELSE 0 END;
+ DECLARE @Solicitante BIT=CASE WHEN @EsAdministrador=1 OR (EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio WHERE UsuarioId=@UsuarioId AND GiroNegocioId=@Gs AND Eliminado=0) AND EXISTS(SELECT 1 FROM dbo.UsuarioSede WHERE UsuarioId=@UsuarioId AND SedeId=@Ss AND Eliminado=0)) THEN 1 ELSE 0 END;
+ IF @Estado IN(N'Aprobado',N'Rechazado',N'Preparacion',N'Despachado') AND @Proveedor=0 THROW 50002,N'Solo el giro proveedor puede realizar esta acción.',1;
+ IF @Estado=N'Recibido' AND @Solicitante=0 THROW 50002,N'Solo el giro solicitante puede recibir.',1;
+ IF @Estado=N'Cancelado' AND @Proveedor=0 AND @Solicitante=0 THROW 50002,N'El usuario no puede cancelar.',1;
+ IF @Estado=N'Aprobado'
+ BEGIN
+   IF EXISTS(SELECT 1 FROM dbo.AbastecimientoDetalle d LEFT JOIN dbo.InventarioExistencia e ON e.InventarioArticuloId=d.ArticuloProveedorId AND e.SedeId=@Sp WHERE d.AbastecimientoSolicitudId=@Id AND COALESCE(e.Cantidad-e.CantidadReservada,0)<d.Cantidad) THROW 50002,N'Inventario insuficiente para aprobar.',1;
+   UPDATE e SET CantidadReservada=e.CantidadReservada+d.Cantidad,FechaModificacion=SYSUTCDATETIME() FROM dbo.InventarioExistencia e JOIN dbo.AbastecimientoDetalle d ON d.ArticuloProveedorId=e.InventarioArticuloId AND d.AbastecimientoSolicitudId=@Id WHERE e.SedeId=@Sp;
+   INSERT dbo.InventarioMovimiento(InventarioArticuloId,Tipo,SedeOrigenId,Cantidad,Referencia,Observacion,UsuarioId) SELECT d.ArticuloProveedorId,N'Reserva',@Sp,d.Cantidad,CONCAT(N'AB-',@Id),N'Reserva de abastecimiento',@UsuarioId FROM dbo.AbastecimientoDetalle d WHERE d.AbastecimientoSolicitudId=@Id;
+ END;
+ IF @Estado IN(N'Rechazado',N'Cancelado') AND @Anterior IN(N'Aprobado',N'Preparacion')
+ BEGIN
+   UPDATE e SET CantidadReservada=e.CantidadReservada-d.Cantidad,FechaModificacion=SYSUTCDATETIME() FROM dbo.InventarioExistencia e JOIN dbo.AbastecimientoDetalle d ON d.ArticuloProveedorId=e.InventarioArticuloId AND d.AbastecimientoSolicitudId=@Id WHERE e.SedeId=@Sp;
+   INSERT dbo.InventarioMovimiento(InventarioArticuloId,Tipo,SedeOrigenId,Cantidad,Referencia,Observacion,UsuarioId) SELECT d.ArticuloProveedorId,N'Liberacion',@Sp,d.Cantidad,CONCAT(N'AB-',@Id),N'Liberación de abastecimiento',@UsuarioId FROM dbo.AbastecimientoDetalle d WHERE d.AbastecimientoSolicitudId=@Id;
+ END;
+ IF @Estado=N'Despachado'
+ BEGIN
+   IF EXISTS(SELECT 1 FROM dbo.AbastecimientoDetalle d JOIN dbo.InventarioExistencia e ON e.InventarioArticuloId=d.ArticuloProveedorId AND e.SedeId=@Sp WHERE d.AbastecimientoSolicitudId=@Id AND e.CantidadReservada<d.Cantidad) THROW 50002,N'La reserva de inventario no está disponible.',1;
+   UPDATE e SET Cantidad=e.Cantidad-d.Cantidad,CantidadReservada=e.CantidadReservada-d.Cantidad,FechaModificacion=SYSUTCDATETIME() FROM dbo.InventarioExistencia e JOIN dbo.AbastecimientoDetalle d ON d.ArticuloProveedorId=e.InventarioArticuloId AND d.AbastecimientoSolicitudId=@Id WHERE e.SedeId=@Sp;
+   INSERT dbo.InventarioMovimiento(InventarioArticuloId,Tipo,SedeOrigenId,Cantidad,Referencia,Observacion,UsuarioId) SELECT d.ArticuloProveedorId,N'Salida',@Sp,d.Cantidad,CONCAT(N'AB-',@Id),N'Despacho de abastecimiento',@UsuarioId FROM dbo.AbastecimientoDetalle d WHERE d.AbastecimientoSolicitudId=@Id;
+ END;
+ IF @Estado=N'Recibido'
+ BEGIN
+   INSERT dbo.InventarioExistencia(InventarioArticuloId,SedeId) SELECT d.ArticuloDestinoId,@Ss FROM dbo.AbastecimientoDetalle d WHERE d.AbastecimientoSolicitudId=@Id AND NOT EXISTS(SELECT 1 FROM dbo.InventarioExistencia e WHERE e.InventarioArticuloId=d.ArticuloDestinoId AND e.SedeId=@Ss);
+   UPDATE e SET Cantidad=e.Cantidad+d.Cantidad,FechaModificacion=SYSUTCDATETIME() FROM dbo.InventarioExistencia e JOIN dbo.AbastecimientoDetalle d ON d.ArticuloDestinoId=e.InventarioArticuloId AND d.AbastecimientoSolicitudId=@Id WHERE e.SedeId=@Ss;
+   INSERT dbo.InventarioMovimiento(InventarioArticuloId,Tipo,SedeDestinoId,Cantidad,Referencia,Observacion,UsuarioId) SELECT d.ArticuloDestinoId,N'Entrada',@Ss,d.Cantidad,CONCAT(N'AB-',@Id),N'Recepción de abastecimiento',@UsuarioId FROM dbo.AbastecimientoDetalle d WHERE d.AbastecimientoSolicitudId=@Id;
+ END;
+ UPDATE dbo.AbastecimientoSolicitud SET Estado=@Estado,FechaModificacion=SYSUTCDATETIME() WHERE AbastecimientoSolicitudId=@Id;
+ INSERT dbo.AbastecimientoHistorial(AbastecimientoSolicitudId,UsuarioId,EstadoAnterior,EstadoNuevo,Comentario) VALUES(@Id,@UsuarioId,@Anterior,@Estado,NULLIF(LTRIM(RTRIM(@Comentario)),N''));EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'Abastecimiento',N'CambiarEstado',@Id,N'Exitoso',@Estado;
+ COMMIT TRANSACTION;SELECT 1;END TRY BEGIN CATCH IF XACT_STATE()<>0 ROLLBACK TRANSACTION;THROW;END CATCH
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_abastecimiento_comentar @Id BIGINT,@Comentario NVARCHAR(1000),@UsuarioId INT,@EsAdministrador BIT
+AS
+BEGIN
+ SET NOCOUNT ON;DECLARE @Estado NVARCHAR(30);SELECT @Estado=a.Estado FROM dbo.AbastecimientoSolicitud a WHERE a.AbastecimientoSolicitudId=@Id AND a.Eliminado=0 AND (@EsAdministrador=1 OR
+ (EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio x WHERE x.UsuarioId=@UsuarioId AND x.GiroNegocioId=a.GiroSolicitanteId AND x.Eliminado=0) AND EXISTS(SELECT 1 FROM dbo.UsuarioSede x WHERE x.UsuarioId=@UsuarioId AND x.SedeId=a.SedeSolicitanteId AND x.Eliminado=0)) OR
+ (EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio x WHERE x.UsuarioId=@UsuarioId AND x.GiroNegocioId=a.GiroProveedorId AND x.Eliminado=0) AND EXISTS(SELECT 1 FROM dbo.UsuarioSede x WHERE x.UsuarioId=@UsuarioId AND x.SedeId=a.SedeProveedorId AND x.Eliminado=0)));
+ IF @Estado IS NULL THROW 50002,N'La solicitud no está disponible.',1;INSERT dbo.AbastecimientoHistorial(AbastecimientoSolicitudId,UsuarioId,EstadoAnterior,EstadoNuevo,Comentario) VALUES(@Id,@UsuarioId,@Estado,@Estado,LTRIM(RTRIM(@Comentario)));EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'Abastecimiento',N'Comentar',@Id,N'Exitoso',NULL;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_abastecimiento_eliminar @Id BIGINT,@UsuarioId INT
+AS
+BEGIN
+ SET NOCOUNT ON;IF EXISTS(SELECT 1 FROM dbo.AbastecimientoSolicitud WHERE AbastecimientoSolicitudId=@Id AND Estado IN(N'Aprobado',N'Preparacion',N'Despachado') AND Eliminado=0) THROW 50002,N'No puede eliminar una solicitud activa.',1;UPDATE dbo.AbastecimientoSolicitud SET Eliminado=1,FechaModificacion=SYSUTCDATETIME() WHERE AbastecimientoSolicitudId=@Id AND Eliminado=0;DECLARE @F INT=@@ROWCOUNT;IF @F>0 EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'Abastecimiento',N'Eliminar',@Id,N'Exitoso',NULL;SELECT @F;
+END;
+GO

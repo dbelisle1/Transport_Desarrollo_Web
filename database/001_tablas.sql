@@ -259,3 +259,33 @@ CREATE TABLE dbo.InventarioMovimiento
     CONSTRAINT CK_InventarioMovimiento_Cantidad CHECK (Cantidad>0)
 );
 GO
+
+IF OBJECT_ID(N'dbo.AbastecimientoSolicitud',N'U') IS NULL
+CREATE TABLE dbo.AbastecimientoSolicitud
+(
+    AbastecimientoSolicitudId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_AbastecimientoSolicitud PRIMARY KEY,
+    GiroSolicitanteId INT NOT NULL,SedeSolicitanteId INT NOT NULL,
+    GiroProveedorId INT NOT NULL,SedeProveedorId INT NOT NULL,
+    SolicitanteUsuarioId INT NOT NULL,Estado NVARCHAR(30) NOT NULL CONSTRAINT DF_Abastecimiento_Estado DEFAULT(N'Solicitado'),
+    FechaNecesaria DATE NOT NULL,Motivo NVARCHAR(500) NOT NULL,Eliminado BIT NOT NULL CONSTRAINT DF_Abastecimiento_Eliminado DEFAULT(0),
+    FechaCreacion DATETIME2(0) NOT NULL CONSTRAINT DF_Abastecimiento_Fecha DEFAULT(SYSUTCDATETIME()),FechaModificacion DATETIME2(0) NULL,
+    CONSTRAINT CK_Abastecimiento_Giros CHECK(GiroSolicitanteId<>GiroProveedorId),
+    CONSTRAINT CK_Abastecimiento_Estado CHECK(Estado IN(N'Solicitado',N'Aprobado',N'Preparacion',N'Despachado',N'Recibido',N'Rechazado',N'Cancelado'))
+);
+GO
+IF OBJECT_ID(N'dbo.AbastecimientoDetalle',N'U') IS NULL
+CREATE TABLE dbo.AbastecimientoDetalle
+(
+    AbastecimientoDetalleId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_AbastecimientoDetalle PRIMARY KEY,
+    AbastecimientoSolicitudId BIGINT NOT NULL,ArticuloProveedorId INT NOT NULL,ArticuloDestinoId INT NOT NULL,
+    Cantidad DECIMAL(18,3) NOT NULL,CONSTRAINT CK_AbastecimientoDetalle_Cantidad CHECK(Cantidad>0)
+);
+GO
+IF OBJECT_ID(N'dbo.AbastecimientoHistorial',N'U') IS NULL
+CREATE TABLE dbo.AbastecimientoHistorial
+(
+    AbastecimientoHistorialId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_AbastecimientoHistorial PRIMARY KEY,
+    AbastecimientoSolicitudId BIGINT NOT NULL,UsuarioId INT NOT NULL,EstadoAnterior NVARCHAR(30) NULL,EstadoNuevo NVARCHAR(30) NOT NULL,
+    Comentario NVARCHAR(1000) NULL,Fecha DATETIME2(0) NOT NULL CONSTRAINT DF_AbastecimientoHistorial_Fecha DEFAULT(SYSUTCDATETIME())
+);
+GO
