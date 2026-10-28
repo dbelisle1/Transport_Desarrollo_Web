@@ -343,3 +343,15 @@ public sealed class ExtraccionCrearViewModel
  [System.ComponentModel.DataAnnotations.StringLength(200)]public string? DestinoDescripcion{get;set;}
  [System.ComponentModel.DataAnnotations.StringLength(500)]public string? Observacion{get;set;}
 }
+
+public sealed record ProduccionListadoModel(long ProduccionOrdenId,int SedeId,string Sede,int ArticuloEntradaId,string CodigoEntrada,string ArticuloEntrada,string UnidadEntrada,int ArticuloSalidaId,string CodigoSalida,string ArticuloSalida,string UnidadSalida,DateTime FechaPlanificada,decimal CantidadEntrada,decimal CantidadSalidaPlanificada,decimal? CantidadSalidaReal,decimal? CantidadMerma,decimal? CostoUnitario,string Estado,string Responsable,DateTime FechaCreacion,string? EtapaActual);
+public sealed record ProduccionEtapaModel(long ProduccionEtapaId,int Secuencia,string Nombre,string Estado,DateTime? FechaInicio,DateTime? FechaFin,string? Observacion);
+public sealed record ProduccionHistorialModel(long ProduccionHistorialId,int UsuarioId,string NombreUsuario,string? EstadoAnterior,string EstadoNuevo,string? Comentario,DateTime Fecha);
+public sealed record ProduccionDetalleModel(long ProduccionOrdenId,int SedeId,string Sede,int ArticuloEntradaId,string CodigoEntrada,string ArticuloEntrada,string UnidadEntrada,int ArticuloSalidaId,string CodigoSalida,string ArticuloSalida,string UnidadSalida,DateTime FechaPlanificada,decimal CantidadEntrada,decimal CantidadSalidaPlanificada,decimal? CantidadSalidaReal,decimal? CantidadMerma,decimal? CostoUnitario,string Estado,int ResponsableUsuarioId,string Responsable,string? Observacion,DateTime FechaCreacion,DateTime? FechaModificacion,IReadOnlyList<ProduccionEtapaModel> Etapas,IReadOnlyList<ProduccionHistorialModel> Historial);
+public sealed record ProduccionOpcionesModel(IReadOnlyList<CatalogoModel>Sedes,IReadOnlyList<CatalogoModel>Articulos);
+public sealed class ProduccionPaginaViewModel{public string?Estado{get;set;}public int?SedeId{get;set;}public DateTime?FechaDesde{get;set;}public DateTime?FechaHasta{get;set;}public IReadOnlyList<ProduccionListadoModel>Ordenes{get;set;}=[];public ProduccionOpcionesModel Opciones{get;set;}=new([],[]);}
+public sealed class ProduccionCrearViewModel
+{
+ [System.ComponentModel.DataAnnotations.Range(1,int.MaxValue)]public int SedeId{get;set;}[System.ComponentModel.DataAnnotations.Range(1,int.MaxValue)]public int ArticuloEntradaId{get;set;}[System.ComponentModel.DataAnnotations.Range(1,int.MaxValue)]public int ArticuloSalidaId{get;set;}public DateTime FechaPlanificada{get;set;}=DateTime.Today;
+ [System.ComponentModel.DataAnnotations.Range(0.001,999999999999999.999)]public decimal CantidadEntrada{get;set;}[System.ComponentModel.DataAnnotations.Range(0.001,999999999999999.999)]public decimal CantidadSalidaPlanificada{get;set;}[System.ComponentModel.DataAnnotations.StringLength(500)]public string?Observacion{get;set;}
+}

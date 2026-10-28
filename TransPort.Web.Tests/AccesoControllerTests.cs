@@ -143,5 +143,12 @@ public sealed class AccesoControllerTests
         public Task<long> CrearExtraccionAsync(ExtraccionCrearViewModel model,CancellationToken ct)=>throw NotUsed();
         public Task CambiarEstadoExtraccionAsync(long id,string estado,string? comentario,CancellationToken ct)=>throw NotUsed();
         public Task EliminarExtraccionAsync(long id,CancellationToken ct)=>throw NotUsed();
+        public Task<IReadOnlyList<ProduccionListadoModel>> ProduccionesAsync(string?estado,int?sedeId,DateTime?desde,DateTime?hasta,CancellationToken ct)=>throw NotUsed();
+        public Task<ProduccionDetalleModel?> ProduccionAsync(long id,CancellationToken ct)=>throw NotUsed();
+        public Task<ProduccionOpcionesModel> ProduccionOpcionesAsync(CancellationToken ct)=>throw NotUsed();
+        public Task<long> CrearProduccionAsync(ProduccionCrearViewModel model,CancellationToken ct)=>throw NotUsed();
+        public Task CambiarEstadoProduccionAsync(long id,string estado,decimal?cantidadSalidaReal,decimal?cantidadMerma,decimal?costoUnitario,string?comentario,CancellationToken ct)=>throw NotUsed();
+        public Task CompletarEtapaProduccionAsync(long id,long etapaId,string?observacion,CancellationToken ct)=>throw NotUsed();
+        public Task EliminarProduccionAsync(long id,CancellationToken ct)=>throw NotUsed();
     }
 }

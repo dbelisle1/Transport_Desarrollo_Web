@@ -1323,3 +1323,70 @@ CREATE OR ALTER PROCEDURE dbo.sp_extraccion_eliminar @Id BIGINT,@UsuarioId INT
 AS
 BEGIN SET NOCOUNT ON;UPDATE dbo.ExtraccionJornada SET Eliminado=1,FechaModificacion=SYSUTCDATETIME() WHERE ExtraccionJornadaId=@Id AND Eliminado=0 AND Estado IN(N'Entregada',N'Cancelada');DECLARE @F INT=@@ROWCOUNT;IF @F>0 EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'Extraccion',N'Eliminar',@Id,N'Exitoso',NULL;SELECT @F;END;
 GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_produccion_leer_listado @UsuarioId INT,@EsAdministrador BIT,@Estado NVARCHAR(30)=NULL,@SedeId INT=NULL,@FechaDesde DATE=NULL,@FechaHasta DATE=NULL
+AS
+BEGIN
+ SET NOCOUNT ON;DECLARE @GiroId INT=(SELECT GiroNegocioId FROM dbo.GiroNegocio WHERE Nombre=N'Procesamiento de materia prima' AND Eliminado=0);
+ SELECT o.ProduccionOrdenId,o.SedeId,s.Nombre Sede,o.ArticuloEntradaId,ae.Codigo CodigoEntrada,ae.Nombre ArticuloEntrada,ae.UnidadMedida UnidadEntrada,o.ArticuloSalidaId,asal.Codigo CodigoSalida,asal.Nombre ArticuloSalida,asal.UnidadMedida UnidadSalida,o.FechaPlanificada,o.CantidadEntrada,o.CantidadSalidaPlanificada,o.CantidadSalidaReal,o.CantidadMerma,o.CostoUnitario,o.Estado,u.NombreUsuario Responsable,o.FechaCreacion,
+ (SELECT TOP(1) e.Nombre FROM dbo.ProduccionEtapa e WHERE e.ProduccionOrdenId=o.ProduccionOrdenId AND e.Estado=N'EnProceso' ORDER BY e.Secuencia) EtapaActual
+ FROM dbo.ProduccionOrden o JOIN dbo.Sede s ON s.SedeId=o.SedeId JOIN dbo.InventarioArticulo ae ON ae.InventarioArticuloId=o.ArticuloEntradaId JOIN dbo.InventarioArticulo asal ON asal.InventarioArticuloId=o.ArticuloSalidaId JOIN dbo.Usuario u ON u.UsuarioId=o.ResponsableUsuarioId
+ WHERE o.Eliminado=0 AND (@Estado IS NULL OR o.Estado=@Estado) AND (@SedeId IS NULL OR o.SedeId=@SedeId) AND (@FechaDesde IS NULL OR o.FechaPlanificada>=@FechaDesde) AND (@FechaHasta IS NULL OR o.FechaPlanificada<=@FechaHasta)
+ AND (@EsAdministrador=1 OR (EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio x WHERE x.UsuarioId=@UsuarioId AND x.GiroNegocioId=@GiroId AND x.Eliminado=0) AND EXISTS(SELECT 1 FROM dbo.UsuarioSede x WHERE x.UsuarioId=@UsuarioId AND x.SedeId=o.SedeId AND x.Eliminado=0)))
+ ORDER BY o.FechaPlanificada DESC,o.ProduccionOrdenId DESC;
+END;
+GO
+CREATE OR ALTER PROCEDURE dbo.sp_produccion_leer_por_id @Id BIGINT,@UsuarioId INT,@EsAdministrador BIT
+AS
+BEGIN
+ SET NOCOUNT ON;DECLARE @GiroId INT=(SELECT GiroNegocioId FROM dbo.GiroNegocio WHERE Nombre=N'Procesamiento de materia prima' AND Eliminado=0);
+ SELECT o.ProduccionOrdenId,o.SedeId,s.Nombre Sede,o.ArticuloEntradaId,ae.Codigo CodigoEntrada,ae.Nombre ArticuloEntrada,ae.UnidadMedida UnidadEntrada,o.ArticuloSalidaId,asal.Codigo CodigoSalida,asal.Nombre ArticuloSalida,asal.UnidadMedida UnidadSalida,o.FechaPlanificada,o.CantidadEntrada,o.CantidadSalidaPlanificada,o.CantidadSalidaReal,o.CantidadMerma,o.CostoUnitario,o.Estado,o.ResponsableUsuarioId,u.NombreUsuario Responsable,o.Observacion,o.FechaCreacion,o.FechaModificacion
+ FROM dbo.ProduccionOrden o JOIN dbo.Sede s ON s.SedeId=o.SedeId JOIN dbo.InventarioArticulo ae ON ae.InventarioArticuloId=o.ArticuloEntradaId JOIN dbo.InventarioArticulo asal ON asal.InventarioArticuloId=o.ArticuloSalidaId JOIN dbo.Usuario u ON u.UsuarioId=o.ResponsableUsuarioId
+ WHERE o.ProduccionOrdenId=@Id AND o.Eliminado=0 AND (@EsAdministrador=1 OR (EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio x WHERE x.UsuarioId=@UsuarioId AND x.GiroNegocioId=@GiroId AND x.Eliminado=0) AND EXISTS(SELECT 1 FROM dbo.UsuarioSede x WHERE x.UsuarioId=@UsuarioId AND x.SedeId=o.SedeId AND x.Eliminado=0)));
+ SELECT ProduccionEtapaId,Secuencia,Nombre,Estado,FechaInicio,FechaFin,Observacion FROM dbo.ProduccionEtapa WHERE ProduccionOrdenId=@Id ORDER BY Secuencia;
+ SELECT h.ProduccionHistorialId,h.UsuarioId,u.NombreUsuario,h.EstadoAnterior,h.EstadoNuevo,h.Comentario,h.Fecha FROM dbo.ProduccionHistorial h JOIN dbo.Usuario u ON u.UsuarioId=h.UsuarioId WHERE h.ProduccionOrdenId=@Id ORDER BY h.Fecha DESC,h.ProduccionHistorialId DESC;
+END;
+GO
+CREATE OR ALTER PROCEDURE dbo.sp_produccion_leer_opciones @UsuarioId INT,@EsAdministrador BIT
+AS
+BEGIN
+ SET NOCOUNT ON;DECLARE @GiroId INT=(SELECT GiroNegocioId FROM dbo.GiroNegocio WHERE Nombre=N'Procesamiento de materia prima' AND Eliminado=0);
+ SELECT s.SedeId Id,s.Nombre FROM dbo.Sede s JOIN dbo.SedeGiroNegocio sg ON sg.SedeId=s.SedeId AND sg.GiroNegocioId=@GiroId AND sg.Eliminado=0 WHERE s.Eliminado=0 AND s.EsActivo=1 AND (@EsAdministrador=1 OR EXISTS(SELECT 1 FROM dbo.UsuarioSede x WHERE x.UsuarioId=@UsuarioId AND x.SedeId=s.SedeId AND x.Eliminado=0)) ORDER BY s.Nombre;
+ SELECT a.InventarioArticuloId Id,CONCAT(a.Codigo,N' · ',a.Nombre) Nombre FROM dbo.InventarioArticulo a WHERE a.GiroNegocioId=@GiroId AND a.Eliminado=0 AND a.EsActivo=1 AND (@EsAdministrador=1 OR EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio x WHERE x.UsuarioId=@UsuarioId AND x.GiroNegocioId=@GiroId AND x.Eliminado=0)) ORDER BY a.Nombre;
+END;
+GO
+CREATE OR ALTER PROCEDURE dbo.sp_produccion_crear @SedeId INT,@ArticuloEntradaId INT,@ArticuloSalidaId INT,@FechaPlanificada DATE,@CantidadEntrada DECIMAL(18,3),@CantidadSalidaPlanificada DECIMAL(18,3),@Observacion NVARCHAR(500)=NULL,@UsuarioId INT,@EsAdministrador BIT
+AS
+BEGIN
+ SET NOCOUNT ON;SET XACT_ABORT ON;BEGIN TRY BEGIN TRANSACTION;DECLARE @GiroId INT=(SELECT GiroNegocioId FROM dbo.GiroNegocio WHERE Nombre=N'Procesamiento de materia prima' AND Eliminado=0);
+ IF @CantidadEntrada<=0 OR @CantidadSalidaPlanificada<=0 OR @ArticuloEntradaId=@ArticuloSalidaId THROW 50002,N'Datos de producción inválidos.',1;
+ IF NOT EXISTS(SELECT 1 FROM dbo.SedeGiroNegocio WHERE SedeId=@SedeId AND GiroNegocioId=@GiroId AND Eliminado=0) THROW 50002,N'La sede no corresponde a procesamiento.',1;
+ IF (SELECT COUNT(*) FROM dbo.InventarioArticulo WHERE InventarioArticuloId IN(@ArticuloEntradaId,@ArticuloSalidaId) AND GiroNegocioId=@GiroId AND Eliminado=0 AND EsActivo=1)<>2 THROW 50002,N'Los artículos deben pertenecer a procesamiento.',1;
+ IF @EsAdministrador=0 AND (NOT EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio WHERE UsuarioId=@UsuarioId AND GiroNegocioId=@GiroId AND Eliminado=0) OR NOT EXISTS(SELECT 1 FROM dbo.UsuarioSede WHERE UsuarioId=@UsuarioId AND SedeId=@SedeId AND Eliminado=0)) THROW 50002,N'El usuario no tiene acceso a la planta.',1;
+ INSERT dbo.ProduccionOrden(SedeId,ArticuloEntradaId,ArticuloSalidaId,FechaPlanificada,CantidadEntrada,CantidadSalidaPlanificada,ResponsableUsuarioId,Observacion) VALUES(@SedeId,@ArticuloEntradaId,@ArticuloSalidaId,@FechaPlanificada,@CantidadEntrada,@CantidadSalidaPlanificada,@UsuarioId,NULLIF(LTRIM(RTRIM(@Observacion)),N''));DECLARE @Id BIGINT=CONVERT(BIGINT,SCOPE_IDENTITY());
+ INSERT dbo.ProduccionEtapa(ProduccionOrdenId,Secuencia,Nombre) VALUES(@Id,1,N'Preparación'),(@Id,2,N'Transformación'),(@Id,3,N'Control de calidad');INSERT dbo.ProduccionHistorial(ProduccionOrdenId,UsuarioId,EstadoNuevo,Comentario) VALUES(@Id,@UsuarioId,N'Planificada',N'Orden creada.');EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'Produccion',N'Crear',@Id,N'Exitoso',NULL;COMMIT;SELECT @Id;END TRY BEGIN CATCH IF XACT_STATE()<>0 ROLLBACK;THROW;END CATCH
+END;
+GO
+CREATE OR ALTER PROCEDURE dbo.sp_produccion_actualizar_estado @Id BIGINT,@Estado NVARCHAR(30),@CantidadSalidaReal DECIMAL(18,3)=NULL,@CantidadMerma DECIMAL(18,3)=NULL,@CostoUnitario DECIMAL(18,2)=NULL,@Comentario NVARCHAR(500)=NULL,@UsuarioId INT,@EsAdministrador BIT
+AS
+BEGIN
+ SET NOCOUNT ON;SET XACT_ABORT ON;BEGIN TRY BEGIN TRANSACTION;DECLARE @Anterior NVARCHAR(30),@SedeId INT,@EntradaId INT,@SalidaId INT,@CantidadEntrada DECIMAL(18,3),@GiroId INT=(SELECT GiroNegocioId FROM dbo.GiroNegocio WHERE Nombre=N'Procesamiento de materia prima' AND Eliminado=0);SELECT @Anterior=Estado,@SedeId=SedeId,@EntradaId=ArticuloEntradaId,@SalidaId=ArticuloSalidaId,@CantidadEntrada=CantidadEntrada FROM dbo.ProduccionOrden WITH(UPDLOCK) WHERE ProduccionOrdenId=@Id AND Eliminado=0;
+ IF @Anterior IS NULL THROW 50002,N'La orden no existe.',1;IF NOT((@Anterior=N'Planificada' AND @Estado IN(N'EnProceso',N'Cancelada')) OR (@Anterior=N'EnProceso' AND @Estado=N'Completada')) THROW 50002,N'Transición inválida.',1;
+ IF @EsAdministrador=0 AND (NOT EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio WHERE UsuarioId=@UsuarioId AND GiroNegocioId=@GiroId AND Eliminado=0) OR NOT EXISTS(SELECT 1 FROM dbo.UsuarioSede WHERE UsuarioId=@UsuarioId AND SedeId=@SedeId AND Eliminado=0)) THROW 50002,N'El usuario no tiene acceso a la planta.',1;
+ IF @Estado=N'EnProceso' BEGIN IF NOT EXISTS(SELECT 1 FROM dbo.InventarioExistencia WHERE InventarioArticuloId=@EntradaId AND SedeId=@SedeId AND Cantidad-CantidadReservada>=@CantidadEntrada) THROW 50002,N'Materia prima insuficiente.',1;UPDATE dbo.InventarioExistencia SET Cantidad=Cantidad-@CantidadEntrada,FechaModificacion=SYSUTCDATETIME() WHERE InventarioArticuloId=@EntradaId AND SedeId=@SedeId;INSERT dbo.InventarioMovimiento(InventarioArticuloId,Tipo,SedeOrigenId,Cantidad,Referencia,Observacion,UsuarioId) VALUES(@EntradaId,N'Salida',@SedeId,@CantidadEntrada,CONCAT(N'PROD-',@Id,N'-IN'),N'Consumo de producción',@UsuarioId);UPDATE dbo.ProduccionEtapa SET Estado=N'EnProceso',FechaInicio=SYSUTCDATETIME() WHERE ProduccionOrdenId=@Id AND Secuencia=1;END;
+ IF @Estado=N'Completada' BEGIN IF @CantidadSalidaReal IS NULL OR @CantidadSalidaReal<=0 OR @CantidadMerma IS NULL OR @CantidadMerma<0 OR @CostoUnitario IS NULL OR @CostoUnitario<0 THROW 50002,N'Resultados de producción inválidos.',1;IF EXISTS(SELECT 1 FROM dbo.ProduccionEtapa WHERE ProduccionOrdenId=@Id AND Estado<>N'Completada') THROW 50002,N'Debe completar todas las etapas.',1;IF NOT EXISTS(SELECT 1 FROM dbo.InventarioExistencia WHERE InventarioArticuloId=@SalidaId AND SedeId=@SedeId) INSERT dbo.InventarioExistencia(InventarioArticuloId,SedeId) VALUES(@SalidaId,@SedeId);UPDATE dbo.InventarioExistencia SET Cantidad=Cantidad+@CantidadSalidaReal,FechaModificacion=SYSUTCDATETIME() WHERE InventarioArticuloId=@SalidaId AND SedeId=@SedeId;INSERT dbo.InventarioMovimiento(InventarioArticuloId,Tipo,SedeDestinoId,Cantidad,Referencia,Observacion,UsuarioId) VALUES(@SalidaId,N'Entrada',@SedeId,@CantidadSalidaReal,CONCAT(N'PROD-',@Id,N'-OUT'),N'Producto terminado',@UsuarioId);END;
+ UPDATE dbo.ProduccionOrden SET Estado=@Estado,CantidadSalidaReal=CASE WHEN @Estado=N'Completada' THEN @CantidadSalidaReal ELSE CantidadSalidaReal END,CantidadMerma=CASE WHEN @Estado=N'Completada' THEN @CantidadMerma ELSE CantidadMerma END,CostoUnitario=CASE WHEN @Estado=N'Completada' THEN @CostoUnitario ELSE CostoUnitario END,FechaModificacion=SYSUTCDATETIME() WHERE ProduccionOrdenId=@Id;INSERT dbo.ProduccionHistorial(ProduccionOrdenId,UsuarioId,EstadoAnterior,EstadoNuevo,Comentario) VALUES(@Id,@UsuarioId,@Anterior,@Estado,NULLIF(LTRIM(RTRIM(@Comentario)),N''));EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'Produccion',N'CambiarEstado',@Id,N'Exitoso',@Estado;COMMIT;SELECT 1;END TRY BEGIN CATCH IF XACT_STATE()<>0 ROLLBACK;THROW;END CATCH
+END;
+GO
+CREATE OR ALTER PROCEDURE dbo.sp_produccion_completar_etapa @Id BIGINT,@EtapaId BIGINT,@Observacion NVARCHAR(500)=NULL,@UsuarioId INT,@EsAdministrador BIT
+AS
+BEGIN
+ SET NOCOUNT ON;SET XACT_ABORT ON;BEGIN TRY BEGIN TRANSACTION;DECLARE @SedeId INT,@GiroId INT=(SELECT GiroNegocioId FROM dbo.GiroNegocio WHERE Nombre=N'Procesamiento de materia prima' AND Eliminado=0);SELECT @SedeId=SedeId FROM dbo.ProduccionOrden WITH(UPDLOCK) WHERE ProduccionOrdenId=@Id AND Estado=N'EnProceso' AND Eliminado=0;IF @SedeId IS NULL THROW 50002,N'La orden no está en proceso.',1;
+ IF @EsAdministrador=0 AND (NOT EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio WHERE UsuarioId=@UsuarioId AND GiroNegocioId=@GiroId AND Eliminado=0) OR NOT EXISTS(SELECT 1 FROM dbo.UsuarioSede WHERE UsuarioId=@UsuarioId AND SedeId=@SedeId AND Eliminado=0)) THROW 50002,N'El usuario no tiene acceso a la planta.',1;
+ DECLARE @Secuencia INT;SELECT @Secuencia=Secuencia FROM dbo.ProduccionEtapa WITH(UPDLOCK) WHERE ProduccionEtapaId=@EtapaId AND ProduccionOrdenId=@Id AND Estado=N'EnProceso';IF @Secuencia IS NULL THROW 50002,N'La etapa no es la etapa activa.',1;UPDATE dbo.ProduccionEtapa SET Estado=N'Completada',FechaFin=SYSUTCDATETIME(),Observacion=NULLIF(LTRIM(RTRIM(@Observacion)),N'') WHERE ProduccionEtapaId=@EtapaId;UPDATE dbo.ProduccionEtapa SET Estado=N'EnProceso',FechaInicio=SYSUTCDATETIME() WHERE ProduccionOrdenId=@Id AND Secuencia=@Secuencia+1 AND Estado=N'Pendiente';DECLARE @Detalle NVARCHAR(30)=CONVERT(NVARCHAR(30),@EtapaId);EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'Produccion',N'CompletarEtapa',@Id,N'Exitoso',@Detalle;COMMIT;SELECT 1;END TRY BEGIN CATCH IF XACT_STATE()<>0 ROLLBACK;THROW;END CATCH
+END;
+GO
+CREATE OR ALTER PROCEDURE dbo.sp_produccion_eliminar @Id BIGINT,@UsuarioId INT
+AS
+BEGIN SET NOCOUNT ON;UPDATE dbo.ProduccionOrden SET Eliminado=1,FechaModificacion=SYSUTCDATETIME() WHERE ProduccionOrdenId=@Id AND Eliminado=0 AND Estado IN(N'Completada',N'Cancelada');DECLARE @F INT=@@ROWCOUNT;IF @F>0 EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'Produccion',N'Eliminar',@Id,N'Exitoso',NULL;SELECT @F;END;
+GO

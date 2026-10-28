@@ -75,6 +75,13 @@ IF OBJECT_ID(N'dbo.FK_ExtraccionJornada_Articulo',N'F') IS NULL ALTER TABLE dbo.
 IF OBJECT_ID(N'dbo.FK_ExtraccionJornada_Responsable',N'F') IS NULL ALTER TABLE dbo.ExtraccionJornada ADD CONSTRAINT FK_ExtraccionJornada_Responsable FOREIGN KEY(ResponsableUsuarioId) REFERENCES dbo.Usuario(UsuarioId);
 IF OBJECT_ID(N'dbo.FK_ExtraccionHistorial_Jornada',N'F') IS NULL ALTER TABLE dbo.ExtraccionHistorial ADD CONSTRAINT FK_ExtraccionHistorial_Jornada FOREIGN KEY(ExtraccionJornadaId) REFERENCES dbo.ExtraccionJornada(ExtraccionJornadaId);
 IF OBJECT_ID(N'dbo.FK_ExtraccionHistorial_Usuario',N'F') IS NULL ALTER TABLE dbo.ExtraccionHistorial ADD CONSTRAINT FK_ExtraccionHistorial_Usuario FOREIGN KEY(UsuarioId) REFERENCES dbo.Usuario(UsuarioId);
+IF OBJECT_ID(N'dbo.FK_ProduccionOrden_Sede',N'F') IS NULL ALTER TABLE dbo.ProduccionOrden ADD CONSTRAINT FK_ProduccionOrden_Sede FOREIGN KEY(SedeId) REFERENCES dbo.Sede(SedeId);
+IF OBJECT_ID(N'dbo.FK_ProduccionOrden_Entrada',N'F') IS NULL ALTER TABLE dbo.ProduccionOrden ADD CONSTRAINT FK_ProduccionOrden_Entrada FOREIGN KEY(ArticuloEntradaId) REFERENCES dbo.InventarioArticulo(InventarioArticuloId);
+IF OBJECT_ID(N'dbo.FK_ProduccionOrden_Salida',N'F') IS NULL ALTER TABLE dbo.ProduccionOrden ADD CONSTRAINT FK_ProduccionOrden_Salida FOREIGN KEY(ArticuloSalidaId) REFERENCES dbo.InventarioArticulo(InventarioArticuloId);
+IF OBJECT_ID(N'dbo.FK_ProduccionOrden_Responsable',N'F') IS NULL ALTER TABLE dbo.ProduccionOrden ADD CONSTRAINT FK_ProduccionOrden_Responsable FOREIGN KEY(ResponsableUsuarioId) REFERENCES dbo.Usuario(UsuarioId);
+IF OBJECT_ID(N'dbo.FK_ProduccionEtapa_Orden',N'F') IS NULL ALTER TABLE dbo.ProduccionEtapa ADD CONSTRAINT FK_ProduccionEtapa_Orden FOREIGN KEY(ProduccionOrdenId) REFERENCES dbo.ProduccionOrden(ProduccionOrdenId);
+IF OBJECT_ID(N'dbo.FK_ProduccionHistorial_Orden',N'F') IS NULL ALTER TABLE dbo.ProduccionHistorial ADD CONSTRAINT FK_ProduccionHistorial_Orden FOREIGN KEY(ProduccionOrdenId) REFERENCES dbo.ProduccionOrden(ProduccionOrdenId);
+IF OBJECT_ID(N'dbo.FK_ProduccionHistorial_Usuario',N'F') IS NULL ALTER TABLE dbo.ProduccionHistorial ADD CONSTRAINT FK_ProduccionHistorial_Usuario FOREIGN KEY(UsuarioId) REFERENCES dbo.Usuario(UsuarioId);
 GO
 
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.Usuario') AND name = N'UX_Usuario_NombreUsuario')
@@ -129,4 +136,7 @@ IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.Abasteci
 IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.AbastecimientoHistorial') AND name=N'IX_AbastecimientoHistorial_Solicitud') CREATE INDEX IX_AbastecimientoHistorial_Solicitud ON dbo.AbastecimientoHistorial(AbastecimientoSolicitudId,Fecha DESC);
 IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.ExtraccionJornada') AND name=N'IX_ExtraccionJornada_SedeFecha') CREATE INDEX IX_ExtraccionJornada_SedeFecha ON dbo.ExtraccionJornada(SedeId,FechaOperacion DESC,Estado) INCLUDE(InventarioArticuloId,CantidadExtraida,CantidadRechazada,Eliminado);
 IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.ExtraccionHistorial') AND name=N'IX_ExtraccionHistorial_Jornada') CREATE INDEX IX_ExtraccionHistorial_Jornada ON dbo.ExtraccionHistorial(ExtraccionJornadaId,Fecha DESC);
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.ProduccionOrden') AND name=N'IX_ProduccionOrden_SedeFecha') CREATE INDEX IX_ProduccionOrden_SedeFecha ON dbo.ProduccionOrden(SedeId,FechaPlanificada DESC,Estado) INCLUDE(ArticuloEntradaId,ArticuloSalidaId,Eliminado);
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.ProduccionEtapa') AND name=N'UX_ProduccionEtapa_OrdenSecuencia') CREATE UNIQUE INDEX UX_ProduccionEtapa_OrdenSecuencia ON dbo.ProduccionEtapa(ProduccionOrdenId,Secuencia);
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.ProduccionHistorial') AND name=N'IX_ProduccionHistorial_Orden') CREATE INDEX IX_ProduccionHistorial_Orden ON dbo.ProduccionHistorial(ProduccionOrdenId,Fecha DESC);
 GO

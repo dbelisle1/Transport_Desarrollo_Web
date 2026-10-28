@@ -3,7 +3,7 @@ TRANSPORT - CONTROL DE AVANCE DE MÓDULOS
 
 Última actualización: 27 de octubre de 2026
 Etapa actual: Fase 3 - operación interna
-Módulo activo: Ninguno; M15 finalizado y verificado.
+Módulo activo: Ninguno; M16 finalizado y verificado.
 
 
 1. PROPÓSITO DE ESTE ARCHIVO
@@ -163,7 +163,7 @@ M11. Pruebas automatizadas iniciales                           [BASE IMPLEMENTAD
 - Pruebas del controlador API de catálogos para tipos válidos e inválidos,
   eliminación y protección del rol AdministradorGeneral.
 - Pruebas del visor de auditoría para filtros, paginación y autorización.
-- Resultado registrado: 38 pruebas aprobadas y 0 fallidas.
+- Resultado registrado: 43 pruebas aprobadas y 0 fallidas.
 - Falta cobertura de integración, autorización, controladores, repositorios y
   operaciones CRUD completas.
 
@@ -286,11 +286,21 @@ M15. Extracción minera                                         [IMPLEMENTADO]
 - Cinco pruebas unitarias y recorrido HTTP real con inventario, permisos,
   historial, eliminación lógica e instalación SQL idempotente en UTF-8.
 
-M16. Producción y procesamiento de materia prima               [PENDIENTE]
+M16. Producción y procesamiento de materia prima               [IMPLEMENTADO]
 
 - Ingreso y consumo de materia prima.
 - Órdenes y etapas de producción.
 - Rendimiento, productos terminados, costos y trazabilidad.
+- Órdenes planificadas por planta con artículos de entrada y salida, cantidades
+  esperadas, responsable y observaciones.
+- Consumo transaccional de materia prima al iniciar e ingreso de producto
+  terminado al completar la orden.
+- Etapas secuenciales de Preparación, Transformación y Control de calidad; no
+  se permite cerrar una orden con etapas pendientes.
+- Registro de salida real, merma, costo unitario, rendimiento e historial.
+- Alcance por giro de Procesamiento y sede, interfaz MVC y auditoría.
+- Cinco pruebas unitarias y recorrido real con saldos, cierre prematuro,
+  permisos, instalación idempotente y limpieza de datos temporales.
 
 M17. Venta y alquiler de maquinaria                            [PENDIENTE]
 
@@ -518,4 +528,12 @@ OXX. Nombre del módulo                                          [OPCIONAL]
 - Se agregaron 5 pruebas; el total pasó de 33 a 38 aprobadas y 0 fallidas.
 - Se verificó la reinstalación idempotente con codificación UTF-8 y no quedaron
   jornadas ni artículos temporales activos.
+- Se implementó M16 Producción y procesamiento con órdenes, tres etapas
+  secuenciales, consumo de materia prima, producto terminado, merma y costos.
+- El recorrido real consumió 100 unidades de 120, bloqueó el cierre prematuro,
+  completó las tres etapas e ingresó 90 unidades terminadas con merma 10.
+- Se comprobaron los alcances por planta/giro y el rechazo del rol Cliente; se
+  agregaron 5 pruebas, para 43 aprobadas y 0 fallidas.
+- El instalador completo pasó dos veces y no quedaron órdenes ni artículos de
+  prueba activos.
 

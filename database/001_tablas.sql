@@ -315,3 +315,35 @@ CREATE TABLE dbo.ExtraccionHistorial
  EstadoAnterior NVARCHAR(30) NULL,EstadoNuevo NVARCHAR(30) NOT NULL,Comentario NVARCHAR(500) NULL,Fecha DATETIME2(0) NOT NULL CONSTRAINT DF_ExtraccionHistorial_Fecha DEFAULT(SYSUTCDATETIME())
 );
 GO
+
+IF OBJECT_ID(N'dbo.ProduccionOrden',N'U') IS NULL
+CREATE TABLE dbo.ProduccionOrden
+(
+ ProduccionOrdenId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_ProduccionOrden PRIMARY KEY,
+ SedeId INT NOT NULL,ArticuloEntradaId INT NOT NULL,ArticuloSalidaId INT NOT NULL,
+ FechaPlanificada DATE NOT NULL,CantidadEntrada DECIMAL(18,3) NOT NULL,CantidadSalidaPlanificada DECIMAL(18,3) NOT NULL,
+ CantidadSalidaReal DECIMAL(18,3) NULL,CantidadMerma DECIMAL(18,3) NULL,CostoUnitario DECIMAL(18,2) NULL,
+ Estado NVARCHAR(30) NOT NULL CONSTRAINT DF_ProduccionOrden_Estado DEFAULT(N'Planificada'),ResponsableUsuarioId INT NOT NULL,Observacion NVARCHAR(500) NULL,
+ Eliminado BIT NOT NULL CONSTRAINT DF_ProduccionOrden_Eliminado DEFAULT(0),FechaCreacion DATETIME2(0) NOT NULL CONSTRAINT DF_ProduccionOrden_Fecha DEFAULT(SYSUTCDATETIME()),FechaModificacion DATETIME2(0) NULL,
+ CONSTRAINT CK_ProduccionOrden_Cantidades CHECK(CantidadEntrada>0 AND CantidadSalidaPlanificada>0 AND (CantidadSalidaReal IS NULL OR CantidadSalidaReal>0) AND (CantidadMerma IS NULL OR CantidadMerma>=0)),
+ CONSTRAINT CK_ProduccionOrden_Costo CHECK(CostoUnitario IS NULL OR CostoUnitario>=0),
+ CONSTRAINT CK_ProduccionOrden_Estado CHECK(Estado IN(N'Planificada',N'EnProceso',N'Completada',N'Cancelada')),
+ CONSTRAINT CK_ProduccionOrden_Articulos CHECK(ArticuloEntradaId<>ArticuloSalidaId)
+);
+GO
+IF OBJECT_ID(N'dbo.ProduccionEtapa',N'U') IS NULL
+CREATE TABLE dbo.ProduccionEtapa
+(
+ ProduccionEtapaId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_ProduccionEtapa PRIMARY KEY,ProduccionOrdenId BIGINT NOT NULL,
+ Secuencia INT NOT NULL,Nombre NVARCHAR(100) NOT NULL,Estado NVARCHAR(20) NOT NULL CONSTRAINT DF_ProduccionEtapa_Estado DEFAULT(N'Pendiente'),
+ FechaInicio DATETIME2(0) NULL,FechaFin DATETIME2(0) NULL,Observacion NVARCHAR(500) NULL,
+ CONSTRAINT CK_ProduccionEtapa_Secuencia CHECK(Secuencia>0),CONSTRAINT CK_ProduccionEtapa_Estado CHECK(Estado IN(N'Pendiente',N'EnProceso',N'Completada'))
+);
+GO
+IF OBJECT_ID(N'dbo.ProduccionHistorial',N'U') IS NULL
+CREATE TABLE dbo.ProduccionHistorial
+(
+ ProduccionHistorialId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_ProduccionHistorial PRIMARY KEY,ProduccionOrdenId BIGINT NOT NULL,UsuarioId INT NOT NULL,
+ EstadoAnterior NVARCHAR(30) NULL,EstadoNuevo NVARCHAR(30) NOT NULL,Comentario NVARCHAR(500) NULL,Fecha DATETIME2(0) NOT NULL CONSTRAINT DF_ProduccionHistorial_Fecha DEFAULT(SYSUTCDATETIME())
+);
+GO

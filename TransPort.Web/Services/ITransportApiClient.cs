@@ -50,4 +50,11 @@ public interface ITransportApiClient
     Task<long> CrearExtraccionAsync(ExtraccionCrearViewModel model,CancellationToken ct);
     Task CambiarEstadoExtraccionAsync(long id,string estado,string? comentario,CancellationToken ct);
     Task EliminarExtraccionAsync(long id,CancellationToken ct);
+    Task<IReadOnlyList<ProduccionListadoModel>> ProduccionesAsync(string?estado,int?sedeId,DateTime?desde,DateTime?hasta,CancellationToken ct);
+    Task<ProduccionDetalleModel?> ProduccionAsync(long id,CancellationToken ct);
+    Task<ProduccionOpcionesModel> ProduccionOpcionesAsync(CancellationToken ct);
+    Task<long> CrearProduccionAsync(ProduccionCrearViewModel model,CancellationToken ct);
+    Task CambiarEstadoProduccionAsync(long id,string estado,decimal?cantidadSalidaReal,decimal?cantidadMerma,decimal?costoUnitario,string?comentario,CancellationToken ct);
+    Task CompletarEtapaProduccionAsync(long id,long etapaId,string?observacion,CancellationToken ct);
+    Task EliminarProduccionAsync(long id,CancellationToken ct);
 }
