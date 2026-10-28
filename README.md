@@ -121,6 +121,8 @@ Procedimientos principales:
   devolución por horómetro y mantenimiento.
 - Transporte: flota, conductores, capacidades, viajes, rutas, cargas, entregas
   e incidencias nacionales o internacionales.
+- GPS: dispositivos, posiciones, recorridos, velocidad, tiempo de uso,
+  kilometraje y alertas, con simulador de fuente externa precargado.
 
 Los repositorios no consultan tablas directamente cuando existe un procedimiento para la operación. La contraseña no aparece en listados, DTOs, tokens, auditoría ni logs.
 
@@ -166,6 +168,9 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 | `GET/POST` | `/api/transportes` | Viajes y asignaciones según alcance |
 | `POST` | `/api/transportes/{vehiculos|conductores}` | Catálogo de recursos logísticos |
 | `POST/PUT` | `/api/transportes/{id}/incidencias` | Incidencias y resolución del viaje |
+| `GET` | `/api/gps` | Dispositivos, últimas posiciones y alertas según alcance |
+| `POST` | `/api/gps/simular` | Simular texto JSON recibido de una fuente GPS externa |
+| `GET` | `/api/gps/dispositivos/{id}/recorrido` | Historial de posiciones del activo |
 
 ## Rutas web
 
@@ -181,6 +186,7 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 - `/gestion/producciones`: órdenes, etapas, rendimiento, merma y costos.
 - `/gestion/maquinarias`: equipos, contratos, devoluciones y mantenimiento.
 - `/gestion/transportes`: flota, conductores, viajes, cargas e incidencias.
+- `/gestion/gps`: dispositivos, simulación de datos, recorridos y alertas.
 - `/gestion/pedidos`: asignación, cotización y seguimiento comercial.
 - `/admin`: panel general con conteos reales.
 - `/admin/usuarios`: CRUD y filtros de usuarios.
@@ -197,8 +203,8 @@ dotnet build TransPort.sln --no-restore
 dotnet test TransPort.sln --no-restore
 ```
 
-Las 53 pruebas actuales cubren seguridad JWT, autenticación, cierre de sesión, clientes, catálogos, auditoría, pedidos, portal, inventarios, abastecimiento, extracción, producción, maquinaria y transporte: alcance, validaciones, autorización y operaciones críticas.
+Las 58 pruebas actuales cubren seguridad JWT, autenticación, cierre de sesión, clientes, catálogos, auditoría, pedidos, portal, inventarios, abastecimiento, extracción, producción, maquinaria, transporte y GPS: alcance, validaciones, autorización y operaciones críticas.
 
 ## Pendiente para fases posteriores
 
-Transporte y GPS, construcción, presupuestos, alertas, comunicación, integraciones de terceros, reportes operativos/financieros y funcionamiento offline transaccional. Las tarjetas de esos módulos se muestran explícitamente como pendientes y no simulan datos reales.
+Construcción, presupuestos, alertas, comunicación, integraciones de terceros, reportes operativos/financieros y funcionamiento offline transaccional. Las tarjetas de esos módulos se muestran explícitamente como pendientes y no simulan datos reales.

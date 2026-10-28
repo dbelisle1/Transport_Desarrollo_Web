@@ -3,7 +3,7 @@ TRANSPORT - CONTROL DE AVANCE DE MÓDULOS
 
 Última actualización: 27 de octubre de 2026
 Etapa actual: Fase 3 - operación interna
-Módulo activo: Ninguno; M18 finalizado y verificado.
+Módulo activo: Ninguno; M19 finalizado y verificado.
 
 
 1. PROPÓSITO DE ESTE ARCHIVO
@@ -47,6 +47,9 @@ Reglas obligatorias:
 - Los permisos se validan tanto en MVC como en la API.
 - Los alcances por rol, giro, sede y cliente deben aplicarse en cada módulo.
 - Los módulos futuros no deben mostrar datos falsos como si fueran reales.
+- Los módulos que dependan de servicios externos deben incluir un formulario
+  explícito de simulación con un ejemplo funcional precargado; los registros
+  deben identificar su origen simulado para no confundirlos con datos reales.
 - Cualquier módulo no exigido por los requisitos se registra únicamente en la
   última sección "MÓDULOS OPCIONALES" y no se implementa sin decisión del
   usuario.
@@ -163,7 +166,7 @@ M11. Pruebas automatizadas iniciales                           [BASE IMPLEMENTAD
 - Pruebas del controlador API de catálogos para tipos válidos e inválidos,
   eliminación y protección del rol AdministradorGeneral.
 - Pruebas del visor de auditoría para filtros, paginación y autorización.
-- Resultado registrado: 53 pruebas aprobadas y 0 fallidas.
+- Resultado registrado: 58 pruebas aprobadas y 0 fallidas.
 - Falta cobertura de integración, autorización, controladores, repositorios y
   operaciones CRUD completas.
 
@@ -331,12 +334,21 @@ M18. Transporte y logística                                   [IMPLEMENTADO]
 - Incidencias con severidad, resolución, trazabilidad y auditoría.
 - Alcance por giro/sede, interfaz MVC y cinco pruebas unitarias.
 
-M19. GPS y monitoreo                                           [PENDIENTE]
+M19. GPS y monitoreo                                           [IMPLEMENTADO]
 
 - Integración con el servicio de GPS-Inversiones.
 - Posición, recorridos, velocidad y tiempo de uso.
 - Asociación de dispositivos con camiones y maquinaria.
 - Generación de alertas a partir de los datos recibidos.
+- Dispositivos externos asociados opcionalmente con vehículos o maquinaria.
+- Posiciones, recorridos, velocidad, horas de uso, kilometraje y evento fuente.
+- Formulario de simulación con JSON funcional de Ciudad de Guatemala
+  (`14.634915`, `-90.506882`) y almacenamiento del texto original.
+- Alertas automáticas por exceso de velocidad, SOS y desconexión, con atención
+  y responsable.
+- Los datos simulados se marcan como `Simulación externa`; la conexión real con
+  GPS-Inversiones queda preparada sin exigir credenciales para las pruebas.
+- Alcance por activo/sede, interfaz MVC, auditoría y cinco pruebas unitarias.
 
 M20. Servicios de construcción                                [PENDIENTE]
 
@@ -564,4 +576,11 @@ OXX. Nombre del módulo                                          [OPCIONAL]
   viaje duplicado, resolvió una incidencia y liberó los recursos al entregar.
 - Se agregaron 5 pruebas; el total pasó a 53 aprobadas y 0 fallidas, sin datos
   temporales activos.
+- Se implementó M19 GPS y monitoreo con dispositivos, posiciones, recorridos,
+  velocidad, uso, kilometraje y alertas.
+- El formulario de fuente externa quedó precargado con coordenadas de Ciudad de
+  Guatemala; el recorrido real guardó dos puntos y generó alertas por 115 km/h
+  y evento SOS, luego verificó su atención.
+- Se agregaron 5 pruebas, para 58 aprobadas y 0 fallidas; los datos temporales
+  quedaron eliminados lógicamente.
 

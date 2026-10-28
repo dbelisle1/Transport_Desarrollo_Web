@@ -383,3 +383,39 @@ GO
 IF OBJECT_ID(N'dbo.TransporteIncidencia',N'U') IS NULL
 CREATE TABLE dbo.TransporteIncidencia(TransporteIncidenciaId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_TransporteIncidencia PRIMARY KEY,TransporteViajeId BIGINT NOT NULL,Tipo NVARCHAR(80) NOT NULL,Severidad NVARCHAR(20) NOT NULL,Descripcion NVARCHAR(500) NOT NULL,Resuelta BIT NOT NULL CONSTRAINT DF_TransporteIncidencia_Resuelta DEFAULT(0),Resolucion NVARCHAR(500) NULL,UsuarioId INT NOT NULL,Fecha DATETIME2(0) NOT NULL CONSTRAINT DF_TransporteIncidencia_Fecha DEFAULT(SYSUTCDATETIME()),FechaResolucion DATETIME2(0) NULL,CONSTRAINT CK_TransporteIncidencia_Severidad CHECK(Severidad IN(N'Baja',N'Media',N'Alta',N'Critica')));
 GO
+
+IF OBJECT_ID(N'dbo.GpsDispositivo',N'U') IS NULL
+CREATE TABLE dbo.GpsDispositivo
+(
+ GpsDispositivoId INT IDENTITY(1,1) NOT NULL CONSTRAINT PK_GpsDispositivo PRIMARY KEY,
+ IdentificadorExterno NVARCHAR(100) NOT NULL,NombreActivo NVARCHAR(160) NOT NULL,
+ TransporteVehiculoId INT NULL,MaquinariaEquipoId INT NULL,
+ Proveedor NVARCHAR(80) NOT NULL CONSTRAINT DF_GpsDispositivo_Proveedor DEFAULT(N'GPS-Inversiones'),
+ VelocidadMaxima DECIMAL(8,2) NOT NULL CONSTRAINT DF_GpsDispositivo_Velocidad DEFAULT(80),
+ EsActivo BIT NOT NULL CONSTRAINT DF_GpsDispositivo_Activo DEFAULT(1),UltimaSincronizacion DATETIME2(0) NULL,
+ Eliminado BIT NOT NULL CONSTRAINT DF_GpsDispositivo_Eliminado DEFAULT(0),FechaCreacion DATETIME2(0) NOT NULL CONSTRAINT DF_GpsDispositivo_Fecha DEFAULT(SYSUTCDATETIME()),
+ CONSTRAINT CK_GpsDispositivo_Entidad CHECK(NOT(TransporteVehiculoId IS NOT NULL AND MaquinariaEquipoId IS NOT NULL)),
+ CONSTRAINT CK_GpsDispositivo_Velocidad CHECK(VelocidadMaxima>0)
+);
+GO
+IF OBJECT_ID(N'dbo.GpsPosicion',N'U') IS NULL
+CREATE TABLE dbo.GpsPosicion
+(
+ GpsPosicionId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_GpsPosicion PRIMARY KEY,GpsDispositivoId INT NOT NULL,
+ FechaEvento DATETIME2(0) NOT NULL,Latitud DECIMAL(9,6) NOT NULL,Longitud DECIMAL(9,6) NOT NULL,Velocidad DECIMAL(8,2) NOT NULL,
+ HorasUso DECIMAL(18,2) NULL,Kilometraje DECIMAL(18,2) NULL,Evento NVARCHAR(80) NULL,OrigenDato NVARCHAR(80) NOT NULL,DatosFuente NVARCHAR(2000) NULL,
+ Recibido DATETIME2(0) NOT NULL CONSTRAINT DF_GpsPosicion_Recibido DEFAULT(SYSUTCDATETIME()),
+ CONSTRAINT CK_GpsPosicion_Coordenadas CHECK(Latitud BETWEEN -90 AND 90 AND Longitud BETWEEN -180 AND 180),
+ CONSTRAINT CK_GpsPosicion_Valores CHECK(Velocidad>=0 AND (HorasUso IS NULL OR HorasUso>=0) AND (Kilometraje IS NULL OR Kilometraje>=0))
+);
+GO
+IF OBJECT_ID(N'dbo.GpsAlerta',N'U') IS NULL
+CREATE TABLE dbo.GpsAlerta
+(
+ GpsAlertaId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_GpsAlerta PRIMARY KEY,GpsDispositivoId INT NOT NULL,GpsPosicionId BIGINT NULL,
+ Tipo NVARCHAR(50) NOT NULL,Severidad NVARCHAR(20) NOT NULL,Mensaje NVARCHAR(300) NOT NULL,
+ Atendida BIT NOT NULL CONSTRAINT DF_GpsAlerta_Atendida DEFAULT(0),AtendidaPorUsuarioId INT NULL,
+ Fecha DATETIME2(0) NOT NULL CONSTRAINT DF_GpsAlerta_Fecha DEFAULT(SYSUTCDATETIME()),FechaAtencion DATETIME2(0) NULL,
+ CONSTRAINT CK_GpsAlerta_Severidad CHECK(Severidad IN(N'Baja',N'Media',N'Alta',N'Critica'))
+);
+GO

@@ -96,6 +96,12 @@ IF OBJECT_ID(N'dbo.FK_TransporteViaje_Cliente',N'F') IS NULL ALTER TABLE dbo.Tra
 IF OBJECT_ID(N'dbo.FK_TransporteViaje_Responsable',N'F') IS NULL ALTER TABLE dbo.TransporteViaje ADD CONSTRAINT FK_TransporteViaje_Responsable FOREIGN KEY(ResponsableUsuarioId) REFERENCES dbo.Usuario(UsuarioId);
 IF OBJECT_ID(N'dbo.FK_TransporteIncidencia_Viaje',N'F') IS NULL ALTER TABLE dbo.TransporteIncidencia ADD CONSTRAINT FK_TransporteIncidencia_Viaje FOREIGN KEY(TransporteViajeId) REFERENCES dbo.TransporteViaje(TransporteViajeId);
 IF OBJECT_ID(N'dbo.FK_TransporteIncidencia_Usuario',N'F') IS NULL ALTER TABLE dbo.TransporteIncidencia ADD CONSTRAINT FK_TransporteIncidencia_Usuario FOREIGN KEY(UsuarioId) REFERENCES dbo.Usuario(UsuarioId);
+IF OBJECT_ID(N'dbo.FK_GpsDispositivo_Vehiculo',N'F') IS NULL ALTER TABLE dbo.GpsDispositivo ADD CONSTRAINT FK_GpsDispositivo_Vehiculo FOREIGN KEY(TransporteVehiculoId) REFERENCES dbo.TransporteVehiculo(TransporteVehiculoId);
+IF OBJECT_ID(N'dbo.FK_GpsDispositivo_Maquinaria',N'F') IS NULL ALTER TABLE dbo.GpsDispositivo ADD CONSTRAINT FK_GpsDispositivo_Maquinaria FOREIGN KEY(MaquinariaEquipoId) REFERENCES dbo.MaquinariaEquipo(MaquinariaEquipoId);
+IF OBJECT_ID(N'dbo.FK_GpsPosicion_Dispositivo',N'F') IS NULL ALTER TABLE dbo.GpsPosicion ADD CONSTRAINT FK_GpsPosicion_Dispositivo FOREIGN KEY(GpsDispositivoId) REFERENCES dbo.GpsDispositivo(GpsDispositivoId);
+IF OBJECT_ID(N'dbo.FK_GpsAlerta_Dispositivo',N'F') IS NULL ALTER TABLE dbo.GpsAlerta ADD CONSTRAINT FK_GpsAlerta_Dispositivo FOREIGN KEY(GpsDispositivoId) REFERENCES dbo.GpsDispositivo(GpsDispositivoId);
+IF OBJECT_ID(N'dbo.FK_GpsAlerta_Posicion',N'F') IS NULL ALTER TABLE dbo.GpsAlerta ADD CONSTRAINT FK_GpsAlerta_Posicion FOREIGN KEY(GpsPosicionId) REFERENCES dbo.GpsPosicion(GpsPosicionId);
+IF OBJECT_ID(N'dbo.FK_GpsAlerta_Usuario',N'F') IS NULL ALTER TABLE dbo.GpsAlerta ADD CONSTRAINT FK_GpsAlerta_Usuario FOREIGN KEY(AtendidaPorUsuarioId) REFERENCES dbo.Usuario(UsuarioId);
 GO
 
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.Usuario') AND name = N'UX_Usuario_NombreUsuario')
@@ -160,4 +166,7 @@ IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.Transpor
 IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.TransporteConductor') AND name=N'UX_TransporteConductor_Licencia') CREATE UNIQUE INDEX UX_TransporteConductor_Licencia ON dbo.TransporteConductor(Licencia) WHERE Eliminado=0;
 IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.TransporteViaje') AND name=N'IX_TransporteViaje_SedeEstado') CREATE INDEX IX_TransporteViaje_SedeEstado ON dbo.TransporteViaje(SedeId,Estado,FechaSalidaPlanificada DESC) INCLUDE(TransporteVehiculoId,TransporteConductorId,Eliminado);
 IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.TransporteIncidencia') AND name=N'IX_TransporteIncidencia_Viaje') CREATE INDEX IX_TransporteIncidencia_Viaje ON dbo.TransporteIncidencia(TransporteViajeId,Resuelta,Fecha DESC);
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.GpsDispositivo') AND name=N'UX_GpsDispositivo_Externo') CREATE UNIQUE INDEX UX_GpsDispositivo_Externo ON dbo.GpsDispositivo(IdentificadorExterno) WHERE Eliminado=0;
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.GpsPosicion') AND name=N'IX_GpsPosicion_DispositivoFecha') CREATE INDEX IX_GpsPosicion_DispositivoFecha ON dbo.GpsPosicion(GpsDispositivoId,FechaEvento DESC);
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.GpsAlerta') AND name=N'IX_GpsAlerta_Atendida') CREATE INDEX IX_GpsAlerta_Atendida ON dbo.GpsAlerta(Atendida,Fecha DESC) INCLUDE(GpsDispositivoId,Severidad);
 GO

@@ -20,7 +20,7 @@ La Fase 1 está implementada en sus componentes principales:
 - Contenedores independientes para MVC y API.
 - Pruebas unitarias iniciales para seguridad y cierre de sesión.
 
-Los módulos operativos implementados incluyen pedidos, portal del cliente, inventarios, abastecimiento, extracción, producción, maquinaria y transporte. GPS, construcción, presupuestos, alertas, comunicación, integraciones y reportes consolidados continúan pendientes.
+Los módulos operativos implementados incluyen pedidos, portal del cliente, inventarios, abastecimiento, extracción, producción, maquinaria, transporte y GPS simulado. Construcción, presupuestos, alertas, comunicación, integraciones y reportes consolidados continúan pendientes.
 
 Después del cierre de la Fase 1 se implementó y verificó el módulo administrativo de clientes: CRUD, filtros, asociaciones transaccionales de usuarios y giros, eliminación lógica, auditoría, API, vistas MVC y pruebas. El recorrido MVC–API–SQL Server se validó con ambos contenedores activos.
 
@@ -79,7 +79,7 @@ Leyenda:
 | Solución .NET 8 con MVC y API | Completo | Dos proyectos principales y dos proyectos de pruebas en `TransPort.sln`. |
 | Separación MVC → API → SQL Server | Completo | El MVC no accede directamente a la base. |
 | ADO.NET y procedimientos almacenados | Completo | Repositorios con `Microsoft.Data.SqlClient`; no se utiliza Entity Framework. |
-| Base de datos actual | Completo | 33 tablas, 64 claves foráneas, 38 índices y 102 procedimientos definidos. |
+| Base de datos actual | Completo | 36 tablas, 70 claves foráneas, 41 índices y 109 procedimientos definidos. |
 | Datos de demostración | Completo | Script idempotente con giros, sedes, roles y usuarios demo. |
 | Login único `/acceso` | Completo | Credenciales validadas por la API y SQL Server. |
 | JWT MVC–API | Completo | Firma configurable, expiración y envío como Bearer. |
@@ -98,7 +98,7 @@ Leyenda:
 | PWA y responsive | Completo para Fase 1 | Manifest, ícono, service worker público y breakpoints 768/1100/1920 px. |
 | Docker | Completo en configuración | Dos Dockerfiles multietapa, red interna, volumen de claves y Compose válido. |
 | Documentación de inicio | Completo | `README.md`, `.env.example`, `.gitignore` e `instruccionesInicio.txt`. |
-| Pruebas automatizadas | Parcial | 53 pruebas aprobadas; faltan pruebas amplias de integración de todos los módulos. |
+| Pruebas automatizadas | Parcial | 58 pruebas aprobadas; faltan pruebas amplias de integración de todos los módulos. |
 
 ## 4. Módulos desarrollados
 
@@ -338,9 +338,21 @@ Incluye:
 - Asignación exclusiva, cargas, entrega e incidencias resolubles.
 - Alcance por giro/sede, auditoría, MVC y cinco pruebas nuevas.
 
+### 4.17 GPS y monitoreo
+
+**Estado: implementado y verificado con fuente externa simulada**
+
+- Dispositivos asociados con vehículos, maquinaria o activos externos.
+- Posición, recorrido, velocidad, horas, kilometraje y eventos.
+- Formulario JSON precargado con coordenadas funcionales de Ciudad de Guatemala.
+- Alertas automáticas por velocidad, SOS o desconexión y control de atención.
+- Conservación del texto fuente y marca `Simulación externa`.
+- La activación del proveedor real requiere únicamente adaptar su contrato de
+  datos y credenciales, sin afectar el dominio ni la interfaz de prueba.
+
 ## 5. Inventario de base de datos
 
-### Tablas implementadas (33)
+### Tablas implementadas (36)
 
 1. `Usuario`
 2. `Rol`
@@ -375,17 +387,20 @@ Incluye:
 31. `TransporteConductor`
 32. `TransporteViaje`
 33. `TransporteIncidencia`
+34. `GpsDispositivo`
+35. `GpsPosicion`
+36. `GpsAlerta`
 
 También se implementaron:
 
-- 64 claves foráneas.
-- 38 índices normales o únicos.
+- 70 claves foráneas.
+- 41 índices normales o únicos.
 - Eliminación lógica en entidades y relaciones.
 - Fechas UTC mediante `DATETIME2`/`SYSUTCDATETIME()`.
 - Transacciones y `XACT_ABORT` en operaciones compuestas.
-- 102 procedimientos almacenados para usuarios, catálogos, asociaciones,
+- 109 procedimientos almacenados para usuarios, catálogos, asociaciones,
   clientes, pedidos, portal, inventarios, abastecimiento, extracción,
-  producción, maquinaria, transporte, dashboard y auditoría.
+  producción, maquinaria, transporte, GPS, dashboard y auditoría.
 
 ## 6. Rutas y endpoints disponibles
 
@@ -406,6 +421,7 @@ También se implementaron:
 | `/gestion/producciones` | Órdenes, etapas y resultados de producción | Personal interno autorizado por planta |
 | `/gestion/maquinarias` | Equipos, contratos y mantenimiento | Personal interno autorizado por sede |
 | `/gestion/transportes` | Flota, viajes, entregas e incidencias | Personal interno autorizado por sede |
+| `/gestion/gps` | Posiciones, recorridos, simulación y alertas | Personal interno autorizado por activo |
 | `/admin` | Dashboard administrativo | AdministradorGeneral |
 | `/admin/usuarios` | Administración de usuarios | AdministradorGeneral |
 | `/admin/clientes` | Administración de empresas cliente | AdministradorGeneral |
@@ -453,6 +469,9 @@ También se implementaron:
 | `GET/POST` | `/api/transportes` | Consultar o programar viajes |
 | `POST` | `/api/transportes/{vehiculos|conductores}` | Crear recursos logísticos |
 | `POST/PUT` | `/api/transportes/{id}/incidencias` | Registrar o resolver incidencias |
+| `GET` | `/api/gps` | Resumen de dispositivos y alertas |
+| `POST` | `/api/gps/simular` | Ingresar un evento externo simulado en JSON |
+| `GET` | `/api/gps/dispositivos/{id}/recorrido` | Consultar posiciones autorizadas |
 
 ## 7. Componentes parciales y mejoras pendientes de la base
 
@@ -469,13 +488,6 @@ Estos puntos mejoran la plataforma actual, aunque varios no eran obligatorios pa
 ## 8. Módulos pendientes para fases posteriores
 
 Los siguientes módulos todavía no están desarrollados:
-
-### 8.6 GPS y monitoreo
-
-- Integración con GPS-Inversiones.
-- Posición y recorrido de unidades.
-- Velocidad y tiempo de uso.
-- Alertas por eventos o desviaciones.
 
 ### 8.7 Construcción
 
@@ -521,9 +533,9 @@ Revisión del 27 de octubre de 2026:
 | Validación | Resultado |
 |---|---|
 | Compilación durante `dotnet test TransPort.sln --no-restore` | Correcta |
-| Pruebas de API | 52 aprobadas, 0 fallidas |
+| Pruebas de API | 57 aprobadas, 0 fallidas |
 | Pruebas de MVC | 1 aprobada, 0 fallidas |
-| Total | **53 aprobadas, 0 fallidas** |
+| Total | **58 aprobadas, 0 fallidas** |
 | `docker-compose config -q` | Configuración válida |
 | Contenedores activos durante esta revisión | API y Web activos; `/salud`, `/` y `/admin/auditoria` respondieron correctamente |
 | Smoke test de clientes | CRUD, filtro, asignaciones, auditoría y eliminación lógica correctos |
@@ -537,6 +549,7 @@ Revisión del 27 de octubre de 2026:
 | Smoke test de producción | Consumo, etapas, producto terminado, merma, costos y permisos correctos |
 | Smoke test de maquinaria | Reserva, alquiler, devolución, horómetro, mantenimiento y permisos correctos |
 | Smoke test de transporte | Recursos, viaje internacional, incidencia, entrega y permisos correctos |
+| Smoke test de GPS | JSON externo, Ciudad de Guatemala, recorrido, alertas y permisos correctos |
 
 Cobertura actual:
 
@@ -585,12 +598,13 @@ registros temporales.
 2. Sustituir contraseñas en texto plano por hashes antes de usar datos reales.
 3. Integrar en el portal del cliente el seguimiento ya disponible en M18.
 4. Implementar extracción y producción sobre el inventario disponible.
-5. Implementar GPS sobre los vehículos y viajes de M18.
+5. Sustituir la simulación GPS por el contrato real del proveedor cuando se
+   reciban sus credenciales y documentación.
 6. Agregar alertas, comunicación e integraciones externas.
 7. Construir reportes operativos, financieros y consolidados.
 8. Migrar la sesión a almacenamiento distribuido y agregar balanceo cuando se necesiten varias réplicas.
 
 ## 12. Conclusión
 
-El proyecto dispone de una base técnica coherente y extensible. La Fase 1 cubre el acceso, la estructura organizacional, el control de usuarios, los portales iniciales, la persistencia y el despliegue local. Pedidos, portal, inventarios, abastecimiento, extracción, producción, maquinaria y transporte ya están conectados; el siguiente paso es GPS y monitoreo.
+El proyecto dispone de una base técnica coherente y extensible. La Fase 1 cubre el acceso, la estructura organizacional, el control de usuarios, los portales iniciales, la persistencia y el despliegue local. Pedidos, portal, inventarios, abastecimiento, extracción, producción, maquinaria, transporte y GPS ya están conectados; el siguiente paso es construcción.
 
