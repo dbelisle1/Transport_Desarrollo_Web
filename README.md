@@ -141,6 +141,8 @@ Procedimientos principales:
   estados, vínculos con pedidos/operaciones y notas privadas para el personal.
 - Integraciones: eventos REST/Webhook/CSV simulados, idempotencia, errores,
   reintentos y recepción transaccional de materia prima hacia inventario.
+- Reportes: indicadores operativos por giro, consolidado financiero mensual y
+  reportes de cliente aislados por empresa asociada.
 
 Los repositorios no consultan tablas directamente cuando existe un procedimiento para la operación. La contraseña no aparece en listados, DTOs, tokens, auditoría ni logs.
 
@@ -206,6 +208,8 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 | `GET/POST` | `/api/finanzas/ingresos` | Consultar o registrar ingresos por alcance |
 | `GET` | `/api/finanzas/ingresos/{id}` | Detalle y origen operativo del ingreso |
 | `DELETE` | `/api/finanzas/ingresos/{id}` | Eliminación lógica administrativa |
+| `GET` | `/api/reportes/interno` | Consolidado operativo y financiero según alcance |
+| `GET` | `/api/reportes/cliente` | Reporte limitado a empresas autorizadas |
 | `GET/POST` | `/api/alertas` | Consultar por alcance o crear avisos autorizados |
 | `GET` | `/api/alertas/{id}` | Detalle y seguimientos de un aviso autorizado |
 | `PUT` | `/api/alertas/{id}/leer` | Confirmar lectura individual |
@@ -247,6 +251,7 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 - `/gestion/alertas`: alertas, recordatorios, lectura y seguimiento por alcance.
 - `/gestion/comunicaciones`: consultas de clientes y coordinación interna.
 - `/gestion/integraciones`: simulador REST/Webhook/CSV y trazabilidad externa.
+- `/gestion/reportes`: indicadores por giro y consolidado financiero mensual.
 - `/gestion/pedidos`: asignación, cotización y seguimiento comercial.
 - `/gestion/catalogo`: administración de ofertas por giro.
 - `/admin`: panel general con conteos reales.
@@ -254,6 +259,7 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 - `/admin/clientes`: CRUD, filtros y asociaciones de empresas cliente.
 - `/admin/catalogos/{roles|giros|sedes}`: CRUD, filtros y estado de catálogos organizacionales.
 - `/admin/auditoria`: visor de auditoría con filtros por fecha, módulo, operación, usuario y resultado.
+- `/cliente/reportes`: actividad e indicadores de las empresas asociadas.
 - `/portal/cambiar/{admin|cliente|gestion}`: cambio de área sin reiniciar sesión.
 
 El simulador de integraciones se entrega con un JSON funcional, el artículo
@@ -269,16 +275,15 @@ dotnet build TransPort.sln --no-restore
 dotnet test TransPort.sln --no-restore
 ```
 
-Las 96 pruebas actuales cubren seguridad JWT, autenticación, cierre de sesión,
+Las 101 pruebas actuales cubren seguridad JWT, autenticación, cierre de sesión,
 clientes, catálogos, auditoría, pedidos, portal, inventarios, abastecimiento,
 extracción, producción, maquinaria, transporte, GPS, construcción, finanzas y
-alertas, catálogo comercial, comunicaciones e integraciones: alcance,
+alertas, catálogo comercial, comunicaciones, integraciones y reportes: alcance,
 validaciones, autorización y operaciones críticas.
 
 ## Pendiente para fases posteriores
 
-Faltan los reportes operativos/financieros, el cierre PWA/responsive y pruebas
-HTTP/SQL reproducibles.
+Faltan el cierre PWA/responsive y las pruebas HTTP/SQL reproducibles.
 Los módulos que dependan de una fuente externa se probarán con formularios de
 simulación y ejemplos funcionales precargados, identificando claramente el
 origen simulado.
