@@ -31,8 +31,16 @@ Alternativa SSMS: ejecute estos archivos en orden:
   002_indices_relaciones.sql
   003_procedimientos.sql
   004_datos_iniciales.sql
+  005_datos_demostracion.sql
 
-Los scripts son idempotentes: pueden volver a ejecutarse sin duplicar roles, sedes, giros ni usuarios demo.
+Los scripts son idempotentes: pueden volver a ejecutarse sin duplicar roles,
+sedes, giros, usuarios ni operaciones demo. El último script carga datos
+ficticios relacionados para todos los módulos y los identifica con códigos
+DEMO y la marca DEMO-SEED-V1.
+
+Para verificar que el conjunto ficticio esté completo:
+
+  sqlcmd -S ".\SQLEXPRESS" -E -C -b -f 65001 -i .\006_validar_datos_demostracion.sql
 
 PASO 2.1 - CREAR LA CLAVE TRANSPORT_JWT_KEY
 TRANSPORT_JWT_KEY es la clave secreta que la API utiliza para firmar y validar los tokens JWT del inicio de sesión. Permite comprobar que los tokens fueron creados por TransPort y que sus roles o permisos no fueron modificados.
@@ -86,6 +94,11 @@ PASO 4 - CUENTAS DE DEMOSTRACION
 Administrador: admin.demo / TransPortAdmin2026!
 Empleado:      empleado.demo / TransPortEmpleado2026!
 Cliente:       cliente.demo / TransPortCliente2026!
+Gerente:       gerente.demo / TransPortGerente2026!
+Operativo:     operativo.demo / TransPortOperativo2026!
+Vendedor:      vendedor.demo / TransPortVendedor2026!
+Cliente 2:     cliente2.demo / TransPortCliente22026!  (una empresa)
+Cliente 3:     cliente3.demo / TransPortCliente32026!  (dos empresas)
 
 IMPORTANTE: estas claves son inseguras, están en texto plano y solo son para el prototipo universitario local. Nunca deben usarse en un sistema real.
 
@@ -101,14 +114,17 @@ Con SQL Server, API y Web activos, ejecute la validación HTTP/SQL reproducible:
 
   powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\validar-integracion.ps1
 
-La validación crea un usuario y un cliente temporales, comprueba autenticación,
+La validación inicia sesión con los ocho perfiles, recorre datos de todos los
+módulos, crea un usuario y un cliente temporales, comprueba autenticación,
 permisos, asociaciones, aislamiento y eliminación lógica, verifica el resultado
-en SQL Server y limpia todos los registros creados. Por defecto usa
+en SQL Server y limpia todos los registros temporales. Por defecto usa
 ".\SQLEXPRESS" con autenticación de Windows.
 
 Para ejecutar también el instalador dos veces y confirmar que es idempotente:
 
   powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\validar-integracion.ps1 -VerificarInstalador
+
+La variante completa debe aprobar 73 comprobaciones HTTP/SQL.
 
 Si la instancia tiene otro nombre, use -SqlServer. Si utiliza autenticación SQL,
 defina temporalmente SQLCMDPASSWORD y pase -SqlUser sin escribir la clave en el

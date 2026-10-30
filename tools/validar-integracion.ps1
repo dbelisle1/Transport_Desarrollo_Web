@@ -11,7 +11,17 @@ param(
     [string]$EmployeeUser = 'empleado.demo',
     [string]$EmployeePassword = 'TransPortEmpleado2026!',
     [string]$ClientUser = 'cliente.demo',
-    [string]$ClientPassword = 'TransPortCliente2026!'
+    [string]$ClientPassword = 'TransPortCliente2026!',
+    [string]$ManagerUser = 'gerente.demo',
+    [string]$ManagerPassword = 'TransPortGerente2026!',
+    [string]$OperatorUser = 'operativo.demo',
+    [string]$OperatorPassword = 'TransPortOperativo2026!',
+    [string]$SellerUser = 'vendedor.demo',
+    [string]$SellerPassword = 'TransPortVendedor2026!',
+    [string]$SecondClientUser = 'cliente2.demo',
+    [string]$SecondClientPassword = 'TransPortCliente22026!',
+    [string]$ThirdClientUser = 'cliente3.demo',
+    [string]$ThirdClientPassword = 'TransPortCliente32026!'
 )
 
 Set-StrictMode -Version Latest
@@ -32,6 +42,11 @@ $script:temporaryClientId = 0
 $script:adminId = 0
 $script:employeeId = 0
 $script:demoClientUserId = 0
+$script:managerId = 0
+$script:operatorId = 0
+$script:sellerId = 0
+$script:secondClientUserId = 0
+$script:thirdClientUserId = 0
 
 $ApiBaseUrl = $ApiBaseUrl.TrimEnd('/')
 $WebBaseUrl = $WebBaseUrl.TrimEnd('/')
@@ -50,6 +65,18 @@ function Assert-Status($Response, [int[]]$Expected, [string]$Message) {
         throw "Validación fallida: $Message. HTTP $($Response.Status). Respuesta: $($Response.Body)"
     }
     Write-Pass "$Message (HTTP $($Response.Status))"
+}
+
+function Assert-List([string]$Path, [string]$Token, [string]$Message) {
+    $response = Invoke-TransportHttp -Method GET -Path $Path -Token $Token
+    if ($response.Status -ne 200) {
+        throw "Validación fallida: $Message. HTTP $($response.Status). Respuesta: $($response.Body)"
+    }
+    if (@($response.Json).Count -lt 1) {
+        throw "Validación fallida: $Message no devolvió registros."
+    }
+    Write-Pass "$Message ($(@($response.Json).Count) registros)"
+    return $response
 }
 
 function Invoke-TransportHttp {
@@ -187,7 +214,9 @@ WHERE AuditoriaId>$($script:auditStartId)
       OR (Modulo=N'Clientes' AND IdentificadorRegistro=CONVERT(NVARCHAR(100),@ClienteId))
       OR (Modulo=N'Seguridad' AND IdentificadorRegistro IN
           ($userLiteral,$invalidLiteral,CONVERT(NVARCHAR(100),@UsuarioId),
-           N'$($script:adminId)',N'$($script:employeeId)',N'$($script:demoClientUserId)'))
+           N'$($script:adminId)',N'$($script:employeeId)',N'$($script:demoClientUserId)',
+           N'$($script:managerId)',N'$($script:operatorId)',N'$($script:sellerId)',
+           N'$($script:secondClientUserId)',N'$($script:thirdClientUserId)'))
   );
 IF @ClienteId IS NOT NULL
 BEGIN
@@ -275,14 +304,31 @@ SELECT COUNT(*) FROM sys.procedures WHERE name IN
     $admin = Login $AdminUser $AdminPassword 'AdministradorGeneral'
     $employee = Login $EmployeeUser $EmployeePassword 'Empleado'
     $demoClient = Login $ClientUser $ClientPassword 'Cliente'
+    $manager = Login $ManagerUser $ManagerPassword 'Gerente'
+    $operator = Login $OperatorUser $OperatorPassword 'Operativo'
+    $seller = Login $SellerUser $SellerPassword 'Vendedor'
+    $secondClient = Login $SecondClientUser $SecondClientPassword 'Cliente 2'
+    $thirdClient = Login $ThirdClientUser $ThirdClientPassword 'Cliente 3'
     $script:adminId = [int]$admin.usuario.usuarioId
     $script:employeeId = [int]$employee.usuario.usuarioId
     $script:demoClientUserId = [int]$demoClient.usuario.usuarioId
+    $script:managerId = [int]$manager.usuario.usuarioId
+    $script:operatorId = [int]$operator.usuario.usuarioId
+    $script:sellerId = [int]$seller.usuario.usuarioId
+    $script:secondClientUserId = [int]$secondClient.usuario.usuarioId
+    $script:thirdClientUserId = [int]$thirdClient.usuario.usuarioId
 
     Assert-True (@($admin.usuario.roles) -contains 'AdministradorGeneral') 'El administrador debe recibir su rol'
     Assert-True (@($employee.usuario.roles) -contains 'Empleado') 'El empleado debe recibir su rol'
     Assert-True (@($demoClient.usuario.roles) -contains 'Cliente') 'El cliente debe recibir su rol'
-    Write-Pass 'Claims de roles cargados desde SQL Server'
+    Assert-True (@($manager.usuario.roles) -contains 'Gerente') 'El gerente debe recibir su rol'
+    Assert-True (@($operator.usuario.roles) -contains 'Operativo') 'El operativo debe recibir su rol'
+    Assert-True (@($seller.usuario.roles) -contains 'Vendedor') 'El vendedor debe recibir su rol'
+    Assert-True (@($secondClient.usuario.roles) -contains 'Cliente') 'El cliente 2 debe recibir su rol'
+    Assert-True (@($thirdClient.usuario.roles) -contains 'Cliente') 'El cliente 3 debe recibir su rol'
+    Assert-True (@($secondClient.usuario.clientes).Count -eq 1) 'El cliente 2 debe tener una empresa'
+    Assert-True (@($thirdClient.usuario.clientes).Count -eq 2) 'El cliente 3 debe tener dos empresas'
+    Write-Pass 'Claims de todos los roles y clientes cargados desde SQL Server'
 
     $adminSummary = Invoke-TransportHttp -Method GET -Path '/api/administracion/resumen' -Token $admin.token
     Assert-Status $adminSummary @(200) 'Administrador accede al resumen'
@@ -290,6 +336,45 @@ SELECT COUNT(*) FROM sys.procedures WHERE name IN
     Assert-Status $employeeAdmin @(403) 'Empleado no accede a administración'
     $clientAdmin = Invoke-TransportHttp -Method GET -Path '/api/administracion/resumen' -Token $demoClient.token
     Assert-Status $clientAdmin @(403) 'Cliente no accede a administración'
+    $managerAdmin = Invoke-TransportHttp -Method GET -Path '/api/clientes' -Token $manager.token
+    Assert-Status $managerAdmin @(403) 'Gerente no accede al CRUD reservado al administrador'
+
+    Assert-List '/api/pedidos?busqueda=DEMO' $manager.token 'Gerente consulta pedidos demo' | Out-Null
+    Assert-List '/api/inventarios?busqueda=DEMO' $manager.token 'Gerente consulta inventario demo' | Out-Null
+    Assert-List '/api/abastecimientos?busqueda=DEMO' $manager.token 'Gerente consulta abastecimientos demo' | Out-Null
+    Assert-List '/api/extracciones' $manager.token 'Gerente consulta extracciones' | Out-Null
+    Assert-List '/api/producciones' $manager.token 'Gerente consulta producción' | Out-Null
+    Assert-List '/api/maquinarias?busqueda=DEMO' $manager.token 'Gerente consulta maquinaria demo' | Out-Null
+    Assert-List '/api/transportes' $manager.token 'Gerente consulta transporte' | Out-Null
+    Assert-List '/api/construcciones?busqueda=DEMO' $manager.token 'Gerente consulta construcciones demo' | Out-Null
+    Assert-List '/api/finanzas' $manager.token 'Gerente consulta presupuestos' | Out-Null
+    Assert-List '/api/finanzas/ingresos' $manager.token 'Gerente consulta ingresos' | Out-Null
+    Assert-List '/api/alertas' $manager.token 'Gerente consulta alertas' | Out-Null
+    Assert-List '/api/comunicaciones?busqueda=DEMO' $manager.token 'Gerente consulta comunicaciones demo' | Out-Null
+    Assert-List '/api/integraciones?busqueda=DEMO' $manager.token 'Gerente consulta integraciones demo' | Out-Null
+    $managerGps = Invoke-TransportHttp -Method GET -Path '/api/gps' -Token $manager.token
+    Assert-Status $managerGps @(200) 'Gerente consulta resumen GPS'
+    $managerReport = Invoke-TransportHttp -Method GET -Path '/api/reportes/interno' -Token $manager.token
+    Assert-Status $managerReport @(200) 'Gerente consulta reporte consolidado'
+
+    Assert-List '/api/extracciones' $employee.token 'Empleado consulta extracción de su sede' | Out-Null
+    Assert-List '/api/producciones' $operator.token 'Operativo consulta producción asignada' | Out-Null
+    Assert-List '/api/transportes' $operator.token 'Operativo consulta viajes asignados' | Out-Null
+    Assert-List '/api/pedidos?busqueda=DEMO' $seller.token 'Vendedor consulta pedidos comerciales' | Out-Null
+    $sellerProduction = Invoke-TransportHttp -Method GET -Path '/api/producciones' -Token $seller.token
+    Assert-Status $sellerProduction @(403) 'Vendedor no accede a producción interna'
+
+    $secondClientPortal = Invoke-TransportHttp -Method GET -Path '/api/portal-cliente/operaciones' -Token $secondClient.token
+    Assert-Status $secondClientPortal @(200) 'Cliente 2 consulta sus operaciones'
+    $secondClientReport = Invoke-TransportHttp -Method GET -Path '/api/reportes/cliente' -Token $secondClient.token
+    Assert-Status $secondClientReport @(200) 'Cliente 2 consulta su reporte'
+    Assert-True ([int]$secondClientReport.Json.resumen.empresas -eq 1) 'El reporte del cliente 2 debe incluir una empresa'
+    $thirdClientPortal = Invoke-TransportHttp -Method GET -Path '/api/portal-cliente/operaciones' -Token $thirdClient.token
+    Assert-Status $thirdClientPortal @(200) 'Cliente 3 consulta operaciones de dos empresas'
+    $thirdClientReport = Invoke-TransportHttp -Method GET -Path '/api/reportes/cliente' -Token $thirdClient.token
+    Assert-Status $thirdClientReport @(200) 'Cliente 3 consulta su reporte consolidado'
+    Assert-True ([int]$thirdClientReport.Json.resumen.empresas -eq 2) 'El reporte del cliente 3 debe incluir dos empresas'
+    Write-Pass 'Aislamiento de clientes demo verificado para una y dos empresas'
 
     $roles = Invoke-TransportHttp -Method GET -Path '/api/catalogos/roles' -Token $admin.token
     $giros = Invoke-TransportHttp -Method GET -Path '/api/catalogos/giros' -Token $admin.token

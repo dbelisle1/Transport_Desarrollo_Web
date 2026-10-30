@@ -89,7 +89,12 @@ No agregue cadenas ni claves reales a `appsettings.json`. Use variables de entor
 |---|---|---|
 | AdministradorGeneral | `admin.demo` | `TransPortAdmin2026!` |
 | Empleado | `empleado.demo` | `TransPortEmpleado2026!` |
+| Gerente | `gerente.demo` | `TransPortGerente2026!` |
+| Operativo | `operativo.demo` | `TransPortOperativo2026!` |
+| Vendedor | `vendedor.demo` | `TransPortVendedor2026!` |
 | Cliente | `cliente.demo` | `TransPortCliente2026!` |
+| Cliente, una empresa | `cliente2.demo` | `TransPortCliente22026!` |
+| Cliente, dos empresas | `cliente3.demo` | `TransPortCliente32026!` |
 
 Estas claves son únicamente para desarrollo académico. Se almacenan en texto plano por requisito de esta fase y son inseguras para producción. Cámbielas o elimínelas fuera del entorno local. La abstracción del servicio permite reemplazar la comparación por hashes sin modificar los controladores.
 
@@ -99,7 +104,18 @@ La base incluye organización, seguridad, clientes, pedidos, inventarios,
 abastecimiento, extracción, producción, maquinaria, transporte, GPS,
 construcción, finanzas, alertas, catálogo comercial, comunicaciones e
 integraciones simuladas. Los scripts son la fuente ejecutable del esquema y se
-conteos se actualizan al cerrar cada módulo.
+los conteos se actualizan al cerrar cada módulo. El instalador también ejecuta
+`005_datos_demostracion.sql`, un conjunto transaccional e idempotente identificado
+por `DEMO-SEED-V1`. Incluye registros relacionados y en distintos estados para
+probar todos los módulos sin confundirlos con información real.
+
+Para comprobar únicamente la integridad del conjunto ficticio:
+
+```powershell
+cd database
+sqlcmd -S ".\SQLEXPRESS" -E -C -b -f 65001 -i .\006_validar_datos_demostracion.sql
+cd ..
+```
 
 Procedimientos principales:
 
@@ -300,7 +316,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\validar-integracion.
 ```
 
 Para comprobar además la idempotencia del instalador, ejecute la variante
-completa. Esta instala la base dos veces antes de las 42 comprobaciones:
+completa. Esta instala la base dos veces antes de las 73 comprobaciones,
+incluyendo los ocho perfiles y datos visibles en todos los módulos:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\validar-integracion.ps1 -VerificarInstalador

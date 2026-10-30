@@ -8,5 +8,6 @@
 :r .\002_indices_relaciones.sql
 :r .\003_procedimientos.sql
 :r .\004_datos_iniciales.sql
+:r .\005_datos_demostracion.sql
 PRINT N'Instalación de TransPortDB finalizada.';
 GO
