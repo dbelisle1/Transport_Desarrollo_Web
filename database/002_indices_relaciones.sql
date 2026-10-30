@@ -196,3 +196,17 @@ IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.FinanzaP
 IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.FinanzaGasto') AND name=N'IX_FinanzaGasto_PresupuestoFecha') CREATE INDEX IX_FinanzaGasto_PresupuestoFecha ON dbo.FinanzaGasto(FinanzaPresupuestoId,Fecha DESC) INCLUDE(Monto,Categoria,OrigenModulo);
 IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.FinanzaGasto') AND name=N'IX_FinanzaGasto_Origen') CREATE INDEX IX_FinanzaGasto_Origen ON dbo.FinanzaGasto(OrigenModulo,OrigenRegistroId) WHERE OrigenRegistroId IS NOT NULL;
 GO
+
+IF NOT EXISTS(SELECT 1 FROM sys.foreign_keys WHERE name=N'FK_AlertaNotificacion_Rol') ALTER TABLE dbo.AlertaNotificacion ADD CONSTRAINT FK_AlertaNotificacion_Rol FOREIGN KEY(RolId) REFERENCES dbo.Rol(RolId);
+IF NOT EXISTS(SELECT 1 FROM sys.foreign_keys WHERE name=N'FK_AlertaNotificacion_Giro') ALTER TABLE dbo.AlertaNotificacion ADD CONSTRAINT FK_AlertaNotificacion_Giro FOREIGN KEY(GiroNegocioId) REFERENCES dbo.GiroNegocio(GiroNegocioId);
+IF NOT EXISTS(SELECT 1 FROM sys.foreign_keys WHERE name=N'FK_AlertaNotificacion_Sede') ALTER TABLE dbo.AlertaNotificacion ADD CONSTRAINT FK_AlertaNotificacion_Sede FOREIGN KEY(SedeId) REFERENCES dbo.Sede(SedeId);
+IF NOT EXISTS(SELECT 1 FROM sys.foreign_keys WHERE name=N'FK_AlertaNotificacion_Destino') ALTER TABLE dbo.AlertaNotificacion ADD CONSTRAINT FK_AlertaNotificacion_Destino FOREIGN KEY(UsuarioDestinoId) REFERENCES dbo.Usuario(UsuarioId);
+IF NOT EXISTS(SELECT 1 FROM sys.foreign_keys WHERE name=N'FK_AlertaNotificacion_Creador') ALTER TABLE dbo.AlertaNotificacion ADD CONSTRAINT FK_AlertaNotificacion_Creador FOREIGN KEY(CreadoPorUsuarioId) REFERENCES dbo.Usuario(UsuarioId);
+IF NOT EXISTS(SELECT 1 FROM sys.foreign_keys WHERE name=N'FK_AlertaLectura_Notificacion') ALTER TABLE dbo.AlertaLectura ADD CONSTRAINT FK_AlertaLectura_Notificacion FOREIGN KEY(AlertaNotificacionId) REFERENCES dbo.AlertaNotificacion(AlertaNotificacionId);
+IF NOT EXISTS(SELECT 1 FROM sys.foreign_keys WHERE name=N'FK_AlertaLectura_Usuario') ALTER TABLE dbo.AlertaLectura ADD CONSTRAINT FK_AlertaLectura_Usuario FOREIGN KEY(UsuarioId) REFERENCES dbo.Usuario(UsuarioId);
+IF NOT EXISTS(SELECT 1 FROM sys.foreign_keys WHERE name=N'FK_AlertaSeguimiento_Notificacion') ALTER TABLE dbo.AlertaSeguimiento ADD CONSTRAINT FK_AlertaSeguimiento_Notificacion FOREIGN KEY(AlertaNotificacionId) REFERENCES dbo.AlertaNotificacion(AlertaNotificacionId);
+IF NOT EXISTS(SELECT 1 FROM sys.foreign_keys WHERE name=N'FK_AlertaSeguimiento_Usuario') ALTER TABLE dbo.AlertaSeguimiento ADD CONSTRAINT FK_AlertaSeguimiento_Usuario FOREIGN KEY(UsuarioId) REFERENCES dbo.Usuario(UsuarioId);
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.AlertaNotificacion') AND name=N'IX_AlertaNotificacion_EstadoFecha') CREATE INDEX IX_AlertaNotificacion_EstadoFecha ON dbo.AlertaNotificacion(Estado,FechaProgramadaUtc DESC) INCLUDE(Tipo,Severidad,RolId,GiroNegocioId,SedeId,UsuarioDestinoId,Eliminado);
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.AlertaLectura') AND name=N'UX_AlertaLectura_NotificacionUsuario') CREATE UNIQUE INDEX UX_AlertaLectura_NotificacionUsuario ON dbo.AlertaLectura(AlertaNotificacionId,UsuarioId);
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.AlertaSeguimiento') AND name=N'IX_AlertaSeguimiento_Notificacion') CREATE INDEX IX_AlertaSeguimiento_Notificacion ON dbo.AlertaSeguimiento(AlertaNotificacionId,Fecha DESC);
+GO

@@ -4,6 +4,7 @@ using TransPort.Api.Configuration;
 using TransPort.Api.Middleware;
 using TransPort.Api.Modules.Clientes.Repositories;
 using TransPort.Api.Modules.Abastecimiento.Repositories;
+using TransPort.Api.Modules.Alertas.Repositories;
 using TransPort.Api.Modules.Comercial.Repositories;
 using TransPort.Api.Modules.Construccion.Repositories;
 using TransPort.Api.Modules.Extraccion.Repositories;
@@ -28,6 +29,7 @@ builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptio
 builder.Services.AddSingleton<ISqlConnectionFactory, SqlConnectionFactory>();
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 builder.Services.AddScoped<IAbastecimientoRepository, AbastecimientoRepository>();
+builder.Services.AddScoped<IAlertaRepository, AlertaRepository>();
 builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();
 builder.Services.AddScoped<IConstruccionRepository, ConstruccionRepository>();
 builder.Services.AddScoped<IExtraccionRepository, ExtraccionRepository>();

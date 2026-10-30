@@ -92,7 +92,11 @@ IMPORTANTE: estas claves son inseguras, están en texto plano y solo son para el
 PASO 5 - COMPILAR Y PROBAR
   dotnet restore TransPort.sln
   dotnet build TransPort.sln --no-restore
-  dotnet test .\TransPort.Api.Tests\TransPort.Api.Tests.csproj --no-restore
+  dotnet test TransPort.sln --no-restore
+
+Este comando ejecuta tanto las pruebas de la API como las pruebas del frontend
+MVC. Los recorridos HTTP/SQL de integración se documentan por módulo y se irán
+convirtiendo en pruebas automatizadas reproducibles.
 
 SOLUCION DE PROBLEMAS
 - Si Docker no conecta a SQL Server: confirme TCP/IP, el puerto, el firewall y la autenticación mixta.

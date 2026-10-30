@@ -95,7 +95,11 @@ Estas claves son únicamente para desarrollo académico. Se almacenan en texto p
 
 ## Base de datos
 
-Tablas organizacionales: `Usuario`, `Rol`, `UsuarioRol`, `GiroNegocio`, `Sede`, `SedeGiroNegocio`, `UsuarioGiroNegocio`, `UsuarioSede`, `Cliente`, `ClienteUsuario`, `ClienteGiroNegocio` y `Auditoria`. El módulo comercial agrega `Pedido`, `PedidoHistorial` y `PedidoDocumento`.
+La base incluye organización, seguridad, clientes, pedidos, inventarios,
+abastecimiento, extracción, producción, maquinaria, transporte, GPS,
+construcción, finanzas y alertas. Los scripts son la fuente ejecutable del
+esquema y se mantienen idempotentes; los conteos se actualizan al cerrar cada
+módulo.
 
 Procedimientos principales:
 
@@ -127,6 +131,8 @@ Procedimientos principales:
   materiales, maquinaria, personal, presupuestos y costos reales.
 - Finanzas: presupuestos mensuales por giro/sede, gastos, ejecución real y
   vínculos con pedidos, producción, transporte y construcción.
+- Alertas: avisos y recordatorios segmentados por rol, giro, sede o usuario,
+  lectura individual, seguimientos, estados y trazabilidad del módulo origen.
 
 Los repositorios no consultan tablas directamente cuando existe un procedimiento para la operación. La contraseña no aparece en listados, DTOs, tokens, auditoría ni logs.
 
@@ -184,6 +190,12 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 | `GET` | `/api/finanzas/{id}` | Comparación presupuesto-real y gastos |
 | `POST` | `/api/finanzas/{id}/gastos` | Registrar un gasto manual o vinculado |
 | `PUT` | `/api/finanzas/{id}/estado` | Cerrar o cancelar el presupuesto |
+| `GET/POST` | `/api/alertas` | Consultar por alcance o crear avisos autorizados |
+| `GET` | `/api/alertas/{id}` | Detalle y seguimientos de un aviso autorizado |
+| `PUT` | `/api/alertas/{id}/leer` | Confirmar lectura individual |
+| `POST` | `/api/alertas/{id}/seguimientos` | Registrar seguimiento operativo |
+| `PUT` | `/api/alertas/{id}/estado` | Resolver o cancelar según permisos |
+| `DELETE` | `/api/alertas/{id}` | Eliminación lógica administrativa tras el cierre |
 
 ## Rutas web
 
@@ -202,6 +214,7 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 - `/gestion/gps`: dispositivos, simulación de datos, recorridos y alertas.
 - `/gestion/construcciones`: obras, actividades, recursos, costos y avances.
 - `/gestion/finanzas`: presupuestos, gastos y ejecución por giro/sede.
+- `/gestion/alertas`: alertas, recordatorios, lectura y seguimiento por alcance.
 - `/gestion/pedidos`: asignación, cotización y seguimiento comercial.
 - `/admin`: panel general con conteos reales.
 - `/admin/usuarios`: CRUD y filtros de usuarios.
@@ -218,8 +231,17 @@ dotnet build TransPort.sln --no-restore
 dotnet test TransPort.sln --no-restore
 ```
 
-Las 68 pruebas actuales cubren seguridad JWT, autenticación, cierre de sesión, clientes, catálogos, auditoría, pedidos, portal, inventarios, abastecimiento, extracción, producción, maquinaria, transporte, GPS, construcción y finanzas: alcance, validaciones, autorización y operaciones críticas.
+Las 73 pruebas actuales cubren seguridad JWT, autenticación, cierre de sesión,
+clientes, catálogos, auditoría, pedidos, portal, inventarios, abastecimiento,
+extracción, producción, maquinaria, transporte, GPS, construcción, finanzas y
+alertas: alcance, validaciones, autorización y operaciones críticas.
 
 ## Pendiente para fases posteriores
 
-Alertas, comunicación, integraciones de terceros, reportes operativos/financieros y funcionamiento offline transaccional. Los módulos que dependan de una fuente externa se probarán con formularios de simulación y ejemplos funcionales precargados, identificando claramente el origen simulado.
+Faltan catálogo público y pedidos por producto, comunicación, integración del
+portal cliente con viajes/maquinaria/construcción, simulaciones de terceros,
+registro mínimo de ingresos, reportes operativos/financieros, cierre
+PWA/responsive y pruebas HTTP/SQL reproducibles.
+Los módulos que dependan de una fuente externa se probarán con formularios de
+simulación y ejemplos funcionales precargados, identificando claramente el
+origen simulado.
