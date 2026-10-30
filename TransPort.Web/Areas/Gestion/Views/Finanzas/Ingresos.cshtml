@@ -1,0 +1,22 @@
+@model IngresoPaginaViewModel
+@{ViewData["Title"]="Ingresos";var hoy=DateTime.Today;var total=Model.Ingresos.Sum(x=>x.Monto);}
+<section class="dashboard-page"><div class="container">
+<div class="page-heading"><div><a class="back-link" href="/gestion/finanzas">← Presupuestos</a><h1>Ingresos y transacciones</h1><p>Registro financiero mínimo con trazabilidad al origen operativo.</p></div><div class="metric"><strong>@total.ToString("C2")</strong><span>Total filtrado</span></div></div>
+<form method="get" class="filter-bar"><input type="number" name="anio" value="@Model.Anio" placeholder="Año"/><input type="number" min="1" max="12" name="mes" value="@Model.Mes" placeholder="Mes"/><select name="giroId"><option value="">Todos los giros</option>@foreach(var x in Model.Opciones.Giros){<option value="@x.Id" selected="@(Model.GiroId==x.Id)">@x.Nombre</option>}</select><select name="sedeId"><option value="">Todas las sedes</option>@foreach(var x in Model.Opciones.Sedes){<option value="@x.Id" selected="@(Model.SedeId==x.Id)">@x.Nombre</option>}</select><button class="button button-small">Filtrar</button></form>
+<div class="responsive-table"><table><thead><tr><th>Fecha</th><th>Concepto</th><th>Giro / sede</th><th>Cliente</th><th>Origen</th><th>Monto</th><th></th></tr></thead><tbody>
+@if(Model.Ingresos.Count==0){<tr><td colspan="7">No hay ingresos para los filtros seleccionados.</td></tr>}
+@foreach(var x in Model.Ingresos){<tr><td>@x.Fecha.ToString("dd/MM/yyyy")</td><td><strong>@x.Concepto</strong><small>@x.Categoria · @x.Referencia</small></td><td>@x.Giro<small>@x.Sede</small></td><td>@(x.Cliente??"—")</td><td>@x.OrigenModulo @if(x.OrigenRegistroId.HasValue){<small>#@x.OrigenRegistroId</small>}</td><td>@x.Monto.ToString("C2")</td><td>@if(User.IsInRole("AdministradorGeneral")){<form method="post" action="/gestion/finanzas/ingresos/@x.FinanzaIngresoId/eliminar" onsubmit="return confirm('¿Eliminar este ingreso?');"><button class="link-button" type="submit">Eliminar</button></form>}</td></tr>}
+</tbody></table></div>
+<form method="post" action="/gestion/finanzas/ingresos/crear" class="entity-form"><fieldset><legend>Registrar ingreso</legend><p class="form-help">Para un origen operativo, indique el identificador del pedido, contrato, viaje o proyecto. El sistema comprobará giro, sede y cliente antes de guardar.</p><div class="form-grid">
+<select name="GiroId" required><option value="">Giro</option>@foreach(var x in Model.Opciones.Giros){<option value="@x.Id">@x.Nombre</option>}</select>
+<select name="SedeId" required><option value="">Sede</option>@foreach(var x in Model.Opciones.Sedes){<option value="@x.Id">@x.Nombre</option>}</select>
+<select name="ClienteId"><option value="">Sin cliente</option>@foreach(var x in Model.Opciones.Clientes){<option value="@x.Id">@x.Nombre</option>}</select>
+<input type="date" name="Fecha" value="@hoy.ToString("yyyy-MM-dd")" required/>
+<select name="Categoria" required><option value="VentaProducto">Venta de producto</option><option value="Servicio">Servicio</option><option value="Alquiler">Alquiler</option><option value="Transporte">Transporte</option><option value="Construccion">Construcción</option><option value="Otro">Otro</option></select>
+<input name="Concepto" maxlength="250" placeholder="Concepto del ingreso" required/>
+<input type="number" step=".01" min=".01" name="Monto" placeholder="Monto" required/>
+<select name="OrigenModulo" required><option value="Manual">Manual</option><option value="Pedido">Pedido</option><option value="Maquinaria">Contrato de maquinaria</option><option value="Transporte">Viaje de transporte</option><option value="Construccion">Proyecto de construcción</option></select>
+<input type="number" min="1" name="OrigenRegistroId" placeholder="ID del origen (vacío si es manual)"/>
+<input name="Referencia" maxlength="120" placeholder="Factura, recibo o referencia"/>
+</div><button class="button">Registrar ingreso</button></fieldset></form>
+</div></section>

@@ -11,4 +11,9 @@ public interface IFinanzaRepository
     Task<long> RegistrarGastoAsync(long id,RegistrarGastoRequest request,AlcanceFinanza alcance,CancellationToken ct);
     Task<bool> ActualizarEstadoAsync(long id,string estado,AlcanceFinanza alcance,CancellationToken ct);
     Task<bool> EliminarAsync(long id,int usuarioId,CancellationToken ct);
+    Task<IReadOnlyList<IngresoDto>> ListarIngresosAsync(short? anio,byte? mes,int? giroId,int? sedeId,AlcanceFinanza alcance,CancellationToken ct);
+    Task<IngresoDto?> ObtenerIngresoAsync(long id,AlcanceFinanza alcance,CancellationToken ct);
+    Task<IngresoOpcionesDto> OpcionesIngresoAsync(AlcanceFinanza alcance,CancellationToken ct);
+    Task<long> CrearIngresoAsync(CrearIngresoRequest request,AlcanceFinanza alcance,CancellationToken ct);
+    Task<bool> EliminarIngresoAsync(long id,int usuarioId,CancellationToken ct);
 }

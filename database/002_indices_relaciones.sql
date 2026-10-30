@@ -244,3 +244,11 @@ IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.Integrac
 IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.IntegracionEvento') AND name=N'IX_IntegracionEvento_EstadoFecha') CREATE INDEX IX_IntegracionEvento_EstadoFecha ON dbo.IntegracionEvento(Estado,FechaCreacion DESC) INCLUDE(Canal,Direccion,SocioTipo,Operacion,UsuarioId,Eliminado);
 IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.IntegracionEvento') AND name=N'IX_IntegracionEvento_Inventario') CREATE INDEX IX_IntegracionEvento_Inventario ON dbo.IntegracionEvento(InventarioArticuloId,SedeId,FechaCreacion DESC) WHERE InventarioArticuloId IS NOT NULL;
 GO
+
+IF NOT EXISTS(SELECT 1 FROM sys.foreign_keys WHERE name=N'FK_FinanzaIngreso_Giro') ALTER TABLE dbo.FinanzaIngreso ADD CONSTRAINT FK_FinanzaIngreso_Giro FOREIGN KEY(GiroNegocioId) REFERENCES dbo.GiroNegocio(GiroNegocioId);
+IF NOT EXISTS(SELECT 1 FROM sys.foreign_keys WHERE name=N'FK_FinanzaIngreso_Sede') ALTER TABLE dbo.FinanzaIngreso ADD CONSTRAINT FK_FinanzaIngreso_Sede FOREIGN KEY(SedeId) REFERENCES dbo.Sede(SedeId);
+IF NOT EXISTS(SELECT 1 FROM sys.foreign_keys WHERE name=N'FK_FinanzaIngreso_Cliente') ALTER TABLE dbo.FinanzaIngreso ADD CONSTRAINT FK_FinanzaIngreso_Cliente FOREIGN KEY(ClienteId) REFERENCES dbo.Cliente(ClienteId);
+IF NOT EXISTS(SELECT 1 FROM sys.foreign_keys WHERE name=N'FK_FinanzaIngreso_Usuario') ALTER TABLE dbo.FinanzaIngreso ADD CONSTRAINT FK_FinanzaIngreso_Usuario FOREIGN KEY(UsuarioId) REFERENCES dbo.Usuario(UsuarioId);
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.FinanzaIngreso') AND name=N'IX_FinanzaIngreso_FechaGiro') CREATE INDEX IX_FinanzaIngreso_FechaGiro ON dbo.FinanzaIngreso(Fecha DESC,GiroNegocioId,SedeId) INCLUDE(Monto,Categoria,ClienteId,Eliminado);
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.FinanzaIngreso') AND name=N'IX_FinanzaIngreso_Origen') CREATE INDEX IX_FinanzaIngreso_Origen ON dbo.FinanzaIngreso(OrigenModulo,OrigenRegistroId) WHERE OrigenRegistroId IS NOT NULL;
+GO

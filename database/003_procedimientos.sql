@@ -2176,3 +2176,124 @@ BEGIN
     SELECT @Filas;
 END;
 GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_finanzas_ingresos_leer_listado
+    @UsuarioId INT,@EsAdministrador BIT,@Anio SMALLINT=NULL,@Mes TINYINT=NULL,@GiroId INT=NULL,@SedeId INT=NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT i.FinanzaIngresoId,i.GiroNegocioId,g.Nombre AS Giro,i.SedeId,s.Nombre AS Sede,
+           i.ClienteId,c.Nombre AS Cliente,i.Fecha,i.Categoria,i.Concepto,i.Monto,i.OrigenModulo,
+           i.OrigenRegistroId,i.Referencia,u.NombreUsuario,i.FechaCreacion
+    FROM dbo.FinanzaIngreso i
+    INNER JOIN dbo.GiroNegocio g ON g.GiroNegocioId=i.GiroNegocioId
+    INNER JOIN dbo.Sede s ON s.SedeId=i.SedeId
+    INNER JOIN dbo.Usuario u ON u.UsuarioId=i.UsuarioId
+    LEFT JOIN dbo.Cliente c ON c.ClienteId=i.ClienteId
+    WHERE i.Eliminado=0
+      AND (@Anio IS NULL OR YEAR(i.Fecha)=@Anio)
+      AND (@Mes IS NULL OR MONTH(i.Fecha)=@Mes)
+      AND (@GiroId IS NULL OR i.GiroNegocioId=@GiroId)
+      AND (@SedeId IS NULL OR i.SedeId=@SedeId)
+      AND (@EsAdministrador=1 OR
+           (EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio ug WHERE ug.UsuarioId=@UsuarioId AND ug.GiroNegocioId=i.GiroNegocioId AND ug.Eliminado=0)
+            AND EXISTS(SELECT 1 FROM dbo.UsuarioSede us WHERE us.UsuarioId=@UsuarioId AND us.SedeId=i.SedeId AND us.Eliminado=0)))
+    ORDER BY i.Fecha DESC,i.FinanzaIngresoId DESC;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_finanzas_ingresos_leer_por_id @Id BIGINT,@UsuarioId INT,@EsAdministrador BIT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT i.FinanzaIngresoId,i.GiroNegocioId,g.Nombre AS Giro,i.SedeId,s.Nombre AS Sede,
+           i.ClienteId,c.Nombre AS Cliente,i.Fecha,i.Categoria,i.Concepto,i.Monto,i.OrigenModulo,
+           i.OrigenRegistroId,i.Referencia,u.NombreUsuario,i.FechaCreacion
+    FROM dbo.FinanzaIngreso i
+    INNER JOIN dbo.GiroNegocio g ON g.GiroNegocioId=i.GiroNegocioId
+    INNER JOIN dbo.Sede s ON s.SedeId=i.SedeId
+    INNER JOIN dbo.Usuario u ON u.UsuarioId=i.UsuarioId
+    LEFT JOIN dbo.Cliente c ON c.ClienteId=i.ClienteId
+    WHERE i.FinanzaIngresoId=@Id AND i.Eliminado=0
+      AND (@EsAdministrador=1 OR
+           (EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio ug WHERE ug.UsuarioId=@UsuarioId AND ug.GiroNegocioId=i.GiroNegocioId AND ug.Eliminado=0)
+            AND EXISTS(SELECT 1 FROM dbo.UsuarioSede us WHERE us.UsuarioId=@UsuarioId AND us.SedeId=i.SedeId AND us.Eliminado=0)));
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_finanzas_ingresos_leer_opciones @UsuarioId INT,@EsAdministrador BIT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT g.GiroNegocioId AS Id,g.Nombre FROM dbo.GiroNegocio g
+    WHERE g.Eliminado=0 AND g.EsActivo=1 AND (@EsAdministrador=1 OR EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio ug WHERE ug.UsuarioId=@UsuarioId AND ug.GiroNegocioId=g.GiroNegocioId AND ug.Eliminado=0)) ORDER BY g.Nombre;
+    SELECT s.SedeId AS Id,s.Nombre FROM dbo.Sede s
+    WHERE s.Eliminado=0 AND s.EsActivo=1 AND (@EsAdministrador=1 OR EXISTS(SELECT 1 FROM dbo.UsuarioSede us WHERE us.UsuarioId=@UsuarioId AND us.SedeId=s.SedeId AND us.Eliminado=0)) ORDER BY s.Nombre;
+    SELECT DISTINCT c.ClienteId AS Id,c.Nombre FROM dbo.Cliente c
+    INNER JOIN dbo.ClienteGiroNegocio cg ON cg.ClienteId=c.ClienteId AND cg.Eliminado=0
+    WHERE c.Eliminado=0 AND c.EsActivo=1 AND (@EsAdministrador=1 OR EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio ug WHERE ug.UsuarioId=@UsuarioId AND ug.GiroNegocioId=cg.GiroNegocioId AND ug.Eliminado=0)) ORDER BY c.Nombre;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_finanzas_ingresos_crear
+    @GiroId INT,@SedeId INT,@ClienteId INT=NULL,@Fecha DATE,@Categoria NVARCHAR(30),@Concepto NVARCHAR(250),
+    @Monto DECIMAL(18,2),@OrigenModulo NVARCHAR(30),@OrigenRegistroId BIGINT=NULL,@Referencia NVARCHAR(120)=NULL,
+    @UsuarioId INT,@EsAdministrador BIT
+AS
+BEGIN
+    SET NOCOUNT ON;SET XACT_ABORT ON;
+    IF @Monto<=0 OR NULLIF(LTRIM(RTRIM(@Concepto)),N'') IS NULL OR @Categoria NOT IN(N'VentaProducto',N'Servicio',N'Alquiler',N'Transporte',N'Construccion',N'Otro')
+        THROW 50002,N'Los datos del ingreso no son válidos.',1;
+    IF @OrigenModulo NOT IN(N'Manual',N'Pedido',N'Maquinaria',N'Transporte',N'Construccion') OR
+       (@OrigenModulo=N'Manual' AND @OrigenRegistroId IS NOT NULL) OR (@OrigenModulo<>N'Manual' AND @OrigenRegistroId IS NULL)
+        THROW 50002,N'La referencia de origen no corresponde.',1;
+    IF NOT EXISTS(SELECT 1 FROM dbo.SedeGiroNegocio sg INNER JOIN dbo.Sede s ON s.SedeId=sg.SedeId INNER JOIN dbo.GiroNegocio g ON g.GiroNegocioId=sg.GiroNegocioId WHERE sg.SedeId=@SedeId AND sg.GiroNegocioId=@GiroId AND sg.Eliminado=0 AND s.Eliminado=0 AND s.EsActivo=1 AND g.Eliminado=0 AND g.EsActivo=1)
+        THROW 50002,N'La sede no opera el giro seleccionado.',1;
+    IF @EsAdministrador=0 AND (NOT EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio WHERE UsuarioId=@UsuarioId AND GiroNegocioId=@GiroId AND Eliminado=0) OR NOT EXISTS(SELECT 1 FROM dbo.UsuarioSede WHERE UsuarioId=@UsuarioId AND SedeId=@SedeId AND Eliminado=0))
+        THROW 50002,N'El usuario no tiene acceso al giro y sede seleccionados.',1;
+
+    DECLARE @ClienteOrigen INT,@GiroNombre NVARCHAR(150)=(SELECT Nombre FROM dbo.GiroNegocio WHERE GiroNegocioId=@GiroId),@TipoViaje NVARCHAR(30),@OrigenExiste BIT=0;
+    IF @OrigenModulo=N'Pedido'
+    BEGIN
+        SELECT @ClienteOrigen=ClienteId FROM dbo.Pedido WHERE PedidoId=@OrigenRegistroId AND GiroNegocioId=@GiroId AND Eliminado=0;
+        IF @ClienteOrigen IS NULL THROW 50002,N'El pedido no corresponde al giro seleccionado.',1;
+    END;
+    IF @OrigenModulo=N'Maquinaria'
+    BEGIN
+        SELECT @ClienteOrigen=c.ClienteId FROM dbo.MaquinariaContrato c INNER JOIN dbo.MaquinariaEquipo e ON e.MaquinariaEquipoId=c.MaquinariaEquipoId WHERE c.MaquinariaContratoId=@OrigenRegistroId AND c.Eliminado=0 AND e.Eliminado=0 AND e.SedeId=@SedeId;
+        IF @ClienteOrigen IS NULL OR @GiroNombre<>N'Venta y alquiler de maquinaria' THROW 50002,N'El contrato de maquinaria no corresponde al giro y sede seleccionados.',1;
+    END;
+    IF @OrigenModulo=N'Transporte'
+    BEGIN
+        SELECT @ClienteOrigen=ClienteId,@TipoViaje=Tipo FROM dbo.TransporteViaje WHERE TransporteViajeId=@OrigenRegistroId AND SedeId=@SedeId AND Eliminado=0;
+        IF @TipoViaje IS NULL OR (@TipoViaje=N'MateriaPrima' AND @GiroNombre<>N'Transporte de materia prima') OR (@TipoViaje IN(N'Nacional',N'Internacional') AND @GiroNombre<>N'Transporte nacional e internacional')
+            THROW 50002,N'El viaje no corresponde al giro y sede seleccionados.',1;
+    END;
+    IF @OrigenModulo=N'Construccion'
+    BEGIN
+        SELECT @ClienteOrigen=ClienteId,@OrigenExiste=1 FROM dbo.ConstruccionProyecto WHERE ConstruccionProyectoId=@OrigenRegistroId AND SedeId=@SedeId AND Eliminado=0;
+        IF @OrigenExiste=0 OR @GiroNombre<>N'Servicios de construcción' THROW 50002,N'El proyecto no corresponde al giro y sede seleccionados.',1;
+    END;
+    IF @OrigenModulo<>N'Manual' AND @ClienteId IS NOT NULL AND (@ClienteOrigen IS NULL OR @ClienteId<>@ClienteOrigen) THROW 50002,N'El cliente no corresponde al registro de origen.',1;
+    SET @ClienteId=COALESCE(@ClienteId,@ClienteOrigen);
+    IF @ClienteId IS NOT NULL AND NOT EXISTS(SELECT 1 FROM dbo.Cliente c INNER JOIN dbo.ClienteGiroNegocio cg ON cg.ClienteId=c.ClienteId WHERE c.ClienteId=@ClienteId AND c.Eliminado=0 AND c.EsActivo=1 AND cg.GiroNegocioId=@GiroId AND cg.Eliminado=0)
+        THROW 50002,N'El cliente no está asociado al giro seleccionado.',1;
+
+    INSERT dbo.FinanzaIngreso(GiroNegocioId,SedeId,ClienteId,Fecha,Categoria,Concepto,Monto,OrigenModulo,OrigenRegistroId,Referencia,UsuarioId)
+    VALUES(@GiroId,@SedeId,@ClienteId,@Fecha,@Categoria,LTRIM(RTRIM(@Concepto)),@Monto,@OrigenModulo,@OrigenRegistroId,NULLIF(LTRIM(RTRIM(@Referencia)),N''),@UsuarioId);
+    DECLARE @Id BIGINT=CONVERT(BIGINT,SCOPE_IDENTITY());
+    EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'Finanzas',N'RegistrarIngreso',@Id,N'Exitoso',@OrigenModulo;
+    SELECT @Id;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_finanzas_ingresos_eliminar @Id BIGINT,@UsuarioId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE dbo.FinanzaIngreso SET Eliminado=1,FechaModificacion=SYSUTCDATETIME() WHERE FinanzaIngresoId=@Id AND Eliminado=0;
+    DECLARE @Filas INT=@@ROWCOUNT;
+    IF @Filas>0 EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'Finanzas',N'EliminarIngreso',@Id,N'Exitoso',NULL;
+    SELECT @Filas;
+END;
+GO

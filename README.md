@@ -132,8 +132,9 @@ Procedimientos principales:
   kilometraje y alertas, con simulador de fuente externa precargado.
 - Construcción: proyectos y obras, actividades, responsables, avances,
   materiales, maquinaria, personal, presupuestos y costos reales.
-- Finanzas: presupuestos mensuales por giro/sede, gastos, ejecución real y
-  vínculos con pedidos, producción, transporte y construcción.
+- Finanzas: presupuestos mensuales, gastos e ingresos por giro/sede; los
+  ingresos admiten origen manual o vínculo validado con pedidos, contratos de
+  maquinaria, viajes y proyectos de construcción.
 - Alertas: avisos y recordatorios segmentados por rol, giro, sede o usuario,
   lectura individual, seguimientos, estados y trazabilidad del módulo origen.
 - Comunicaciones: conversaciones con clientes o internas, responsables,
@@ -202,6 +203,9 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 | `GET` | `/api/finanzas/{id}` | Comparación presupuesto-real y gastos |
 | `POST` | `/api/finanzas/{id}/gastos` | Registrar un gasto manual o vinculado |
 | `PUT` | `/api/finanzas/{id}/estado` | Cerrar o cancelar el presupuesto |
+| `GET/POST` | `/api/finanzas/ingresos` | Consultar o registrar ingresos por alcance |
+| `GET` | `/api/finanzas/ingresos/{id}` | Detalle y origen operativo del ingreso |
+| `DELETE` | `/api/finanzas/ingresos/{id}` | Eliminación lógica administrativa |
 | `GET/POST` | `/api/alertas` | Consultar por alcance o crear avisos autorizados |
 | `GET` | `/api/alertas/{id}` | Detalle y seguimientos de un aviso autorizado |
 | `PUT` | `/api/alertas/{id}/leer` | Confirmar lectura individual |
@@ -239,6 +243,7 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 - `/gestion/gps`: dispositivos, simulación de datos, recorridos y alertas.
 - `/gestion/construcciones`: obras, actividades, recursos, costos y avances.
 - `/gestion/finanzas`: presupuestos, gastos y ejecución por giro/sede.
+- `/gestion/finanzas/ingresos`: ingresos, referencias y origen operativo.
 - `/gestion/alertas`: alertas, recordatorios, lectura y seguimiento por alcance.
 - `/gestion/comunicaciones`: consultas de clientes y coordinación interna.
 - `/gestion/integraciones`: simulador REST/Webhook/CSV y trazabilidad externa.
@@ -264,16 +269,15 @@ dotnet build TransPort.sln --no-restore
 dotnet test TransPort.sln --no-restore
 ```
 
-Las 91 pruebas actuales cubren seguridad JWT, autenticación, cierre de sesión,
+Las 96 pruebas actuales cubren seguridad JWT, autenticación, cierre de sesión,
 clientes, catálogos, auditoría, pedidos, portal, inventarios, abastecimiento,
 extracción, producción, maquinaria, transporte, GPS, construcción, finanzas y
-alertas, catálogo comercial, comunicaciones e integraciones: alcance, validaciones, autorización y
-operaciones críticas.
+alertas, catálogo comercial, comunicaciones e integraciones: alcance,
+validaciones, autorización y operaciones críticas.
 
 ## Pendiente para fases posteriores
 
-Faltan el registro mínimo de ingresos, reportes operativos/financieros,
-cierre PWA/responsive y pruebas
+Faltan los reportes operativos/financieros, el cierre PWA/responsive y pruebas
 HTTP/SQL reproducibles.
 Los módulos que dependan de una fuente externa se probarán con formularios de
 simulación y ejemplos funcionales precargados, identificando claramente el

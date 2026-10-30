@@ -560,3 +560,27 @@ CREATE TABLE dbo.IntegracionEvento
     CONSTRAINT CK_IntegracionEvento_Valores CHECK(Intentos>=0 AND (Cantidad IS NULL OR Cantidad>0))
 );
 GO
+
+IF OBJECT_ID(N'dbo.FinanzaIngreso',N'U') IS NULL
+CREATE TABLE dbo.FinanzaIngreso
+(
+    FinanzaIngresoId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_FinanzaIngreso PRIMARY KEY,
+    GiroNegocioId INT NOT NULL,
+    SedeId INT NOT NULL,
+    ClienteId INT NULL,
+    Fecha DATE NOT NULL,
+    Categoria NVARCHAR(30) NOT NULL,
+    Concepto NVARCHAR(250) NOT NULL,
+    Monto DECIMAL(18,2) NOT NULL,
+    OrigenModulo NVARCHAR(30) NOT NULL,
+    OrigenRegistroId BIGINT NULL,
+    Referencia NVARCHAR(120) NULL,
+    UsuarioId INT NOT NULL,
+    Eliminado BIT NOT NULL CONSTRAINT DF_FinanzaIngreso_Eliminado DEFAULT(0),
+    FechaCreacion DATETIME2(0) NOT NULL CONSTRAINT DF_FinanzaIngreso_FechaCreacion DEFAULT(SYSUTCDATETIME()),
+    FechaModificacion DATETIME2(0) NULL,
+    CONSTRAINT CK_FinanzaIngreso_Categoria CHECK(Categoria IN(N'VentaProducto',N'Servicio',N'Alquiler',N'Transporte',N'Construccion',N'Otro')),
+    CONSTRAINT CK_FinanzaIngreso_Monto CHECK(Monto>0),
+    CONSTRAINT CK_FinanzaIngreso_Origen CHECK(OrigenModulo IN(N'Manual',N'Pedido',N'Maquinaria',N'Transporte',N'Construccion') AND ((OrigenModulo=N'Manual' AND OrigenRegistroId IS NULL) OR (OrigenModulo<>N'Manual' AND OrigenRegistroId IS NOT NULL)))
+);
+GO
