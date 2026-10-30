@@ -1,4 +1,5 @@
 ﻿<!DOCTYPE html>
+@{var area=ViewContext.RouteData.Values["area"]?.ToString();var ruta=Context.Request.Path;var espacioAdmin=string.Equals(area,"Administracion",StringComparison.OrdinalIgnoreCase)||(User.IsInRole("AdministradorGeneral")&&ruta.StartsWithSegments("/gestion/reportes"));}
 <html lang="es">
 <head>
     <meta charset="utf-8" />
@@ -8,9 +9,10 @@
     <title>@ViewData["Title"] · TransPort</title>
     <link rel="manifest" href="~/manifest.webmanifest" />
     <link rel="icon" href="~/images/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="~/images/icon-192.png" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
-<body>
+<body class="@(espacioAdmin?"admin-layout":null)">
     <header class="site-header">
         <nav class="nav-shell" aria-label="Navegación principal">
             <a class="brand" href="/"><span class="brand-mark">T</span><span>TransPort</span></a>
@@ -31,8 +33,25 @@
             </div>
         </nav>
     </header>
-    <div>
-        <main role="main">
+    <div class="@(espacioAdmin?"admin-workspace":null)" data-admin-workspace="@(espacioAdmin?"true":null)">
+        @if(espacioAdmin)
+        {
+            <button class="admin-sidebar-open" type="button" aria-expanded="false" aria-controls="admin-sidebar"><span aria-hidden="true">☰</span><span>Menú administrativo</span></button>
+            <aside id="admin-sidebar" class="admin-sidebar" aria-label="Navegación administrativa">
+                <div class="admin-sidebar-heading"><a href="/admin"><span class="admin-sidebar-logo" aria-hidden="true">T</span><span class="admin-sidebar-title">Administración</span></a><button class="admin-sidebar-collapse" type="button" aria-label="Contraer menú administrativo" title="Contraer menú"><span aria-hidden="true">‹</span></button></div>
+                <nav class="admin-sidebar-nav">
+                    <a class="admin-side-link @(ruta=="/admin"?"active":null)" href="/admin" title="Resumen"><span aria-hidden="true">⌂</span><span>Resumen</span></a>
+                    <a class="admin-side-link @(ruta.StartsWithSegments("/admin/usuarios")?"active":null)" href="/admin/usuarios" title="Usuarios"><span aria-hidden="true">◎</span><span>Usuarios</span></a>
+                    <a class="admin-side-link @(ruta.StartsWithSegments("/admin/clientes")?"active":null)" href="/admin/clientes" title="Clientes"><span aria-hidden="true">◇</span><span>Clientes</span></a>
+                    <a class="admin-side-link @(ruta.StartsWithSegments("/admin/catalogos")?"active":null)" href="/admin/catalogos" title="Catálogos"><span aria-hidden="true">▦</span><span>Catálogos</span></a>
+                    <a class="admin-side-link @(ruta.StartsWithSegments("/admin/auditoria")?"active":null)" href="/admin/auditoria" title="Auditoría"><span aria-hidden="true">◷</span><span>Auditoría</span></a>
+                    <a class="admin-side-link @(ruta.StartsWithSegments("/gestion/reportes")?"active":null)" href="/gestion/reportes" title="Reportes"><span aria-hidden="true">▥</span><span>Reportes</span></a>
+                </nav>
+                <div class="admin-sidebar-user"><span aria-hidden="true">●</span><span><strong>@User.Identity?.Name</strong><small>Administrador general</small></span></div>
+            </aside>
+            <button class="admin-sidebar-overlay" type="button" aria-label="Cerrar menú administrativo"></button>
+        }
+        <main role="main" class="@(espacioAdmin?"admin-main":null)">
             @RenderBody()
         </main>
     </div>

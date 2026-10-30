@@ -267,6 +267,15 @@ El simulador de integraciones se entrega con un JSON funcional, el artículo
 que el origen es simulado; reenviar la misma clave de idempotencia devuelve el
 mismo evento y no duplica la entrada de inventario.
 
+La PWA incluye iconos PNG de 192 y 512 píxeles, service worker limitado a
+recursos públicos y sidebar administrativo colapsable. Con los contenedores
+activos, la validación reproducible genera capturas y comprueba desbordamientos,
+menús, caché e instalación en los cuatro anchos requeridos:
+
+```powershell
+node tools/validar-responsive.mjs
+```
+
 ## Pruebas
 
 ```powershell
@@ -275,15 +284,15 @@ dotnet build TransPort.sln --no-restore
 dotnet test TransPort.sln --no-restore
 ```
 
-Las 101 pruebas actuales cubren seguridad JWT, autenticación, cierre de sesión,
+Las 107 pruebas actuales cubren seguridad JWT, autenticación, cierre de sesión,
 clientes, catálogos, auditoría, pedidos, portal, inventarios, abastecimiento,
 extracción, producción, maquinaria, transporte, GPS, construcción, finanzas y
-alertas, catálogo comercial, comunicaciones, integraciones y reportes: alcance,
-validaciones, autorización y operaciones críticas.
+alertas, catálogo comercial, comunicaciones, integraciones, reportes y PWA:
+alcance, validaciones, autorización y operaciones críticas.
 
 ## Pendiente para fases posteriores
 
-Faltan el cierre PWA/responsive y las pruebas HTTP/SQL reproducibles.
+Faltan las pruebas HTTP/SQL reproducibles y la auditoría final de permisos.
 Los módulos que dependan de una fuente externa se probarán con formularios de
 simulación y ejemplos funcionales precargados, identificando claramente el
 origen simulado.
