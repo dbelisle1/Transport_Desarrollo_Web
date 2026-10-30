@@ -114,8 +114,8 @@ Procedimientos principales:
   eliminación lógica.
 - Catálogo comercial: productos y servicios por giro, precios base,
   publicación, estados, sala de ventas y administración por alcance.
-- Portal del cliente: empresas y servicios contratados, indicadores y
-  solicitudes recientes con aislamiento por identidad.
+- Portal del cliente: empresas y servicios contratados, indicadores,
+  solicitudes, viajes, contratos de maquinaria y obras con aislamiento por identidad.
 - Inventarios: artículos, existencias por sede, movimientos, reservas,
   transferencias, mínimos y trazabilidad por giro/sede.
 - Abastecimiento: solicitudes entre giros con aprobación, preparación,
@@ -168,6 +168,7 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 | `GET/POST` | `/api/catalogo-comercial` | AdministradorGeneral o Gerente, según giro |
 | `PUT/DELETE` | `/api/catalogo-comercial/{id}` | AdministradorGeneral o Gerente, según giro |
 | `GET` | `/api/portal-cliente/resumen` | Cliente o AdministradorGeneral, filtrado por identidad |
+| `GET` | `/api/portal-cliente/operaciones` | Viajes, maquinaria y obras filtrados por empresa autorizada |
 | `GET` | `/api/inventarios` | Personal interno, filtrado por giro y sede |
 | `GET` | `/api/inventarios/movimientos` | Trazabilidad de inventario autorizada |
 | `POST` | `/api/inventarios/articulos` | AdministradorGeneral o Gerente |
@@ -220,6 +221,7 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 - `/cliente/pedidos`: solicitudes y seguimiento del cliente.
 - `/cliente/pedidos/crear`: nuevo pedido, cotización o reunión.
 - `/cliente/comunicaciones`: bandeja y conversaciones del cliente.
+- `/cliente/operaciones`: seguimiento de viajes, maquinaria y construcción.
 - `/gestion`: panel interno según roles, giros y sedes.
 - `/gestion/inventarios`: existencias, mínimos, artículos y movimientos.
 - `/gestion/abastecimientos`: solicitudes y trazabilidad entre giros.
@@ -249,7 +251,7 @@ dotnet build TransPort.sln --no-restore
 dotnet test TransPort.sln --no-restore
 ```
 
-Las 83 pruebas actuales cubren seguridad JWT, autenticación, cierre de sesión,
+Las 86 pruebas actuales cubren seguridad JWT, autenticación, cierre de sesión,
 clientes, catálogos, auditoría, pedidos, portal, inventarios, abastecimiento,
 extracción, producción, maquinaria, transporte, GPS, construcción, finanzas y
 alertas, catálogo comercial y comunicaciones: alcance, validaciones, autorización y
@@ -257,8 +259,7 @@ operaciones críticas.
 
 ## Pendiente para fases posteriores
 
-Faltan la integración del portal cliente con viajes/maquinaria/construcción,
-simulaciones de terceros, registro mínimo de
+Faltan simulaciones de terceros, registro mínimo de
 ingresos, reportes operativos/financieros, cierre PWA/responsive y pruebas
 HTTP/SQL reproducibles.
 Los módulos que dependan de una fuente externa se probarán con formularios de

@@ -62,6 +62,64 @@ public sealed class PortalClienteRepository(ISqlConnectionFactory connections) :
             total, solicitadas, enGestion, completadas, documentos, recientes);
     }
 
+    public async Task<PortalClienteOperacionesDto> OperacionesAsync(
+        int usuarioId, bool esAdministrador, int? clienteId, CancellationToken ct)
+    {
+        await using var connection = connections.Create();
+        await connection.OpenAsync(ct);
+        await using var command = new SqlCommand("sp_portalcliente_leer_operaciones", connection)
+            { CommandType = CommandType.StoredProcedure };
+        command.Parameters.Add("@UsuarioId", SqlDbType.Int).Value = usuarioId;
+        command.Parameters.Add("@EsAdministrador", SqlDbType.Bit).Value = esAdministrador;
+        command.Parameters.Add("@ClienteId", SqlDbType.Int).Value =
+            clienteId.HasValue ? clienteId.Value : DBNull.Value;
+        await using var reader = await command.ExecuteReaderAsync(ct);
+
+        long viajesActivos = 0, contratosActivos = 0, proyectosActivos = 0;
+        if (await reader.ReadAsync(ct))
+        {
+            viajesActivos = Numero(reader, "ViajesActivos");
+            contratosActivos = Numero(reader, "ContratosActivos");
+            proyectosActivos = Numero(reader, "ProyectosActivos");
+        }
+
+        var viajes = new List<PortalClienteViajeDto>();
+        if (await reader.NextResultAsync(ct))
+            while (await reader.ReadAsync(ct))
+                viajes.Add(new(
+                    reader.Int64("TransporteViajeId"), reader.Int32("ClienteId"), reader.Text("Cliente"),
+                    reader.Text("Tipo"), reader.Text("Origen"), reader.Text("Destino"),
+                    reader.Text("DescripcionCarga"), reader.Date("FechaSalidaPlanificada"),
+                    reader.NullableDate("FechaSalidaReal"), reader.NullableDate("FechaEntrega"),
+                    reader.Text("Estado"), reader.Text("Placa"), reader.Text("Conductor"),
+                    reader.Int32("IncidenciasAbiertas")));
+
+        var contratos = new List<PortalClienteContratoDto>();
+        if (await reader.NextResultAsync(ct))
+            while (await reader.ReadAsync(ct))
+                contratos.Add(new(
+                    reader.Int64("MaquinariaContratoId"), reader.Int32("ClienteId"), reader.Text("Cliente"),
+                    reader.Int32("MaquinariaEquipoId"), reader.Text("Codigo"), reader.Text("Equipo"),
+                    reader.Text("Tipo"), reader.Date("FechaInicio"), reader.NullableDate("FechaFin"),
+                    reader.GetDecimal(reader.GetOrdinal("MontoTotal")), reader.Text("Estado"),
+                    Decimal(reader, "HorasEntrega"), Decimal(reader, "HorasDevolucion")));
+
+        var proyectos = new List<PortalClienteProyectoDto>();
+        if (await reader.NextResultAsync(ct))
+            while (await reader.ReadAsync(ct))
+                proyectos.Add(new(
+                    reader.Int64("ConstruccionProyectoId"), reader.Int32("ClienteId"), reader.Text("Cliente"),
+                    reader.Text("Nombre"), reader.Text("TipoObra"), reader.Text("Ubicacion"),
+                    reader.Date("FechaInicioPlanificada"), reader.Date("FechaFinPlanificada"),
+                    reader.GetDecimal(reader.GetOrdinal("Presupuesto")), reader.Text("Estado"),
+                    reader.GetDecimal(reader.GetOrdinal("PorcentajeAvance")),
+                    reader.GetDecimal(reader.GetOrdinal("CostoReal"))));
+
+        return new PortalClienteOperacionesDto(
+            viajesActivos, contratosActivos, proyectosActivos,
+            viajes, contratos, proyectos);
+    }
+
     private static long Numero(SqlDataReader reader, string name) =>
         Convert.ToInt64(reader.GetValue(reader.GetOrdinal(name)));
 

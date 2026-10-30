@@ -1956,3 +1956,71 @@ BEGIN
     SELECT @Filas;
 END;
 GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_portalcliente_leer_operaciones
+    @UsuarioId INT,@EsAdministrador BIT,@ClienteId INT=NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+      (SELECT COUNT_BIG(*) FROM dbo.TransporteViaje v
+       INNER JOIN dbo.Cliente c ON c.ClienteId=v.ClienteId AND c.Eliminado=0 AND c.EsActivo=1
+       WHERE v.Eliminado=0 AND v.Estado IN(N'Programado',N'EnRuta')
+         AND (@ClienteId IS NULL OR v.ClienteId=@ClienteId)
+         AND (@EsAdministrador=1 OR EXISTS(SELECT 1 FROM dbo.ClienteUsuario cu WHERE cu.ClienteId=v.ClienteId AND cu.UsuarioId=@UsuarioId AND cu.Eliminado=0))) AS ViajesActivos,
+      (SELECT COUNT_BIG(*) FROM dbo.MaquinariaContrato mc
+       INNER JOIN dbo.Cliente c ON c.ClienteId=mc.ClienteId AND c.Eliminado=0 AND c.EsActivo=1
+       WHERE mc.Eliminado=0 AND mc.Estado IN(N'Reservado',N'Activo')
+         AND (@ClienteId IS NULL OR mc.ClienteId=@ClienteId)
+         AND (@EsAdministrador=1 OR EXISTS(SELECT 1 FROM dbo.ClienteUsuario cu WHERE cu.ClienteId=mc.ClienteId AND cu.UsuarioId=@UsuarioId AND cu.Eliminado=0))) AS ContratosActivos,
+      (SELECT COUNT_BIG(*) FROM dbo.ConstruccionProyecto p
+       INNER JOIN dbo.Cliente c ON c.ClienteId=p.ClienteId AND c.Eliminado=0 AND c.EsActivo=1
+       WHERE p.Eliminado=0 AND p.Estado IN(N'Planificado',N'EnEjecucion',N'Suspendido')
+         AND (@ClienteId IS NULL OR p.ClienteId=@ClienteId)
+         AND (@EsAdministrador=1 OR EXISTS(SELECT 1 FROM dbo.ClienteUsuario cu WHERE cu.ClienteId=p.ClienteId AND cu.UsuarioId=@UsuarioId AND cu.Eliminado=0))) AS ProyectosActivos;
+
+    SELECT TOP (100) v.TransporteViajeId,v.ClienteId,c.Nombre AS Cliente,v.Tipo,
+           v.Origen,v.Destino,v.DescripcionCarga,v.FechaSalidaPlanificada,
+           v.FechaSalidaReal,v.FechaEntrega,v.Estado,ve.Placa,co.Nombre AS Conductor,
+           (SELECT COUNT(*) FROM dbo.TransporteIncidencia i
+            WHERE i.TransporteViajeId=v.TransporteViajeId AND i.Resuelta=0) AS IncidenciasAbiertas
+    FROM dbo.TransporteViaje v
+    INNER JOIN dbo.Cliente c ON c.ClienteId=v.ClienteId AND c.Eliminado=0 AND c.EsActivo=1
+    INNER JOIN dbo.TransporteVehiculo ve ON ve.TransporteVehiculoId=v.TransporteVehiculoId
+    INNER JOIN dbo.TransporteConductor co ON co.TransporteConductorId=v.TransporteConductorId
+    WHERE v.Eliminado=0 AND (@ClienteId IS NULL OR v.ClienteId=@ClienteId)
+      AND (@EsAdministrador=1 OR EXISTS(
+          SELECT 1 FROM dbo.ClienteUsuario cu
+          WHERE cu.ClienteId=v.ClienteId AND cu.UsuarioId=@UsuarioId AND cu.Eliminado=0))
+    ORDER BY v.FechaSalidaPlanificada DESC,v.TransporteViajeId DESC;
+
+    SELECT TOP (100) mc.MaquinariaContratoId,mc.ClienteId,c.Nombre AS Cliente,
+           e.MaquinariaEquipoId,e.Codigo,CONCAT(e.Tipo,N' ',e.Marca,N' ',e.Modelo) AS Equipo,
+           mc.Tipo,mc.FechaInicio,mc.FechaFin,mc.MontoTotal,mc.Estado,
+           mc.HorasEntrega,mc.HorasDevolucion
+    FROM dbo.MaquinariaContrato mc
+    INNER JOIN dbo.Cliente c ON c.ClienteId=mc.ClienteId AND c.Eliminado=0 AND c.EsActivo=1
+    INNER JOIN dbo.MaquinariaEquipo e ON e.MaquinariaEquipoId=mc.MaquinariaEquipoId
+    WHERE mc.Eliminado=0 AND (@ClienteId IS NULL OR mc.ClienteId=@ClienteId)
+      AND (@EsAdministrador=1 OR EXISTS(
+          SELECT 1 FROM dbo.ClienteUsuario cu
+          WHERE cu.ClienteId=mc.ClienteId AND cu.UsuarioId=@UsuarioId AND cu.Eliminado=0))
+    ORDER BY mc.FechaInicio DESC,mc.MaquinariaContratoId DESC;
+
+    SELECT TOP (100) p.ConstruccionProyectoId,p.ClienteId,c.Nombre AS Cliente,
+           p.Nombre,p.TipoObra,p.Ubicacion,p.FechaInicioPlanificada,p.FechaFinPlanificada,
+           p.Presupuesto,p.Estado,
+           CONVERT(DECIMAL(5,2),COALESCE((SELECT AVG(a.PorcentajeAvance)
+               FROM dbo.ConstruccionActividad a WHERE a.ConstruccionProyectoId=p.ConstruccionProyectoId),0)) AS PorcentajeAvance,
+           CONVERT(DECIMAL(18,2),COALESCE((SELECT SUM(r.Cantidad*r.CostoUnitario)
+               FROM dbo.ConstruccionRecurso r WHERE r.ConstruccionProyectoId=p.ConstruccionProyectoId),0)) AS CostoReal
+    FROM dbo.ConstruccionProyecto p
+    INNER JOIN dbo.Cliente c ON c.ClienteId=p.ClienteId AND c.Eliminado=0 AND c.EsActivo=1
+    WHERE p.Eliminado=0 AND (@ClienteId IS NULL OR p.ClienteId=@ClienteId)
+      AND (@EsAdministrador=1 OR EXISTS(
+          SELECT 1 FROM dbo.ClienteUsuario cu
+          WHERE cu.ClienteId=p.ClienteId AND cu.UsuarioId=@UsuarioId AND cu.Eliminado=0))
+    ORDER BY p.FechaInicioPlanificada DESC,p.ConstruccionProyectoId DESC;
+END;
+GO

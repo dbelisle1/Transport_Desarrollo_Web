@@ -1,0 +1,25 @@
+@model PortalClienteOperacionesPaginaViewModel
+@{ ViewData["Title"]="Seguimiento operativo"; var o=Model.Operaciones; }
+<section class="dashboard-page"><div class="container">
+    <div class="dashboard-hero"><div><span class="eyebrow">Servicios contratados</span><h1>Seguimiento operativo</h1><p>Consulte viajes, maquinaria y obras asociados exclusivamente con sus empresas.</p></div><a class="button secondary" href="/cliente">Volver al panel</a></div>
+    <form method="get" class="filter-bar"><select name="clienteId"><option value="">Todas mis empresas</option>@foreach(var e in Model.Empresas){<option value="@e.ClienteId" selected="@(Model.ClienteId==e.ClienteId)">@e.Nombre</option>}</select><button class="button secondary" type="submit">Filtrar</button></form>
+    <div class="stats-grid client-stats"><article><span>Viajes activos</span><strong>@o.ViajesActivos</strong><small>Programados o en ruta</small></article><article><span>Contratos activos</span><strong>@o.ContratosActivos</strong><small>Reservados o activos</small></article><article><span>Obras activas</span><strong>@o.ProyectosActivos</strong><small>Planificadas o en ejecución</small></article></div>
+
+    <div class="section-heading compact"><span class="eyebrow">Transporte</span><h2>Viajes y entregas.</h2></div>
+    <div class="responsive-table"><table><thead><tr><th>Empresa</th><th>Ruta / carga</th><th>Unidad</th><th>Salida</th><th>Estado</th><th>Incidencias</th></tr></thead><tbody>
+    @if(o.Viajes.Count==0){<tr><td colspan="6" class="empty">No hay viajes asociados.</td></tr>}
+    @foreach(var x in o.Viajes){<tr><td>@x.Cliente</td><td><strong>@x.Origen → @x.Destino</strong><small>@x.DescripcionCarga · @x.Tipo</small></td><td>@x.Placa<small>@x.Conductor</small></td><td>@x.FechaSalidaPlanificada.ToString("dd/MM/yyyy HH:mm")</td><td><span class="status-pill">@x.Estado</span></td><td>@if(x.IncidenciasAbiertas>0){<span class="status-pill">@x.IncidenciasAbiertas abierta(s)</span>}else{<span>Sin incidencias</span>}</td></tr>}
+    </tbody></table></div>
+
+    <div class="section-heading compact"><span class="eyebrow">Maquinaria</span><h2>Ventas y alquileres.</h2></div>
+    <div class="responsive-table"><table><thead><tr><th>Empresa</th><th>Equipo</th><th>Contrato</th><th>Vigencia</th><th>Monto</th><th>Estado</th></tr></thead><tbody>
+    @if(o.Contratos.Count==0){<tr><td colspan="6" class="empty">No hay contratos de maquinaria asociados.</td></tr>}
+    @foreach(var x in o.Contratos){<tr><td>@x.Cliente</td><td><strong>@x.Codigo</strong><small>@x.Equipo</small></td><td>@x.Tipo</td><td>@x.FechaInicio.ToString("dd/MM/yyyy")<small>@(x.FechaFin?.ToString("dd/MM/yyyy")??"Sin fecha final")</small></td><td>Q @x.MontoTotal.ToString("N2")</td><td><span class="status-pill">@x.Estado</span></td></tr>}
+    </tbody></table></div>
+
+    <div class="section-heading compact"><span class="eyebrow">Construcción</span><h2>Obras y avance físico.</h2></div>
+    <div class="responsive-table"><table><thead><tr><th>Empresa</th><th>Proyecto</th><th>Ubicación</th><th>Avance</th><th>Presupuesto / costo</th><th>Estado</th></tr></thead><tbody>
+    @if(o.Proyectos.Count==0){<tr><td colspan="6" class="empty">No hay obras asociadas.</td></tr>}
+    @foreach(var x in o.Proyectos){<tr><td>@x.Cliente</td><td><strong>@x.Nombre</strong><small>@x.TipoObra · @x.FechaInicioPlanificada.ToString("dd/MM/yyyy") a @x.FechaFinPlanificada.ToString("dd/MM/yyyy")</small></td><td>@x.Ubicacion</td><td><strong>@x.PorcentajeAvance.ToString("N2")%</strong></td><td>Q @x.Presupuesto.ToString("N2")<small>Costo: Q @x.CostoReal.ToString("N2")</small></td><td><span class="status-pill">@x.Estado</span></td></tr>}
+    </tbody></table></div>
+</div></section>

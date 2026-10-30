@@ -371,6 +371,34 @@ public sealed record PortalClienteResumenModel(
     IReadOnlyList<PedidoListadoModel> SolicitudesRecientes)
 {
     public static PortalClienteResumenModel Vacio => new([], 0, 0, 0, 0, 0, []);
+    public PortalClienteOperacionesModel Operaciones { get; init; } = PortalClienteOperacionesModel.Vacio;
+}
+
+public sealed record PortalClienteViajeModel(
+    long TransporteViajeId,int ClienteId,string Cliente,string Tipo,string Origen,string Destino,
+    string DescripcionCarga,DateTime FechaSalidaPlanificada,DateTime?FechaSalidaReal,
+    DateTime?FechaEntrega,string Estado,string Placa,string Conductor,int IncidenciasAbiertas);
+public sealed record PortalClienteContratoModel(
+    long MaquinariaContratoId,int ClienteId,string Cliente,int MaquinariaEquipoId,string Codigo,
+    string Equipo,string Tipo,DateTime FechaInicio,DateTime?FechaFin,decimal MontoTotal,
+    string Estado,decimal?HorasEntrega,decimal?HorasDevolucion);
+public sealed record PortalClienteProyectoModel(
+    long ConstruccionProyectoId,int ClienteId,string Cliente,string Nombre,string TipoObra,
+    string Ubicacion,DateTime FechaInicioPlanificada,DateTime FechaFinPlanificada,
+    decimal Presupuesto,string Estado,decimal PorcentajeAvance,decimal CostoReal);
+public sealed record PortalClienteOperacionesModel(
+    long ViajesActivos,long ContratosActivos,long ProyectosActivos,
+    IReadOnlyList<PortalClienteViajeModel>Viajes,
+    IReadOnlyList<PortalClienteContratoModel>Contratos,
+    IReadOnlyList<PortalClienteProyectoModel>Proyectos)
+{
+    public static PortalClienteOperacionesModel Vacio => new(0,0,0,[],[],[]);
+}
+public sealed class PortalClienteOperacionesPaginaViewModel
+{
+    public int? ClienteId{get;set;}
+    public IReadOnlyList<EmpresaPortalClienteModel> Empresas{get;set;}=[];
+    public PortalClienteOperacionesModel Operaciones{get;set;}=PortalClienteOperacionesModel.Vacio;
 }
 
 public sealed record InventarioExistenciaModel(

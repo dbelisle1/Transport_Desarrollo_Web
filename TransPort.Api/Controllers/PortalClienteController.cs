@@ -16,4 +16,10 @@ public sealed class PortalClienteController(IPortalClienteRepository portal) : C
         portal.ResumenAsync(
             int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!),
             User.IsInRole("AdministradorGeneral"), ct);
+
+    [HttpGet("operaciones")]
+    public Task<PortalClienteOperacionesDto> Operaciones(int? clienteId, CancellationToken ct) =>
+        portal.OperacionesAsync(
+            int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!),
+            User.IsInRole("AdministradorGeneral"), clienteId, ct);
 }

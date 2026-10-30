@@ -369,6 +369,10 @@ public sealed class TransportApiClient(HttpClient http, IHttpContextAccessor con
     public Task<PortalClienteResumenModel> PortalClienteResumenAsync(CancellationToken ct) =>
         GetRequiredAsync<PortalClienteResumenModel>("api/portal-cliente/resumen", ct);
 
+    public Task<PortalClienteOperacionesModel> PortalClienteOperacionesAsync(int? clienteId, CancellationToken ct) =>
+        GetRequiredAsync<PortalClienteOperacionesModel>(
+            "api/portal-cliente/operaciones" + (clienteId.HasValue ? $"?clienteId={clienteId}" : ""), ct);
+
     public async Task<IReadOnlyList<InventarioExistenciaModel>> InventarioAsync(string? busqueda,int? giroId,int? sedeId,bool soloBajoMinimo,CancellationToken ct)
     {
         var q=new List<string>();Add(q,"busqueda",busqueda);if(giroId.HasValue)q.Add($"giroId={giroId}");if(sedeId.HasValue)q.Add($"sedeId={sedeId}");if(soloBajoMinimo)q.Add("soloBajoMinimo=true");
