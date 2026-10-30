@@ -95,8 +95,29 @@ PASO 5 - COMPILAR Y PROBAR
   dotnet test TransPort.sln --no-restore
 
 Este comando ejecuta tanto las pruebas de la API como las pruebas del frontend
-MVC. Los recorridos HTTP/SQL de integración se documentan por módulo y se irán
-convirtiendo en pruebas automatizadas reproducibles.
+MVC. Actualmente deben aprobar 112 pruebas.
+
+Con SQL Server, API y Web activos, ejecute la validación HTTP/SQL reproducible:
+
+  powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\validar-integracion.ps1
+
+La validación crea un usuario y un cliente temporales, comprueba autenticación,
+permisos, asociaciones, aislamiento y eliminación lógica, verifica el resultado
+en SQL Server y limpia todos los registros creados. Por defecto usa
+".\SQLEXPRESS" con autenticación de Windows.
+
+Para ejecutar también el instalador dos veces y confirmar que es idempotente:
+
+  powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\validar-integracion.ps1 -VerificarInstalador
+
+Si la instancia tiene otro nombre, use -SqlServer. Si utiliza autenticación SQL,
+defina temporalmente SQLCMDPASSWORD y pase -SqlUser sin escribir la clave en el
+comando ni en archivos.
+
+Para validar la PWA y generar capturas responsive en los cuatro anchos exigidos
+(requiere Chrome o Edge):
+
+  node .\tools\validar-responsive.mjs
 
 SOLUCION DE PROBLEMAS
 - Si Docker no conecta a SQL Server: confirme TCP/IP, el puerto, el firewall y la autenticación mixta.

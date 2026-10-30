@@ -284,15 +284,33 @@ dotnet build TransPort.sln --no-restore
 dotnet test TransPort.sln --no-restore
 ```
 
-Las 107 pruebas actuales cubren seguridad JWT, autenticación, cierre de sesión,
+Las 112 pruebas actuales cubren seguridad JWT, autenticación, cierre de sesión,
 clientes, catálogos, auditoría, pedidos, portal, inventarios, abastecimiento,
 extracción, producción, maquinaria, transporte, GPS, construcción, finanzas y
 alertas, catálogo comercial, comunicaciones, integraciones, reportes y PWA:
 alcance, validaciones, autorización y operaciones críticas.
 
-## Pendiente para fases posteriores
+Con SQL Server, la API y el MVC activos, el recorrido reproducible de
+integración comprueba autenticación, permisos, CRUD, asociaciones, eliminación
+lógica, auditoría y aislamiento por rol, giro, sede y cliente. Los datos
+temporales se retiran incluso cuando una comprobación falla:
 
-Faltan las pruebas HTTP/SQL reproducibles y la auditoría final de permisos.
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\validar-integracion.ps1
+```
+
+Para comprobar además la idempotencia del instalador, ejecute la variante
+completa. Esta instala la base dos veces antes de las 42 comprobaciones:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\validar-integracion.ps1 -VerificarInstalador
+```
+
+## Mejoras para fases posteriores
+
+El alcance funcional obligatorio y sus cierres de pruebas están implementados.
+Antes de producción todavía correspondería endurecer secretos, contraseñas,
+HTTPS, observabilidad, respaldos y almacenamiento distribuido de sesión.
 Los módulos que dependan de una fuente externa se probarán con formularios de
 simulación y ejemplos funcionales precargados, identificando claramente el
 origen simulado.
