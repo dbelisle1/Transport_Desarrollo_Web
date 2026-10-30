@@ -56,6 +56,14 @@ public sealed class PedidosController(IPedidoRepository pedidos) : ControllerBas
         return await pedidos.GestionarAsync(id, request, Alcance(), ct) ? NoContent() : NotFound();
     }
 
+    [HttpPut("{id:long}/lineas/{lineaId:long}/cotizacion")]
+    [Authorize(Roles = "AdministradorGeneral,Gerente,Vendedor")]
+    public async Task<IActionResult> CotizarLinea(
+        long id, long lineaId, CotizarPedidoLineaRequest request, CancellationToken ct) =>
+        await pedidos.CotizarLineaAsync(id, lineaId, request.PrecioUnitario, Alcance(), ct)
+            ? NoContent()
+            : NotFound();
+
     [HttpPost("{id:long}/comentarios")]
     public async Task<IActionResult> Comentar(long id, AgregarComentarioPedidoRequest request, CancellationToken ct)
     {

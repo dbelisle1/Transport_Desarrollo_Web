@@ -9,6 +9,7 @@ public interface IPedidoRepository
     Task<PedidoOpcionesDto> OpcionesAsync(AlcancePedido alcance, CancellationToken ct);
     Task<long> CrearAsync(CrearPedidoRequest request, AlcancePedido alcance, CancellationToken ct);
     Task<bool> GestionarAsync(long id, GestionPedidoRequest request, AlcancePedido alcance, CancellationToken ct);
+    Task<bool> CotizarLineaAsync(long id, long lineaId, decimal precioUnitario, AlcancePedido alcance, CancellationToken ct);
     Task ComentarAsync(long id, AgregarComentarioPedidoRequest request, AlcancePedido alcance, CancellationToken ct);
     Task<long> AgregarDocumentoAsync(long id, AgregarDocumentoPedidoRequest request, AlcancePedido alcance, CancellationToken ct);
     Task<bool> EliminarAsync(long id, int usuarioId, CancellationToken ct);

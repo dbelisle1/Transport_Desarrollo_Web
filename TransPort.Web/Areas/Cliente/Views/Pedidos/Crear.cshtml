@@ -2,15 +2,18 @@
 @{ ViewData["Title"] = "Nueva solicitud"; }
 <section class="dashboard-page"><div class="container narrow">
     <div class="page-heading"><div><a class="back-link" href="/cliente/pedidos">← Mis solicitudes</a><h1>Nueva solicitud</h1><p>Registre un pedido, solicite una cotización o proponga una reunión.</p></div></div>
-    <form method="post" class="entity-form"><div asp-validation-summary="ModelOnly" class="validation"></div>
+    <form method="post" class="entity-form"><div asp-validation-summary="All" class="validation"></div>
         <fieldset><legend>Servicio solicitado</legend><div class="form-grid">
             <div><label asp-for="ClienteId"></label><select asp-for="ClienteId"><option value="0">Seleccione</option>@foreach(var x in Model.Opciones.Clientes){<option value="@x.Id">@x.Nombre</option>}</select><span asp-validation-for="ClienteId" class="validation"></span></div>
-            <div><label asp-for="GiroNegocioId"></label><select asp-for="GiroNegocioId"><option value="0">Seleccione</option>@foreach(var x in Model.Opciones.Giros){<option value="@x.Id">@x.Nombre</option>}</select><span asp-validation-for="GiroNegocioId" class="validation"></span></div>
+            <div><label asp-for="GiroNegocioId"></label><select asp-for="GiroNegocioId" id="giro-pedido"><option value="0">Seleccione</option>@foreach(var x in Model.Opciones.Giros){<option value="@x.Id">@x.Nombre</option>}</select><span asp-validation-for="GiroNegocioId" class="validation"></span></div>
             <div><label asp-for="TipoSolicitud"></label><select asp-for="TipoSolicitud"><option value="Pedido">Pedido</option><option value="Cotizacion">Cotización</option><option value="Reunion">Reunión</option></select></div>
             <div><label asp-for="FechaRequerida"></label><input asp-for="FechaRequerida" /></div>
             <div><label asp-for="FechaReunionUtc"></label><input asp-for="FechaReunionUtc" type="datetime-local" /></div>
             <div class="full-field"><label asp-for="Titulo"></label><input asp-for="Titulo" /><span asp-validation-for="Titulo" class="validation"></span></div>
             <div class="full-field"><label asp-for="Descripcion"></label><textarea asp-for="Descripcion" rows="6"></textarea><span asp-validation-for="Descripcion" class="validation"></span></div>
-        </div></fieldset><div class="form-actions"><a class="text-link" href="/cliente/pedidos">Cancelar</a><button class="button" type="submit">Crear solicitud</button></div>
+        </div></fieldset>
+        <fieldset><legend>Productos o servicios</legend><p class="field-help">Opcional. Puede mantener una solicitud libre o agregar hasta tres ofertas del giro contratado.</p><div class="form-grid">@for(var i=0;i<Model.Lineas.Count;i++){<div><label>Oferta @(i+1)</label><select asp-for="Lineas[i].CatalogoOfertaId" class="oferta-pedido"><option value="0">Sin seleccionar</option>@foreach(var x in Model.Opciones.Ofertas){<option value="@x.CatalogoOfertaId" data-giro="@x.GiroNegocioId">@x.Nombre · @x.PrecioBase.ToString("C2")/@x.UnidadMedida</option>}</select></div><div><label>Cantidad</label><input asp-for="Lineas[i].Cantidad" type="number" min="0" step="0.001"/></div>}</div><a class="text-link" href="/catalogo" target="_blank">Consultar sala de ventas ↗</a></fieldset>
+        <div class="form-actions"><a class="text-link" href="/cliente/pedidos">Cancelar</a><button class="button" type="submit">Crear solicitud</button></div>
     </form>
 </div></section>
+@section Scripts{<script>document.addEventListener('DOMContentLoaded',()=>{const giro=document.getElementById('giro-pedido');const selects=document.querySelectorAll('.oferta-pedido');const aplicar=()=>{const id=giro.value;selects.forEach(s=>{Array.from(s.options).forEach(o=>{if(!o.dataset.giro)return;const visible=id!==''&&id!=='0'&&o.dataset.giro===id;o.hidden=!visible;o.disabled=!visible;if(!visible&&o.selected)s.value='0';});});};giro.addEventListener('change',aplicar);aplicar();});</script>}

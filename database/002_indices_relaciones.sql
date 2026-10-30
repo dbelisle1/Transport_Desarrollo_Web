@@ -46,6 +46,12 @@ IF OBJECT_ID(N'dbo.FK_PedidoDocumento_Pedido', N'F') IS NULL
     ALTER TABLE dbo.PedidoDocumento ADD CONSTRAINT FK_PedidoDocumento_Pedido FOREIGN KEY (PedidoId) REFERENCES dbo.Pedido(PedidoId);
 IF OBJECT_ID(N'dbo.FK_PedidoDocumento_Usuario', N'F') IS NULL
     ALTER TABLE dbo.PedidoDocumento ADD CONSTRAINT FK_PedidoDocumento_Usuario FOREIGN KEY (UsuarioId) REFERENCES dbo.Usuario(UsuarioId);
+IF OBJECT_ID(N'dbo.FK_CatalogoOferta_GiroNegocio', N'F') IS NULL
+    ALTER TABLE dbo.CatalogoOferta ADD CONSTRAINT FK_CatalogoOferta_GiroNegocio FOREIGN KEY (GiroNegocioId) REFERENCES dbo.GiroNegocio(GiroNegocioId);
+IF OBJECT_ID(N'dbo.FK_PedidoLinea_Pedido', N'F') IS NULL
+    ALTER TABLE dbo.PedidoLinea ADD CONSTRAINT FK_PedidoLinea_Pedido FOREIGN KEY (PedidoId) REFERENCES dbo.Pedido(PedidoId);
+IF OBJECT_ID(N'dbo.FK_PedidoLinea_Oferta', N'F') IS NULL
+    ALTER TABLE dbo.PedidoLinea ADD CONSTRAINT FK_PedidoLinea_Oferta FOREIGN KEY (CatalogoOfertaId) REFERENCES dbo.CatalogoOferta(CatalogoOfertaId);
 IF OBJECT_ID(N'dbo.FK_InventarioArticulo_Giro', N'F') IS NULL
     ALTER TABLE dbo.InventarioArticulo ADD CONSTRAINT FK_InventarioArticulo_Giro FOREIGN KEY (GiroNegocioId) REFERENCES dbo.GiroNegocio(GiroNegocioId);
 IF OBJECT_ID(N'dbo.FK_InventarioExistencia_Articulo', N'F') IS NULL
@@ -154,6 +160,12 @@ IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.Pedid
     CREATE INDEX IX_PedidoHistorial_PedidoFecha ON dbo.PedidoHistorial(PedidoId, Fecha DESC);
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.PedidoDocumento') AND name = N'IX_PedidoDocumento_Pedido')
     CREATE INDEX IX_PedidoDocumento_Pedido ON dbo.PedidoDocumento(PedidoId, FechaCreacion DESC) INCLUDE (Eliminado);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.CatalogoOferta') AND name = N'UX_CatalogoOferta_Codigo')
+    CREATE UNIQUE INDEX UX_CatalogoOferta_Codigo ON dbo.CatalogoOferta(Codigo) WHERE Eliminado=0;
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.CatalogoOferta') AND name = N'IX_CatalogoOferta_GiroTipoPublico')
+    CREATE INDEX IX_CatalogoOferta_GiroTipoPublico ON dbo.CatalogoOferta(GiroNegocioId,Tipo,EsPublico,EsActivo) INCLUDE(Nombre,PrecioBase,UnidadMedida,Eliminado);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.PedidoLinea') AND name = N'UX_PedidoLinea_PedidoOferta')
+    CREATE UNIQUE INDEX UX_PedidoLinea_PedidoOferta ON dbo.PedidoLinea(PedidoId,CatalogoOfertaId);
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.InventarioArticulo') AND name = N'UX_InventarioArticulo_CodigoActivo')
     CREATE UNIQUE INDEX UX_InventarioArticulo_CodigoActivo ON dbo.InventarioArticulo(Codigo) WHERE Eliminado=0;
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.InventarioArticulo') AND name = N'IX_InventarioArticulo_Giro')

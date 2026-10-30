@@ -36,6 +36,11 @@ public sealed class PedidosController(ITransportApiClient api, ILogger<PedidosCo
     [HttpPost("crear")]
     public async Task<IActionResult> Crear(PedidoCrearViewModel model, CancellationToken ct)
     {
+        var lineasSeleccionadas = model.Lineas.Where(x => x.CatalogoOfertaId > 0 || x.Cantidad > 0).ToList();
+        if (lineasSeleccionadas.Any(x => x.CatalogoOfertaId <= 0 || x.Cantidad <= 0))
+            ModelState.AddModelError(nameof(model.Lineas), "Cada línea debe incluir una oferta y una cantidad mayor que cero.");
+        if (lineasSeleccionadas.GroupBy(x => x.CatalogoOfertaId).Any(x => x.Count() > 1))
+            ModelState.AddModelError(nameof(model.Lineas), "No repita la misma oferta en el pedido.");
         if (!ModelState.IsValid) return View(await PrepararAsync(model, ct));
         try
         {
@@ -86,6 +91,7 @@ public sealed class PedidosController(ITransportApiClient api, ILogger<PedidosCo
     private async Task<PedidoCrearViewModel> PrepararAsync(PedidoCrearViewModel model, CancellationToken ct)
     {
         model.Opciones = await api.PedidoOpcionesAsync(ct);
+        while (model.Lineas.Count < 3) model.Lineas.Add(new PedidoCrearLineaViewModel());
         if (model.ClienteId == 0 && model.Opciones.Clientes.Count == 1) model.ClienteId = model.Opciones.Clientes[0].Id;
         if (model.GiroNegocioId == 0 && model.Opciones.Giros.Count == 1) model.GiroNegocioId = model.Opciones.Giros[0].Id;
         return model;

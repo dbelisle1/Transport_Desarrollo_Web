@@ -53,6 +53,19 @@ public sealed class PedidosController(ITransportApiClient api, ILogger<PedidosCo
         return RedirectToAction(nameof(Detalle), new { id });
     }
 
+    [HttpPost("{id:long}/lineas/{lineaId:long}/cotizar")]
+    public async Task<IActionResult> CotizarLinea(
+        long id, long lineaId, decimal precioUnitario, CancellationToken ct)
+    {
+        if (precioUnitario < 0) TempData["Error"] = "El precio no puede ser negativo.";
+        else
+        {
+            await api.CotizarPedidoLineaAsync(id, lineaId, precioUnitario, ct);
+            TempData["Exito"] = "Línea cotizada y total actualizado.";
+        }
+        return RedirectToAction(nameof(Detalle), new { id });
+    }
+
     [HttpPost("{id:long}/comentar")]
     public async Task<IActionResult> Comentar(long id, string comentario, CancellationToken ct)
     {

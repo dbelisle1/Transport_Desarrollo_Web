@@ -699,6 +699,123 @@ BEGIN
 END;
 GO
 
+CREATE OR ALTER PROCEDURE dbo.sp_catalogocomercial_leer_publico
+    @GiroNegocioId INT = NULL,
+    @Tipo NVARCHAR(20) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT o.CatalogoOfertaId,o.GiroNegocioId,g.Nombre AS Giro,o.Codigo,o.Tipo,o.Nombre,
+           o.Descripcion,o.UnidadMedida,o.PrecioBase,o.EsPublico,o.EsActivo,
+           o.FechaCreacion,o.FechaModificacion
+    FROM dbo.CatalogoOferta o
+    INNER JOIN dbo.GiroNegocio g ON g.GiroNegocioId=o.GiroNegocioId
+    WHERE o.Eliminado=0 AND o.EsActivo=1 AND o.EsPublico=1
+      AND g.Eliminado=0 AND g.EsActivo=1
+      AND (@GiroNegocioId IS NULL OR o.GiroNegocioId=@GiroNegocioId)
+      AND (@Tipo IS NULL OR o.Tipo=@Tipo)
+    ORDER BY g.Nombre,o.Tipo,o.Nombre;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_catalogocomercial_leer_listado
+    @UsuarioId INT,@EsAdministrador BIT,@Busqueda NVARCHAR(200)=NULL,
+    @GiroNegocioId INT=NULL,@Tipo NVARCHAR(20)=NULL,@EsActivo BIT=NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET @Busqueda=NULLIF(LTRIM(RTRIM(@Busqueda)),N'');
+    SELECT o.CatalogoOfertaId,o.GiroNegocioId,g.Nombre AS Giro,o.Codigo,o.Tipo,o.Nombre,
+           o.Descripcion,o.UnidadMedida,o.PrecioBase,o.EsPublico,o.EsActivo,
+           o.FechaCreacion,o.FechaModificacion
+    FROM dbo.CatalogoOferta o
+    INNER JOIN dbo.GiroNegocio g ON g.GiroNegocioId=o.GiroNegocioId
+    WHERE o.Eliminado=0
+      AND (@Busqueda IS NULL OR o.Codigo LIKE N'%'+@Busqueda+N'%' OR o.Nombre LIKE N'%'+@Busqueda+N'%' OR o.Descripcion LIKE N'%'+@Busqueda+N'%')
+      AND (@GiroNegocioId IS NULL OR o.GiroNegocioId=@GiroNegocioId)
+      AND (@Tipo IS NULL OR o.Tipo=@Tipo)
+      AND (@EsActivo IS NULL OR o.EsActivo=@EsActivo)
+      AND (@EsAdministrador=1 OR EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio ug WHERE ug.UsuarioId=@UsuarioId AND ug.GiroNegocioId=o.GiroNegocioId AND ug.Eliminado=0))
+    ORDER BY g.Nombre,o.Tipo,o.Nombre;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_catalogocomercial_leer_opciones @UsuarioId INT,@EsAdministrador BIT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT g.GiroNegocioId AS Id,g.Nombre
+    FROM dbo.GiroNegocio g
+    WHERE g.Eliminado=0 AND g.EsActivo=1
+      AND (@EsAdministrador=1 OR EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio ug WHERE ug.UsuarioId=@UsuarioId AND ug.GiroNegocioId=g.GiroNegocioId AND ug.Eliminado=0))
+    ORDER BY g.Nombre;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_catalogocomercial_crear
+    @GiroNegocioId INT,@Codigo NVARCHAR(50),@Tipo NVARCHAR(20),@Nombre NVARCHAR(180),
+    @Descripcion NVARCHAR(1000),@UnidadMedida NVARCHAR(40),@PrecioBase DECIMAL(18,2),
+    @EsPublico BIT,@EsActivo BIT,@UsuarioId INT,@EsAdministrador BIT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    IF @Tipo NOT IN(N'Producto',N'Servicio') OR @PrecioBase<0 OR
+       NULLIF(LTRIM(RTRIM(@Codigo)),N'') IS NULL OR NULLIF(LTRIM(RTRIM(@Nombre)),N'') IS NULL OR
+       NULLIF(LTRIM(RTRIM(@Descripcion)),N'') IS NULL OR NULLIF(LTRIM(RTRIM(@UnidadMedida)),N'') IS NULL
+        THROW 50002,N'Datos de oferta inválidos.',1;
+    IF NOT EXISTS(SELECT 1 FROM dbo.GiroNegocio g WHERE g.GiroNegocioId=@GiroNegocioId AND g.Eliminado=0 AND g.EsActivo=1) OR
+       (@EsAdministrador=0 AND NOT EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio ug WHERE ug.UsuarioId=@UsuarioId AND ug.GiroNegocioId=@GiroNegocioId AND ug.Eliminado=0))
+        THROW 50002,N'Sin acceso al giro seleccionado.',1;
+    IF EXISTS(SELECT 1 FROM dbo.CatalogoOferta WHERE Codigo=LTRIM(RTRIM(@Codigo)) AND Eliminado=0)
+        THROW 50002,N'El código de oferta ya existe.',1;
+    INSERT dbo.CatalogoOferta(GiroNegocioId,Codigo,Tipo,Nombre,Descripcion,UnidadMedida,PrecioBase,EsPublico,EsActivo)
+    VALUES(@GiroNegocioId,LTRIM(RTRIM(@Codigo)),@Tipo,LTRIM(RTRIM(@Nombre)),LTRIM(RTRIM(@Descripcion)),LTRIM(RTRIM(@UnidadMedida)),@PrecioBase,@EsPublico,@EsActivo);
+    DECLARE @Id INT=CONVERT(INT,SCOPE_IDENTITY());
+    EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'CatalogoComercial',N'Crear',@Id,N'Exitoso',@Codigo;
+    SELECT @Id;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_catalogocomercial_actualizar
+    @CatalogoOfertaId INT,@GiroNegocioId INT,@Codigo NVARCHAR(50),@Tipo NVARCHAR(20),@Nombre NVARCHAR(180),
+    @Descripcion NVARCHAR(1000),@UnidadMedida NVARCHAR(40),@PrecioBase DECIMAL(18,2),
+    @EsPublico BIT,@EsActivo BIT,@UsuarioId INT,@EsAdministrador BIT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    IF @Tipo NOT IN(N'Producto',N'Servicio') OR @PrecioBase<0 OR
+       NULLIF(LTRIM(RTRIM(@Codigo)),N'') IS NULL OR NULLIF(LTRIM(RTRIM(@Nombre)),N'') IS NULL OR
+       NULLIF(LTRIM(RTRIM(@Descripcion)),N'') IS NULL OR NULLIF(LTRIM(RTRIM(@UnidadMedida)),N'') IS NULL
+        THROW 50002,N'Datos de oferta inválidos.',1;
+    IF NOT EXISTS(SELECT 1 FROM dbo.CatalogoOferta o WHERE o.CatalogoOfertaId=@CatalogoOfertaId AND o.Eliminado=0 AND (@EsAdministrador=1 OR EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio ug WHERE ug.UsuarioId=@UsuarioId AND ug.GiroNegocioId=o.GiroNegocioId AND ug.Eliminado=0))) OR
+       NOT EXISTS(SELECT 1 FROM dbo.GiroNegocio g WHERE g.GiroNegocioId=@GiroNegocioId AND g.Eliminado=0 AND g.EsActivo=1) OR
+       (@EsAdministrador=0 AND NOT EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio ug WHERE ug.UsuarioId=@UsuarioId AND ug.GiroNegocioId=@GiroNegocioId AND ug.Eliminado=0))
+        THROW 50002,N'Oferta inexistente o fuera de alcance.',1;
+    IF EXISTS(SELECT 1 FROM dbo.CatalogoOferta WHERE Codigo=LTRIM(RTRIM(@Codigo)) AND CatalogoOfertaId<>@CatalogoOfertaId AND Eliminado=0)
+        THROW 50002,N'El código de oferta ya existe.',1;
+    UPDATE dbo.CatalogoOferta SET GiroNegocioId=@GiroNegocioId,Codigo=LTRIM(RTRIM(@Codigo)),Tipo=@Tipo,
+        Nombre=LTRIM(RTRIM(@Nombre)),Descripcion=LTRIM(RTRIM(@Descripcion)),UnidadMedida=LTRIM(RTRIM(@UnidadMedida)),
+        PrecioBase=@PrecioBase,EsPublico=@EsPublico,EsActivo=@EsActivo,FechaModificacion=SYSUTCDATETIME()
+    WHERE CatalogoOfertaId=@CatalogoOfertaId;
+    EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'CatalogoComercial',N'Actualizar',@CatalogoOfertaId,N'Exitoso',@Codigo;
+    SELECT 1;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_catalogocomercial_eliminar @CatalogoOfertaId INT,@UsuarioId INT,@EsAdministrador BIT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE o SET Eliminado=1,EsActivo=0,FechaModificacion=SYSUTCDATETIME()
+    FROM dbo.CatalogoOferta o
+    WHERE o.CatalogoOfertaId=@CatalogoOfertaId AND o.Eliminado=0
+      AND (@EsAdministrador=1 OR EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio ug WHERE ug.UsuarioId=@UsuarioId AND ug.GiroNegocioId=o.GiroNegocioId AND ug.Eliminado=0));
+    DECLARE @Filas INT=@@ROWCOUNT;
+    IF @Filas>0 EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'CatalogoComercial',N'Eliminar',@CatalogoOfertaId,N'Exitoso',NULL;
+    SELECT @Filas;
+END;
+GO
+
 CREATE OR ALTER PROCEDURE dbo.sp_pedido_leer_listado
     @UsuarioId INT,
     @EsAdministrador BIT,
@@ -787,6 +904,18 @@ BEGIN
            (@EsCliente=1 AND EXISTS(SELECT 1 FROM dbo.ClienteUsuario cu WHERE cu.ClienteId=p.ClienteId AND cu.UsuarioId=@UsuarioId AND cu.Eliminado=0)) OR
            (@EsCliente=0 AND (p.VendedorUsuarioId=@UsuarioId OR EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio ug WHERE ug.UsuarioId=@UsuarioId AND ug.GiroNegocioId=p.GiroNegocioId AND ug.Eliminado=0))))
     ORDER BY d.FechaCreacion DESC, d.PedidoDocumentoId DESC;
+
+    SELECT l.PedidoLineaId,l.CatalogoOfertaId,l.Codigo,l.Tipo,l.Nombre,l.UnidadMedida,l.Cantidad,
+           l.PrecioUnitarioBase,l.PrecioUnitarioCotizado,
+           CONVERT(DECIMAL(18,2),l.Cantidad*l.PrecioUnitarioBase) AS SubtotalBase,
+           CASE WHEN l.PrecioUnitarioCotizado IS NULL THEN NULL ELSE CONVERT(DECIMAL(18,2),l.Cantidad*l.PrecioUnitarioCotizado) END AS SubtotalCotizado
+    FROM dbo.PedidoLinea l
+    INNER JOIN dbo.Pedido p ON p.PedidoId=l.PedidoId
+    WHERE l.PedidoId=@PedidoId AND p.Eliminado=0
+      AND (@EsAdministrador=1 OR
+           (@EsCliente=1 AND EXISTS(SELECT 1 FROM dbo.ClienteUsuario cu WHERE cu.ClienteId=p.ClienteId AND cu.UsuarioId=@UsuarioId AND cu.Eliminado=0)) OR
+           (@EsCliente=0 AND (p.VendedorUsuarioId=@UsuarioId OR EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio ug WHERE ug.UsuarioId=@UsuarioId AND ug.GiroNegocioId=p.GiroNegocioId AND ug.Eliminado=0))))
+    ORDER BY l.PedidoLineaId;
 END;
 GO
 
@@ -823,6 +952,21 @@ BEGIN
     INNER JOIN dbo.Rol r ON r.RolId=ur.RolId AND r.Eliminado=0 AND r.EsActivo=1
     WHERE u.Eliminado=0 AND u.EsActivo=1 AND r.Nombre IN(N'Vendedor',N'AdministradorGeneral')
     ORDER BY Nombre;
+
+    SELECT DISTINCT o.CatalogoOfertaId,o.GiroNegocioId,g.Nombre AS Giro,o.Codigo,o.Tipo,o.Nombre,
+           o.Descripcion,o.UnidadMedida,o.PrecioBase,o.EsPublico,o.EsActivo,o.FechaCreacion,o.FechaModificacion
+    FROM dbo.CatalogoOferta o
+    INNER JOIN dbo.GiroNegocio g ON g.GiroNegocioId=o.GiroNegocioId
+    WHERE o.Eliminado=0 AND o.EsActivo=1
+      AND (@EsCliente=0 OR o.EsPublico=1)
+      AND (@EsAdministrador=1 OR
+           (@EsCliente=1 AND EXISTS(
+               SELECT 1 FROM dbo.ClienteGiroNegocio cg
+               INNER JOIN dbo.ClienteUsuario cu ON cu.ClienteId=cg.ClienteId AND cu.UsuarioId=@UsuarioId AND cu.Eliminado=0
+               WHERE cg.GiroNegocioId=o.GiroNegocioId AND cg.Eliminado=0)) OR
+           (@EsCliente=0 AND EXISTS(
+               SELECT 1 FROM dbo.UsuarioGiroNegocio ug WHERE ug.GiroNegocioId=o.GiroNegocioId AND ug.UsuarioId=@UsuarioId AND ug.Eliminado=0)))
+    ORDER BY g.Nombre,o.Tipo,o.Nombre;
 END;
 GO
 
@@ -834,6 +978,7 @@ CREATE OR ALTER PROCEDURE dbo.sp_pedido_crear_registro
     @Descripcion NVARCHAR(2000),
     @FechaRequerida DATE = NULL,
     @FechaReunionUtc DATETIME2(0) = NULL,
+    @LineasJson NVARCHAR(MAX) = NULL,
     @UsuarioId INT,
     @EsAdministrador BIT,
     @EsCliente BIT
@@ -848,14 +993,63 @@ BEGIN
         IF @EsCliente=1 AND NOT EXISTS(SELECT 1 FROM dbo.ClienteUsuario WHERE ClienteId=@ClienteId AND UsuarioId=@UsuarioId AND Eliminado=0) THROW 50002,N'El usuario no pertenece al cliente.',1;
         IF @EsCliente=0 AND @EsAdministrador=0 AND NOT EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio WHERE UsuarioId=@UsuarioId AND GiroNegocioId=@GiroNegocioId AND Eliminado=0) THROW 50002,N'El usuario no tiene acceso al giro.',1;
 
+        DECLARE @Lineas TABLE(CatalogoOfertaId INT NULL,Cantidad DECIMAL(18,3) NULL);
+        IF NULLIF(LTRIM(RTRIM(@LineasJson)),N'') IS NOT NULL
+        BEGIN
+            IF ISJSON(@LineasJson)<>1 THROW 50002,N'Las líneas del pedido no tienen un formato válido.',1;
+            INSERT @Lineas(CatalogoOfertaId,Cantidad)
+            SELECT CatalogoOfertaId,Cantidad
+            FROM OPENJSON(@LineasJson) WITH(CatalogoOfertaId INT N'$.catalogoOfertaId',Cantidad DECIMAL(18,3) N'$.cantidad');
+            IF (SELECT COUNT(*) FROM @Lineas)>20 OR EXISTS(SELECT 1 FROM @Lineas WHERE CatalogoOfertaId IS NULL OR Cantidad<=0) OR
+               EXISTS(SELECT CatalogoOfertaId FROM @Lineas GROUP BY CatalogoOfertaId HAVING COUNT(*)>1)
+                THROW 50002,N'Las líneas del pedido son inválidas o están duplicadas.',1;
+            IF EXISTS(SELECT 1 FROM @Lineas l LEFT JOIN dbo.CatalogoOferta o ON o.CatalogoOfertaId=l.CatalogoOfertaId AND o.Eliminado=0 AND o.EsActivo=1 WHERE o.CatalogoOfertaId IS NULL OR o.GiroNegocioId<>@GiroNegocioId OR (@EsCliente=1 AND o.EsPublico=0))
+                THROW 50002,N'Una oferta no está disponible para el giro seleccionado.',1;
+        END;
+
         INSERT dbo.Pedido(ClienteId,GiroNegocioId,SolicitanteUsuarioId,TipoSolicitud,Titulo,Descripcion,FechaRequerida,FechaReunionUtc)
         VALUES(@ClienteId,@GiroNegocioId,@UsuarioId,@TipoSolicitud,LTRIM(RTRIM(@Titulo)),LTRIM(RTRIM(@Descripcion)),@FechaRequerida,@FechaReunionUtc);
         DECLARE @Id BIGINT=CONVERT(BIGINT,SCOPE_IDENTITY());
+        INSERT dbo.PedidoLinea(PedidoId,CatalogoOfertaId,Codigo,Tipo,Nombre,UnidadMedida,Cantidad,PrecioUnitarioBase)
+        SELECT @Id,o.CatalogoOfertaId,o.Codigo,o.Tipo,o.Nombre,o.UnidadMedida,l.Cantidad,o.PrecioBase
+        FROM @Lineas l INNER JOIN dbo.CatalogoOferta o ON o.CatalogoOfertaId=l.CatalogoOfertaId;
         INSERT dbo.PedidoHistorial(PedidoId,UsuarioId,EstadoAnterior,EstadoNuevo,Comentario)
         VALUES(@Id,@UsuarioId,NULL,N'Solicitado',N'Solicitud creada.');
         EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'Pedidos',N'Crear',@Id,N'Exitoso',@TipoSolicitud;
         COMMIT TRANSACTION;
         SELECT @Id;
+    END TRY BEGIN CATCH IF XACT_STATE()<>0 ROLLBACK TRANSACTION; THROW; END CATCH
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_pedido_actualizar_cotizacion_linea
+    @PedidoId BIGINT,@PedidoLineaId BIGINT,@PrecioUnitario DECIMAL(18,2),
+    @UsuarioId INT,@EsAdministrador BIT
+AS
+BEGIN
+    SET NOCOUNT ON; SET XACT_ABORT ON;
+    BEGIN TRY
+        BEGIN TRANSACTION;
+        IF @PrecioUnitario<0 THROW 50002,N'El precio cotizado no puede ser negativo.',1;
+        IF NOT EXISTS(
+            SELECT 1 FROM dbo.Pedido p
+            WHERE p.PedidoId=@PedidoId AND p.Eliminado=0
+              AND (@EsAdministrador=1 OR p.VendedorUsuarioId=@UsuarioId OR EXISTS(
+                  SELECT 1 FROM dbo.UsuarioGiroNegocio ug
+                  WHERE ug.UsuarioId=@UsuarioId AND ug.GiroNegocioId=p.GiroNegocioId AND ug.Eliminado=0)))
+            THROW 50002,N'El usuario no puede cotizar este pedido.',1;
+        UPDATE dbo.PedidoLinea SET PrecioUnitarioCotizado=@PrecioUnitario,FechaModificacion=SYSUTCDATETIME()
+        WHERE PedidoLineaId=@PedidoLineaId AND PedidoId=@PedidoId;
+        IF @@ROWCOUNT=0 THROW 50002,N'La línea no pertenece al pedido.',1;
+        DECLARE @Estado NVARCHAR(30)=(SELECT Estado FROM dbo.Pedido WHERE PedidoId=@PedidoId);
+        DECLARE @Total DECIMAL(18,2)=(SELECT CONVERT(DECIMAL(18,2),SUM(Cantidad*COALESCE(PrecioUnitarioCotizado,PrecioUnitarioBase))) FROM dbo.PedidoLinea WHERE PedidoId=@PedidoId);
+        UPDATE dbo.Pedido SET MontoCotizado=@Total,FechaModificacion=SYSUTCDATETIME() WHERE PedidoId=@PedidoId;
+        INSERT dbo.PedidoHistorial(PedidoId,UsuarioId,EstadoAnterior,EstadoNuevo,Comentario)
+        VALUES(@PedidoId,@UsuarioId,@Estado,@Estado,N'Cotización de línea actualizada.');
+        DECLARE @DetalleAuditoria NVARCHAR(60)=CONVERT(NVARCHAR(60),@PrecioUnitario);
+        EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'Pedidos',N'CotizarLinea',@PedidoLineaId,N'Exitoso',@DetalleAuditoria;
+        COMMIT TRANSACTION;
+        SELECT 1;
     END TRY BEGIN CATCH IF XACT_STATE()<>0 ROLLBACK TRANSACTION; THROW; END CATCH
 END;
 GO

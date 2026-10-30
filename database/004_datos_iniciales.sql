@@ -30,6 +30,27 @@ BEGIN TRY
     WHEN MATCHED THEN UPDATE SET Descripcion=fuente.Descripcion,EsActivo=1,Eliminado=0,FechaModificacion=SYSUTCDATETIME()
     WHEN NOT MATCHED THEN INSERT(Nombre,Descripcion) VALUES(fuente.Nombre,fuente.Descripcion);
 
+    MERGE dbo.CatalogoOferta AS destino
+    USING
+    (
+        SELECT g.GiroNegocioId,v.Codigo,v.Tipo,v.Nombre,v.Descripcion,v.UnidadMedida,v.PrecioBase
+        FROM (VALUES
+            (N'Extracción minera',N'MIN-CALIZA-TON',N'Producto',N'Piedra caliza seleccionada',N'Materia prima mineral clasificada para procesos industriales.',N'Tonelada',CAST(425.00 AS DECIMAL(18,2))),
+            (N'Procesamiento de materia prima',N'PRO-PISO-45',N'Producto',N'Piso cerámico 45 x 45 cm',N'Caja de piso cerámico para interiores, disponible bajo pedido.',N'Caja',CAST(189.00 AS DECIMAL(18,2))),
+            (N'Venta y alquiler de maquinaria',N'MAQ-EXC-DIA',N'Servicio',N'Alquiler diario de excavadora',N'Excavadora con horómetro y mantenimiento vigente; transporte no incluido.',N'Día',CAST(2850.00 AS DECIMAL(18,2))),
+            (N'Transporte de materia prima',N'TMP-VIAJE-LOCAL',N'Servicio',N'Transporte local de materia prima',N'Viaje programado de materia prima entre planta y centro de procesamiento.',N'Viaje',CAST(1650.00 AS DECIMAL(18,2))),
+            (N'Transporte nacional e internacional',N'TNI-CARGA-NAC',N'Servicio',N'Transporte nacional de carga',N'Traslado terrestre entre bodegas, puertos o fronteras dentro de Guatemala.',N'Viaje',CAST(3200.00 AS DECIMAL(18,2))),
+            (N'Servicios de construcción',N'CON-EVAL-TEC',N'Servicio',N'Evaluación técnica de obra',N'Visita inicial y diagnóstico para proyectos de infraestructura.',N'Visita',CAST(1200.00 AS DECIMAL(18,2)))
+        ) v(GiroNombre,Codigo,Tipo,Nombre,Descripcion,UnidadMedida,PrecioBase)
+        INNER JOIN dbo.GiroNegocio g ON g.Nombre=v.GiroNombre AND g.Eliminado=0
+    ) AS fuente
+    ON destino.Codigo=fuente.Codigo
+    WHEN MATCHED THEN UPDATE SET GiroNegocioId=fuente.GiroNegocioId,Tipo=fuente.Tipo,Nombre=fuente.Nombre,
+        Descripcion=fuente.Descripcion,UnidadMedida=fuente.UnidadMedida,PrecioBase=fuente.PrecioBase,
+        EsPublico=1,EsActivo=1,Eliminado=0,FechaModificacion=SYSUTCDATETIME()
+    WHEN NOT MATCHED THEN INSERT(GiroNegocioId,Codigo,Tipo,Nombre,Descripcion,UnidadMedida,PrecioBase,EsPublico,EsActivo)
+        VALUES(fuente.GiroNegocioId,fuente.Codigo,fuente.Tipo,fuente.Nombre,fuente.Descripcion,fuente.UnidadMedida,fuente.PrecioBase,1,1);
+
     MERGE dbo.Sede AS destino
     USING (VALUES
         (N'Sede central',N'Edificio Sixtino, zona 10, Ciudad de Guatemala.'),

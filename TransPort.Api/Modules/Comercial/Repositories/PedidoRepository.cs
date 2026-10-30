@@ -1,4 +1,5 @@
 using System.Data;
+using System.Text.Json;
 using Microsoft.Data.SqlClient;
 using TransPort.Api.Configuration;
 using TransPort.Api.Modules.Comercial.DTOs;
@@ -49,7 +50,7 @@ public sealed class PedidoRepository(ISqlConnectionFactory connections) : IPedid
             reader.Text("TipoSolicitud"), reader.Text("Titulo"), reader.Text("Descripcion"), reader.Text("Estado"),
             reader.NullableDate("FechaRequerida"), Decimal(reader, "MontoCotizado"),
             reader.NullableDate("FechaReunionUtc"), reader.NullableText("EnlaceReunion"),
-            reader.Date("FechaCreacion"), reader.NullableDate("FechaModificacion"), [], []);
+            reader.Date("FechaCreacion"), reader.NullableDate("FechaModificacion"), [], [], []);
 
         var historial = new List<PedidoHistorialDto>();
         if (await reader.NextResultAsync(ct))
@@ -64,7 +65,17 @@ public sealed class PedidoRepository(ISqlConnectionFactory connections) : IPedid
                 documentos.Add(new PedidoDocumentoDto(
                     reader.Int64("PedidoDocumentoId"), reader.Int32("UsuarioId"), reader.Text("NombreUsuario"),
                     reader.Text("Nombre"), reader.Text("TipoDocumento"), reader.Text("Url"), reader.Date("FechaCreacion")));
-        return pedido with { Historial = historial, Documentos = documentos };
+
+        var lineas = new List<PedidoLineaDto>();
+        if (await reader.NextResultAsync(ct))
+            while (await reader.ReadAsync(ct))
+                lineas.Add(new PedidoLineaDto(
+                    reader.Int64("PedidoLineaId"), reader.Int32("CatalogoOfertaId"), reader.Text("Codigo"),
+                    reader.Text("Tipo"), reader.Text("Nombre"), reader.Text("UnidadMedida"),
+                    reader.GetDecimal(reader.GetOrdinal("Cantidad")), reader.GetDecimal(reader.GetOrdinal("PrecioUnitarioBase")),
+                    Decimal(reader, "PrecioUnitarioCotizado"),
+                    reader.GetDecimal(reader.GetOrdinal("SubtotalBase")), Decimal(reader, "SubtotalCotizado")));
+        return pedido with { Historial = historial, Documentos = documentos, Lineas = lineas };
     }
 
     public async Task<PedidoOpcionesDto> OpcionesAsync(AlcancePedido alcance, CancellationToken ct)
@@ -77,7 +88,8 @@ public sealed class PedidoRepository(ISqlConnectionFactory connections) : IPedid
         var clientes = await CatalogosAsync(reader, ct);
         var giros = await reader.NextResultAsync(ct) ? await CatalogosAsync(reader, ct) : [];
         var vendedores = await reader.NextResultAsync(ct) ? await CatalogosAsync(reader, ct) : [];
-        return new PedidoOpcionesDto(clientes, giros, vendedores);
+        var ofertas = await reader.NextResultAsync(ct) ? await OfertasAsync(reader, ct) : [];
+        return new PedidoOpcionesDto(clientes, giros, vendedores, ofertas);
     }
 
     public async Task<long> CrearAsync(CrearPedidoRequest request, AlcancePedido alcance, CancellationToken ct)
@@ -92,8 +104,28 @@ public sealed class PedidoRepository(ISqlConnectionFactory connections) : IPedid
         command.Parameters.Add("@Descripcion", SqlDbType.NVarChar, 2000).Value = request.Descripcion.Trim();
         command.Parameters.Add("@FechaRequerida", SqlDbType.Date).Value = Db(request.FechaRequerida?.Date);
         command.Parameters.Add("@FechaReunionUtc", SqlDbType.DateTime2).Value = Db(request.FechaReunionUtc);
+        var lineas = request.Lineas.Select(x => new { catalogoOfertaId = x.CatalogoOfertaId, cantidad = x.Cantidad });
+        command.Parameters.Add("@LineasJson", SqlDbType.NVarChar, -1).Value =
+            request.Lineas.Count == 0 ? DBNull.Value : JsonSerializer.Serialize(lineas);
         Alcance(command, alcance);
         return Convert.ToInt64(await command.ExecuteScalarAsync(ct));
+    }
+
+    public async Task<bool> CotizarLineaAsync(
+        long id, long lineaId, decimal precioUnitario, AlcancePedido alcance, CancellationToken ct)
+    {
+        await using var connection = connections.Create();
+        await connection.OpenAsync(ct);
+        await using var command = Procedure(connection, "sp_pedido_actualizar_cotizacion_linea");
+        command.Parameters.Add("@PedidoId", SqlDbType.BigInt).Value = id;
+        command.Parameters.Add("@PedidoLineaId", SqlDbType.BigInt).Value = lineaId;
+        var price = command.Parameters.Add("@PrecioUnitario", SqlDbType.Decimal);
+        price.Precision = 18;
+        price.Scale = 2;
+        price.Value = precioUnitario;
+        command.Parameters.Add("@UsuarioId", SqlDbType.Int).Value = alcance.UsuarioId;
+        command.Parameters.Add("@EsAdministrador", SqlDbType.Bit).Value = alcance.EsAdministrador;
+        return Convert.ToInt32(await command.ExecuteScalarAsync(ct)) > 0;
     }
 
     public async Task<bool> GestionarAsync(
@@ -160,6 +192,19 @@ public sealed class PedidoRepository(ISqlConnectionFactory connections) : IPedid
     {
         var result = new List<CatalogoDto>();
         while (await reader.ReadAsync(ct)) result.Add(new CatalogoDto(reader.Int32("Id"), reader.Text("Nombre")));
+        return result;
+    }
+
+    private static async Task<IReadOnlyList<OfertaCatalogoDto>> OfertasAsync(SqlDataReader reader, CancellationToken ct)
+    {
+        var result = new List<OfertaCatalogoDto>();
+        while (await reader.ReadAsync(ct))
+            result.Add(new OfertaCatalogoDto(
+                reader.Int32("CatalogoOfertaId"), reader.Int32("GiroNegocioId"), reader.Text("Giro"),
+                reader.Text("Codigo"), reader.Text("Tipo"), reader.Text("Nombre"), reader.Text("Descripcion"),
+                reader.Text("UnidadMedida"), reader.GetDecimal(reader.GetOrdinal("PrecioBase")),
+                reader.GetBoolean(reader.GetOrdinal("EsPublico")), reader.GetBoolean(reader.GetOrdinal("EsActivo")),
+                reader.Date("FechaCreacion"), reader.NullableDate("FechaModificacion")));
         return result;
     }
 

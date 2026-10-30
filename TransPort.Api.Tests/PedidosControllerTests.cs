@@ -101,7 +101,7 @@ public sealed class PedidosControllerTests
         public Task<PedidoDetalleDto?> ObtenerAsync(long id, AlcancePedido alcance, CancellationToken ct) =>
             Task.FromResult<PedidoDetalleDto?>(null);
         public Task<PedidoOpcionesDto> OpcionesAsync(AlcancePedido alcance, CancellationToken ct) =>
-            Task.FromResult(new PedidoOpcionesDto([], [], []));
+            Task.FromResult(new PedidoOpcionesDto([], [], [], []));
         public Task<long> CrearAsync(CrearPedidoRequest request, AlcancePedido alcance, CancellationToken ct)
         {
             AlcanceRecibido = alcance;
@@ -112,6 +112,7 @@ public sealed class PedidosControllerTests
             GestionInvocada = true;
             return Task.FromResult(true);
         }
+        public Task<bool> CotizarLineaAsync(long id, long lineaId, decimal precioUnitario, AlcancePedido alcance, CancellationToken ct) => Task.FromResult(true);
         public Task ComentarAsync(long id, AgregarComentarioPedidoRequest request, AlcancePedido alcance, CancellationToken ct) => Task.CompletedTask;
         public Task<long> AgregarDocumentoAsync(long id, AgregarDocumentoPedidoRequest request, AlcancePedido alcance, CancellationToken ct) => Task.FromResult(1L);
         public Task<bool> EliminarAsync(long id, int usuarioId, CancellationToken ct)

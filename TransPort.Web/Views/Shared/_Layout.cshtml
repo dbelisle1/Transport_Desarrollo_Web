@@ -16,7 +16,7 @@
             <a class="brand" href="/"><span class="brand-mark">T</span><span>TransPort</span></a>
             <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-menu"><span></span><span></span><span></span><span class="sr-only">Abrir menú</span></button>
             <div id="main-menu" class="main-menu">
-                <a href="/#servicios">Servicios</a><a href="/#empresa">Empresa</a><a href="/#contacto">Contacto</a>
+                <a href="/#servicios">Servicios</a><a href="/catalogo">Catálogo</a><a href="/#empresa">Empresa</a><a href="/#contacto">Contacto</a>
                 @if (User.Identity?.IsAuthenticated == true)
                 {
                     @if (User.IsInRole("AdministradorGeneral")) { <a href="/portal/cambiar/admin">Administración</a> }

@@ -211,6 +211,48 @@ CREATE TABLE dbo.PedidoDocumento
 );
 GO
 
+IF OBJECT_ID(N'dbo.CatalogoOferta', N'U') IS NULL
+CREATE TABLE dbo.CatalogoOferta
+(
+    CatalogoOfertaId INT IDENTITY(1,1) NOT NULL CONSTRAINT PK_CatalogoOferta PRIMARY KEY,
+    GiroNegocioId INT NOT NULL,
+    Codigo NVARCHAR(50) NOT NULL,
+    Tipo NVARCHAR(20) NOT NULL,
+    Nombre NVARCHAR(180) NOT NULL,
+    Descripcion NVARCHAR(1000) NOT NULL,
+    UnidadMedida NVARCHAR(40) NOT NULL,
+    PrecioBase DECIMAL(18,2) NOT NULL,
+    EsPublico BIT NOT NULL CONSTRAINT DF_CatalogoOferta_EsPublico DEFAULT (1),
+    EsActivo BIT NOT NULL CONSTRAINT DF_CatalogoOferta_EsActivo DEFAULT (1),
+    Eliminado BIT NOT NULL CONSTRAINT DF_CatalogoOferta_Eliminado DEFAULT (0),
+    FechaCreacion DATETIME2(0) NOT NULL CONSTRAINT DF_CatalogoOferta_FechaCreacion DEFAULT (SYSUTCDATETIME()),
+    FechaModificacion DATETIME2(0) NULL,
+    CONSTRAINT CK_CatalogoOferta_Tipo CHECK (Tipo IN (N'Producto',N'Servicio')),
+    CONSTRAINT CK_CatalogoOferta_Precio CHECK (PrecioBase >= 0)
+);
+GO
+
+IF OBJECT_ID(N'dbo.PedidoLinea', N'U') IS NULL
+CREATE TABLE dbo.PedidoLinea
+(
+    PedidoLineaId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_PedidoLinea PRIMARY KEY,
+    PedidoId BIGINT NOT NULL,
+    CatalogoOfertaId INT NOT NULL,
+    Codigo NVARCHAR(50) NOT NULL,
+    Tipo NVARCHAR(20) NOT NULL,
+    Nombre NVARCHAR(180) NOT NULL,
+    UnidadMedida NVARCHAR(40) NOT NULL,
+    Cantidad DECIMAL(18,3) NOT NULL,
+    PrecioUnitarioBase DECIMAL(18,2) NOT NULL,
+    PrecioUnitarioCotizado DECIMAL(18,2) NULL,
+    FechaCreacion DATETIME2(0) NOT NULL CONSTRAINT DF_PedidoLinea_FechaCreacion DEFAULT (SYSUTCDATETIME()),
+    FechaModificacion DATETIME2(0) NULL,
+    CONSTRAINT CK_PedidoLinea_Tipo CHECK (Tipo IN (N'Producto',N'Servicio')),
+    CONSTRAINT CK_PedidoLinea_Cantidad CHECK (Cantidad > 0),
+    CONSTRAINT CK_PedidoLinea_Precios CHECK (PrecioUnitarioBase >= 0 AND (PrecioUnitarioCotizado IS NULL OR PrecioUnitarioCotizado >= 0))
+);
+GO
+
 IF OBJECT_ID(N'dbo.InventarioArticulo', N'U') IS NULL
 CREATE TABLE dbo.InventarioArticulo
 (

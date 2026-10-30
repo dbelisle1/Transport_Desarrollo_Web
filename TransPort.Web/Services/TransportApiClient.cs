@@ -185,6 +185,53 @@ public sealed class TransportApiClient(HttpClient http, IHttpContextAccessor con
         await EnsureAsync(response, ct);
     }
 
+    public async Task<IReadOnlyList<OfertaCatalogoModel>> CatalogoPublicoAsync(
+        int? giroId, string? tipo, CancellationToken ct)
+    {
+        var query = new List<string>();
+        if (giroId.HasValue) query.Add($"giroId={giroId.Value}");
+        Add(query, "tipo", tipo);
+        return await GetRequiredAsync<List<OfertaCatalogoModel>>(
+            "api/catalogo-comercial/publico" + (query.Count > 0 ? "?" + string.Join('&', query) : ""), ct);
+    }
+
+    public async Task<IReadOnlyList<OfertaCatalogoModel>> CatalogoComercialAsync(
+        string? busqueda, int? giroId, string? tipo, bool? esActivo, CancellationToken ct)
+    {
+        var query = new List<string>();
+        Add(query, "busqueda", busqueda);
+        if (giroId.HasValue) query.Add($"giroId={giroId.Value}");
+        Add(query, "tipo", tipo);
+        if (esActivo.HasValue) query.Add($"esActivo={esActivo.Value.ToString().ToLowerInvariant()}");
+        return await GetRequiredAsync<List<OfertaCatalogoModel>>(
+            "api/catalogo-comercial" + (query.Count > 0 ? "?" + string.Join('&', query) : ""), ct);
+    }
+
+    public Task<CatalogoComercialOpcionesModel> CatalogoComercialOpcionesAsync(CancellationToken ct) =>
+        GetRequiredAsync<CatalogoComercialOpcionesModel>("api/catalogo-comercial/opciones", ct);
+
+    public async Task<int> CrearOfertaCatalogoAsync(OfertaCatalogoEditarViewModel model, CancellationToken ct)
+    {
+        using var request = Request(HttpMethod.Post, "api/catalogo-comercial", model);
+        using var response = await http.SendAsync(request, ct);
+        await EnsureAsync(response, ct);
+        return (await response.Content.ReadFromJsonAsync<ResultadoIdModel>(_json, ct))!.Id;
+    }
+
+    public async Task ActualizarOfertaCatalogoAsync(OfertaCatalogoEditarViewModel model, CancellationToken ct)
+    {
+        using var request = Request(HttpMethod.Put, $"api/catalogo-comercial/{model.CatalogoOfertaId}", model);
+        using var response = await http.SendAsync(request, ct);
+        await EnsureAsync(response, ct);
+    }
+
+    public async Task EliminarOfertaCatalogoAsync(int id, CancellationToken ct)
+    {
+        using var request = Request(HttpMethod.Delete, $"api/catalogo-comercial/{id}");
+        using var response = await http.SendAsync(request, ct);
+        await EnsureAsync(response, ct);
+    }
+
     public async Task<IReadOnlyList<PedidoListadoModel>> PedidosAsync(
         string? busqueda, string? estado, int? clienteId, int? giroId, CancellationToken ct)
     {
@@ -214,7 +261,9 @@ public sealed class TransportApiClient(HttpClient http, IHttpContextAccessor con
         using var request = Request(HttpMethod.Post, "api/pedidos", new
         {
             model.ClienteId, model.GiroNegocioId, model.TipoSolicitud, model.Titulo,
-            model.Descripcion, model.FechaRequerida, model.FechaReunionUtc
+            model.Descripcion, model.FechaRequerida, model.FechaReunionUtc,
+            Lineas = model.Lineas.Where(x => x.CatalogoOfertaId > 0 && x.Cantidad > 0)
+                .Select(x => new { x.CatalogoOfertaId, x.Cantidad }).ToArray()
         });
         using var response = await http.SendAsync(request, ct);
         await EnsureAsync(response, ct);
@@ -228,6 +277,14 @@ public sealed class TransportApiClient(HttpClient http, IHttpContextAccessor con
             model.Estado, model.VendedorUsuarioId, model.MontoCotizado,
             model.FechaReunionUtc, model.EnlaceReunion, model.Comentario
         });
+        using var response = await http.SendAsync(request, ct);
+        await EnsureAsync(response, ct);
+    }
+
+    public async Task CotizarPedidoLineaAsync(
+        long id, long lineaId, decimal precioUnitario, CancellationToken ct)
+    {
+        using var request = Request(HttpMethod.Put, $"api/pedidos/{id}/lineas/{lineaId}/cotizacion", new { precioUnitario });
         using var response = await http.SendAsync(request, ct);
         await EnsureAsync(response, ct);
     }

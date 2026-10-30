@@ -188,18 +188,30 @@ public sealed record PedidoDocumentoModel(
     long PedidoDocumentoId, int UsuarioId, string NombreUsuario,
     string Nombre, string TipoDocumento, string Url, DateTime FechaCreacion);
 
+public sealed record OfertaCatalogoModel(
+    int CatalogoOfertaId, int GiroNegocioId, string Giro, string Codigo, string Tipo,
+    string Nombre, string Descripcion, string UnidadMedida, decimal PrecioBase,
+    bool EsPublico, bool EsActivo, DateTime FechaCreacion, DateTime? FechaModificacion);
+
+public sealed record PedidoLineaModel(
+    long PedidoLineaId, int CatalogoOfertaId, string Codigo, string Tipo, string Nombre,
+    string UnidadMedida, decimal Cantidad, decimal PrecioUnitarioBase,
+    decimal? PrecioUnitarioCotizado, decimal SubtotalBase, decimal? SubtotalCotizado);
+
 public sealed record PedidoDetalleModel(
     long PedidoId, int ClienteId, string Cliente, int GiroNegocioId, string Giro,
     int SolicitanteUsuarioId, string Solicitante, int? VendedorUsuarioId, string? Vendedor,
     string TipoSolicitud, string Titulo, string Descripcion, string Estado,
     DateTime? FechaRequerida, decimal? MontoCotizado, DateTime? FechaReunionUtc,
     string? EnlaceReunion, DateTime FechaCreacion, DateTime? FechaModificacion,
-    IReadOnlyList<PedidoHistorialModel> Historial, IReadOnlyList<PedidoDocumentoModel> Documentos);
+    IReadOnlyList<PedidoHistorialModel> Historial, IReadOnlyList<PedidoDocumentoModel> Documentos,
+    IReadOnlyList<PedidoLineaModel> Lineas);
 
 public sealed record PedidoOpcionesModel(
     IReadOnlyList<CatalogoModel> Clientes,
     IReadOnlyList<CatalogoModel> Giros,
-    IReadOnlyList<CatalogoModel> Vendedores);
+    IReadOnlyList<CatalogoModel> Vendedores,
+    IReadOnlyList<OfertaCatalogoModel> Ofertas);
 
 public sealed class PedidoFiltroViewModel
 {
@@ -208,7 +220,14 @@ public sealed class PedidoFiltroViewModel
     public int? ClienteId { get; set; }
     public int? GiroId { get; set; }
     public IReadOnlyList<PedidoListadoModel> Pedidos { get; set; } = [];
-    public PedidoOpcionesModel Opciones { get; set; } = new([], [], []);
+    public PedidoOpcionesModel Opciones { get; set; } = new([], [], [], []);
+}
+
+public sealed class PedidoCrearLineaViewModel
+{
+    public int CatalogoOfertaId { get; set; }
+    [Range(typeof(decimal), "0", "999999999999999.999")]
+    public decimal Cantidad { get; set; }
 }
 
 public sealed class PedidoCrearViewModel
@@ -239,7 +258,8 @@ public sealed class PedidoCrearViewModel
 
     [Display(Name = "Fecha propuesta para reunión")]
     public DateTime? FechaReunionUtc { get; set; }
-    public PedidoOpcionesModel Opciones { get; set; } = new([], [], []);
+    public List<PedidoCrearLineaViewModel> Lineas { get; set; } = [];
+    public PedidoOpcionesModel Opciones { get; set; } = new([], [], [], []);
 }
 
 public sealed class PedidoGestionViewModel
@@ -259,7 +279,39 @@ public sealed class PedidoGestionViewModel
 public sealed class PedidoDetalleViewModel
 {
     public PedidoDetalleModel Pedido { get; set; } = null!;
-    public PedidoOpcionesModel Opciones { get; set; } = new([], [], []);
+    public PedidoOpcionesModel Opciones { get; set; } = new([], [], [], []);
+}
+
+public sealed record CatalogoComercialOpcionesModel(IReadOnlyList<CatalogoModel> Giros);
+
+public sealed class CatalogoComercialPaginaViewModel
+{
+    public string? Busqueda { get; set; }
+    public int? GiroId { get; set; }
+    public string? Tipo { get; set; }
+    public bool? EsActivo { get; set; }
+    public IReadOnlyList<OfertaCatalogoModel> Ofertas { get; set; } = [];
+    public CatalogoComercialOpcionesModel Opciones { get; set; } = new([]);
+    public OfertaCatalogoEditarViewModel Nueva { get; set; } = new();
+}
+
+public sealed class OfertaCatalogoEditarViewModel
+{
+    public int CatalogoOfertaId { get; set; }
+    [Range(1, int.MaxValue, ErrorMessage = "Seleccione un giro.")]
+    [Display(Name = "Giro de negocio")]
+    public int GiroNegocioId { get; set; }
+    [Required, StringLength(50, MinimumLength = 2)] public string Codigo { get; set; } = string.Empty;
+    [Required, StringLength(20)] public string Tipo { get; set; } = "Producto";
+    [Required, StringLength(180, MinimumLength = 3)] public string Nombre { get; set; } = string.Empty;
+    [Required, StringLength(1000, MinimumLength = 5)] public string Descripcion { get; set; } = string.Empty;
+    [Required, StringLength(40)] [Display(Name = "Unidad de medida")]
+    public string UnidadMedida { get; set; } = string.Empty;
+    [Range(0, 9999999999999999.99)] [Display(Name = "Precio base")]
+    public decimal PrecioBase { get; set; }
+    [Display(Name = "Visible en el catálogo público")] public bool EsPublico { get; set; } = true;
+    [Display(Name = "Oferta activa")] public bool EsActivo { get; set; } = true;
+    public CatalogoComercialOpcionesModel Opciones { get; set; } = new([]);
 }
 
 public sealed record EmpresaPortalClienteModel(

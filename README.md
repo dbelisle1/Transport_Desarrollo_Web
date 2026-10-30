@@ -97,9 +97,9 @@ Estas claves son únicamente para desarrollo académico. Se almacenan en texto p
 
 La base incluye organización, seguridad, clientes, pedidos, inventarios,
 abastecimiento, extracción, producción, maquinaria, transporte, GPS,
-construcción, finanzas y alertas. Los scripts son la fuente ejecutable del
-esquema y se mantienen idempotentes; los conteos se actualizan al cerrar cada
-módulo.
+construcción, finanzas, alertas y catálogo comercial. Los scripts son la fuente
+ejecutable del esquema y se mantienen idempotentes; los conteos se actualizan
+al cerrar cada módulo.
 
 Procedimientos principales:
 
@@ -110,7 +110,10 @@ Procedimientos principales:
 - Administración: resumen real de usuarios, clientes, giros y sedes.
 - Clientes: CRUD, filtros, eliminación lógica y asignación de usuarios y giros.
 - Pedidos: listado por alcance, detalle, opciones, creación, gestión comercial,
-  comentarios, documentos y eliminación lógica.
+  comentarios, documentos, líneas de producto/servicio, cotización y
+  eliminación lógica.
+- Catálogo comercial: productos y servicios por giro, precios base,
+  publicación, estados, sala de ventas y administración por alcance.
 - Portal del cliente: empresas y servicios contratados, indicadores y
   solicitudes recientes con aislamiento por identidad.
 - Inventarios: artículos, existencias por sede, movimientos, reservas,
@@ -156,8 +159,12 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 | `GET/POST` | `/api/pedidos` | AdministradorGeneral, Gerente, Vendedor o Cliente, según alcance |
 | `GET` | `/api/pedidos/{id}` | Roles comerciales, limitado por cliente o giro |
 | `PUT` | `/api/pedidos/{id}/gestion` | AdministradorGeneral, Gerente o Vendedor |
+| `PUT` | `/api/pedidos/{id}/lineas/{lineaId}/cotizacion` | Personal comercial autorizado |
 | `POST` | `/api/pedidos/{id}/{comentarios|documentos}` | Roles comerciales, según alcance |
 | `DELETE` | `/api/pedidos/{id}` | AdministradorGeneral |
+| `GET` | `/api/catalogo-comercial/publico` | Pública |
+| `GET/POST` | `/api/catalogo-comercial` | AdministradorGeneral o Gerente, según giro |
+| `PUT/DELETE` | `/api/catalogo-comercial/{id}` | AdministradorGeneral o Gerente, según giro |
 | `GET` | `/api/portal-cliente/resumen` | Cliente o AdministradorGeneral, filtrado por identidad |
 | `GET` | `/api/inventarios` | Personal interno, filtrado por giro y sede |
 | `GET` | `/api/inventarios/movimientos` | Trazabilidad de inventario autorizada |
@@ -200,6 +207,7 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 ## Rutas web
 
 - `/`: sitio público y seis giros de negocio.
+- `/catalogo`: sala de ventas pública con productos, servicios y precios base.
 - `/acceso`: login único.
 - `/cliente`: dashboard operativo con empresas, servicios e indicadores reales.
 - `/cliente/pedidos`: solicitudes y seguimiento del cliente.
@@ -216,6 +224,7 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 - `/gestion/finanzas`: presupuestos, gastos y ejecución por giro/sede.
 - `/gestion/alertas`: alertas, recordatorios, lectura y seguimiento por alcance.
 - `/gestion/pedidos`: asignación, cotización y seguimiento comercial.
+- `/gestion/catalogo`: administración de ofertas por giro.
 - `/admin`: panel general con conteos reales.
 - `/admin/usuarios`: CRUD y filtros de usuarios.
 - `/admin/clientes`: CRUD, filtros y asociaciones de empresas cliente.
@@ -231,17 +240,18 @@ dotnet build TransPort.sln --no-restore
 dotnet test TransPort.sln --no-restore
 ```
 
-Las 73 pruebas actuales cubren seguridad JWT, autenticación, cierre de sesión,
+Las 78 pruebas actuales cubren seguridad JWT, autenticación, cierre de sesión,
 clientes, catálogos, auditoría, pedidos, portal, inventarios, abastecimiento,
 extracción, producción, maquinaria, transporte, GPS, construcción, finanzas y
-alertas: alcance, validaciones, autorización y operaciones críticas.
+alertas y catálogo comercial: alcance, validaciones, autorización y
+operaciones críticas.
 
 ## Pendiente para fases posteriores
 
-Faltan catálogo público y pedidos por producto, comunicación, integración del
-portal cliente con viajes/maquinaria/construcción, simulaciones de terceros,
-registro mínimo de ingresos, reportes operativos/financieros, cierre
-PWA/responsive y pruebas HTTP/SQL reproducibles.
+Faltan comunicación, integración del portal cliente con
+viajes/maquinaria/construcción, simulaciones de terceros, registro mínimo de
+ingresos, reportes operativos/financieros, cierre PWA/responsive y pruebas
+HTTP/SQL reproducibles.
 Los módulos que dependan de una fuente externa se probarán con formularios de
 simulación y ejemplos funcionales precargados, identificando claramente el
 origen simulado.

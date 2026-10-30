@@ -23,11 +23,18 @@ public interface ITransportApiClient
     Task<int> CrearCatalogoAsync(CatalogoFormViewModel model, CancellationToken ct);
     Task ActualizarCatalogoAsync(CatalogoFormViewModel model, CancellationToken ct);
     Task EliminarCatalogoAsync(string tipo, int id, CancellationToken ct);
+    Task<IReadOnlyList<OfertaCatalogoModel>> CatalogoPublicoAsync(int? giroId, string? tipo, CancellationToken ct);
+    Task<IReadOnlyList<OfertaCatalogoModel>> CatalogoComercialAsync(string? busqueda, int? giroId, string? tipo, bool? esActivo, CancellationToken ct);
+    Task<CatalogoComercialOpcionesModel> CatalogoComercialOpcionesAsync(CancellationToken ct);
+    Task<int> CrearOfertaCatalogoAsync(OfertaCatalogoEditarViewModel model, CancellationToken ct);
+    Task ActualizarOfertaCatalogoAsync(OfertaCatalogoEditarViewModel model, CancellationToken ct);
+    Task EliminarOfertaCatalogoAsync(int id, CancellationToken ct);
     Task<IReadOnlyList<PedidoListadoModel>> PedidosAsync(string? busqueda, string? estado, int? clienteId, int? giroId, CancellationToken ct);
     Task<PedidoDetalleModel?> PedidoAsync(long id, CancellationToken ct);
     Task<PedidoOpcionesModel> PedidoOpcionesAsync(CancellationToken ct);
     Task<long> CrearPedidoAsync(PedidoCrearViewModel model, CancellationToken ct);
     Task GestionarPedidoAsync(PedidoGestionViewModel model, CancellationToken ct);
+    Task CotizarPedidoLineaAsync(long id, long lineaId, decimal precioUnitario, CancellationToken ct);
     Task ComentarPedidoAsync(long id, string comentario, CancellationToken ct);
     Task AgregarDocumentoPedidoAsync(long id, string nombre, string tipoDocumento, string url, CancellationToken ct);
     Task EliminarPedidoAsync(long id, CancellationToken ct);

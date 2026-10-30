@@ -17,18 +17,31 @@ public sealed record PedidoDocumentoDto(
     long PedidoDocumentoId, int UsuarioId, string NombreUsuario,
     string Nombre, string TipoDocumento, string Url, DateTime FechaCreacion);
 
+public sealed record PedidoLineaDto(
+    long PedidoLineaId, int CatalogoOfertaId, string Codigo, string Tipo, string Nombre,
+    string UnidadMedida, decimal Cantidad, decimal PrecioUnitarioBase,
+    decimal? PrecioUnitarioCotizado, decimal SubtotalBase, decimal? SubtotalCotizado);
+
 public sealed record PedidoDetalleDto(
     long PedidoId, int ClienteId, string Cliente, int GiroNegocioId, string Giro,
     int SolicitanteUsuarioId, string Solicitante, int? VendedorUsuarioId, string? Vendedor,
     string TipoSolicitud, string Titulo, string Descripcion, string Estado,
     DateTime? FechaRequerida, decimal? MontoCotizado, DateTime? FechaReunionUtc,
     string? EnlaceReunion, DateTime FechaCreacion, DateTime? FechaModificacion,
-    IReadOnlyList<PedidoHistorialDto> Historial, IReadOnlyList<PedidoDocumentoDto> Documentos);
+    IReadOnlyList<PedidoHistorialDto> Historial, IReadOnlyList<PedidoDocumentoDto> Documentos,
+    IReadOnlyList<PedidoLineaDto> Lineas);
 
 public sealed record PedidoOpcionesDto(
     IReadOnlyList<CatalogoDto> Clientes,
     IReadOnlyList<CatalogoDto> Giros,
-    IReadOnlyList<CatalogoDto> Vendedores);
+    IReadOnlyList<CatalogoDto> Vendedores,
+    IReadOnlyList<OfertaCatalogoDto> Ofertas);
+
+public sealed class CrearPedidoLineaRequest
+{
+    [Range(1, int.MaxValue)] public int CatalogoOfertaId { get; set; }
+    [Range(typeof(decimal), "0.001", "999999999999999.999")] public decimal Cantidad { get; set; }
+}
 
 public sealed class CrearPedidoRequest
 {
@@ -39,6 +52,12 @@ public sealed class CrearPedidoRequest
     [Required, StringLength(2000, MinimumLength = 5)] public string Descripcion { get; set; } = string.Empty;
     [DataType(DataType.Date)] public DateTime? FechaRequerida { get; set; }
     public DateTime? FechaReunionUtc { get; set; }
+    [MaxLength(20)] public List<CrearPedidoLineaRequest> Lineas { get; set; } = [];
+}
+
+public sealed class CotizarPedidoLineaRequest
+{
+    [Range(0, 9999999999999999.99)] public decimal PrecioUnitario { get; set; }
 }
 
 public sealed class GestionPedidoRequest
