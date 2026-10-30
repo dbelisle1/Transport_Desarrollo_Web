@@ -491,3 +491,39 @@ GO
 IF OBJECT_ID(N'dbo.AlertaSeguimiento',N'U') IS NULL
 CREATE TABLE dbo.AlertaSeguimiento(AlertaSeguimientoId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_AlertaSeguimiento PRIMARY KEY,AlertaNotificacionId BIGINT NOT NULL,UsuarioId INT NOT NULL,Comentario NVARCHAR(1000) NOT NULL,Fecha DATETIME2(0) NOT NULL CONSTRAINT DF_AlertaSeguimiento_Fecha DEFAULT(SYSUTCDATETIME()));
 GO
+
+IF OBJECT_ID(N'dbo.ComunicacionHilo',N'U') IS NULL
+CREATE TABLE dbo.ComunicacionHilo
+(
+    ComunicacionHiloId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_ComunicacionHilo PRIMARY KEY,
+    Tipo NVARCHAR(20) NOT NULL,
+    ClienteId INT NULL,
+    GiroNegocioId INT NULL,
+    PedidoId BIGINT NULL,
+    Asunto NVARCHAR(180) NOT NULL,
+    Estado NVARCHAR(20) NOT NULL CONSTRAINT DF_ComunicacionHilo_Estado DEFAULT(N'Abierta'),
+    ResponsableUsuarioId INT NULL,
+    ModuloOrigen NVARCHAR(50) NULL,
+    RegistroOrigenId BIGINT NULL,
+    CreadoPorUsuarioId INT NOT NULL,
+    UltimaActividad DATETIME2(0) NOT NULL CONSTRAINT DF_ComunicacionHilo_UltimaActividad DEFAULT(SYSUTCDATETIME()),
+    Eliminado BIT NOT NULL CONSTRAINT DF_ComunicacionHilo_Eliminado DEFAULT(0),
+    FechaCreacion DATETIME2(0) NOT NULL CONSTRAINT DF_ComunicacionHilo_Fecha DEFAULT(SYSUTCDATETIME()),
+    FechaModificacion DATETIME2(0) NULL,
+    CONSTRAINT CK_ComunicacionHilo_Tipo CHECK(Tipo IN(N'Cliente',N'Interna')),
+    CONSTRAINT CK_ComunicacionHilo_Estado CHECK(Estado IN(N'Abierta',N'Cerrada')),
+    CONSTRAINT CK_ComunicacionHilo_Cliente CHECK(Tipo=N'Interna' OR ClienteId IS NOT NULL)
+);
+GO
+
+IF OBJECT_ID(N'dbo.ComunicacionMensaje',N'U') IS NULL
+CREATE TABLE dbo.ComunicacionMensaje
+(
+    ComunicacionMensajeId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_ComunicacionMensaje PRIMARY KEY,
+    ComunicacionHiloId BIGINT NOT NULL,
+    UsuarioId INT NOT NULL,
+    Mensaje NVARCHAR(2000) NOT NULL,
+    EsInterno BIT NOT NULL CONSTRAINT DF_ComunicacionMensaje_EsInterno DEFAULT(0),
+    Fecha DATETIME2(0) NOT NULL CONSTRAINT DF_ComunicacionMensaje_Fecha DEFAULT(SYSUTCDATETIME())
+);
+GO

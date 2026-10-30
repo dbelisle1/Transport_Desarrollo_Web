@@ -1,0 +1,20 @@
+@model ComunicacionPaginaViewModel
+@{ ViewData["Title"] = "Comunicaciones"; }
+<section class="dashboard-page"><div class="container">
+    <div class="dashboard-hero"><div><span class="eyebrow">Bandeja compartida</span><h1>Comunicaciones</h1><p>Atienda consultas de clientes y coordine conversaciones internas dentro de su alcance autorizado.</p></div><a class="button secondary" href="/gestion">Volver al panel</a></div>
+    @if(TempData["Exito"] is not null){<div class="alert success">@TempData["Exito"]</div>}
+    @if(TempData["Error"] is not null){<div class="alert error">@TempData["Error"]</div>}
+    <section class="info-panel"><form method="get" class="filter-bar"><select name="estado"><option value="">Todos los estados</option><option selected="@(Model.Estado=="Abierta")">Abierta</option><option selected="@(Model.Estado=="Cerrada")">Cerrada</option></select><select name="tipo"><option value="">Todos los tipos</option><option selected="@(Model.Tipo=="Cliente")">Cliente</option><option selected="@(Model.Tipo=="Interna")">Interna</option></select><input name="busqueda" value="@Model.Busqueda" placeholder="Asunto, empresa o servicio" /><button class="button secondary" type="submit">Filtrar</button></form>
+    <div class="responsive-table"><table><thead><tr><th>Asunto</th><th>Tipo / alcance</th><th>Responsable</th><th>Estado</th><th>Actividad</th><th></th></tr></thead><tbody>
+    @if(Model.Comunicaciones.Count==0){<tr><td colspan="6" class="empty">No hay comunicaciones para mostrar.</td></tr>}
+    @foreach(var x in Model.Comunicaciones){<tr><td><strong>@x.Asunto</strong><small>@x.Mensajes mensaje(s) · @(x.PedidoId is null?"Sin pedido":$"Pedido #{x.PedidoId}")</small></td><td><span class="status-pill">@x.Tipo</span><small>@(x.Cliente??"Interna") · @(x.Giro??"Alcance general")</small></td><td>@(x.Responsable??"Sin asignar")</td><td><span class="status-pill">@x.Estado</span></td><td>@x.UltimaActividad.ToString("dd/MM/yyyy HH:mm")</td><td><a class="text-link" href="/gestion/comunicaciones/@x.ComunicacionHiloId">Abrir</a></td></tr>}
+    </tbody></table></div></section>
+    <section class="info-panel"><span class="eyebrow">Nueva conversación</span><h2>Registrar comunicación</h2><form method="post" action="/gestion/comunicaciones/crear" class="form-grid">@Html.AntiForgeryToken()
+        <label>Tipo<select name="Tipo" required><option>Interna</option><option>Cliente</option></select></label>
+        <label>Empresa (si aplica)<select name="ClienteId"><option value="">Ninguna</option>@foreach(var x in Model.Opciones.Clientes){<option value="@x.Id">@x.Nombre</option>}</select></label>
+        <label>Giro / servicio<select name="GiroNegocioId"><option value="">Alcance general</option>@foreach(var x in Model.Opciones.Giros){<option value="@x.Id">@x.Nombre</option>}</select></label>
+        <label>Pedido relacionado<select name="PedidoId"><option value="">Ninguno</option>@foreach(var x in Model.Opciones.Pedidos){<option value="@x.Id">@x.Nombre</option>}</select></label>
+        <label>Asunto<input name="Asunto" maxlength="180" minlength="3" required /></label><label>Módulo de origen (opcional)<input name="ModuloOrigen" maxlength="50" placeholder="Transporte, Inventario..." /></label><label>Registro de origen (opcional)<input name="RegistroOrigenId" type="number" min="1" /></label>
+        <label class="full-width">Mensaje inicial<textarea name="MensajeInicial" maxlength="2000" minlength="2" required></textarea></label><div class="full-width"><button class="button" type="submit">Crear comunicación</button></div>
+    </form></section>
+</div></section>

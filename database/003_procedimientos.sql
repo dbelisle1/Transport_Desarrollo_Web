@@ -1808,3 +1808,151 @@ CREATE OR ALTER PROCEDURE dbo.sp_alertas_eliminar @Id BIGINT,@UsuarioId INT
 AS
 BEGIN SET NOCOUNT ON;UPDATE dbo.AlertaNotificacion SET Eliminado=1,FechaModificacion=SYSUTCDATETIME() WHERE AlertaNotificacionId=@Id AND Eliminado=0 AND Estado IN(N'Resuelta',N'Cancelada');DECLARE @F INT=@@ROWCOUNT;IF @F>0 EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'Alertas',N'Eliminar',@Id,N'Exitoso',NULL;SELECT @F;END;
 GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_comunicaciones_leer_listado
+    @UsuarioId INT,@EsAdministrador BIT,@EsCliente BIT,@Estado NVARCHAR(20)=NULL,
+    @Tipo NVARCHAR(20)=NULL,@Busqueda NVARCHAR(200)=NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET @Busqueda=NULLIF(LTRIM(RTRIM(@Busqueda)),N'');
+    SELECT h.ComunicacionHiloId,h.Tipo,h.Asunto,h.Estado,h.ClienteId,c.Nombre AS Cliente,
+           h.GiroNegocioId,g.Nombre AS Giro,h.PedidoId,h.ResponsableUsuarioId,
+           CASE WHEN r.UsuarioId IS NULL THEN NULL ELSE CONCAT(r.Nombre,N' ',r.Apellido) END AS Responsable,
+           h.ModuloOrigen,h.RegistroOrigenId,h.UltimaActividad,h.FechaCreacion,
+           (SELECT COUNT(*) FROM dbo.ComunicacionMensaje m WHERE m.ComunicacionHiloId=h.ComunicacionHiloId AND (@EsCliente=0 OR m.EsInterno=0)) AS Mensajes
+    FROM dbo.ComunicacionHilo h
+    LEFT JOIN dbo.Cliente c ON c.ClienteId=h.ClienteId
+    LEFT JOIN dbo.GiroNegocio g ON g.GiroNegocioId=h.GiroNegocioId
+    LEFT JOIN dbo.Usuario r ON r.UsuarioId=h.ResponsableUsuarioId
+    WHERE h.Eliminado=0 AND (@Estado IS NULL OR h.Estado=@Estado) AND (@Tipo IS NULL OR h.Tipo=@Tipo)
+      AND (@Busqueda IS NULL OR h.Asunto LIKE N'%'+@Busqueda+N'%' OR c.Nombre LIKE N'%'+@Busqueda+N'%' OR g.Nombre LIKE N'%'+@Busqueda+N'%')
+      AND (@EsAdministrador=1 OR
+           (@EsCliente=1 AND h.Tipo=N'Cliente' AND EXISTS(SELECT 1 FROM dbo.ClienteUsuario cu WHERE cu.ClienteId=h.ClienteId AND cu.UsuarioId=@UsuarioId AND cu.Eliminado=0)) OR
+           (@EsCliente=0 AND (h.CreadoPorUsuarioId=@UsuarioId OR h.ResponsableUsuarioId=@UsuarioId OR EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio ug WHERE ug.UsuarioId=@UsuarioId AND ug.GiroNegocioId=h.GiroNegocioId AND ug.Eliminado=0))))
+    ORDER BY h.UltimaActividad DESC,h.ComunicacionHiloId DESC;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_comunicaciones_leer_por_id
+    @Id BIGINT,@UsuarioId INT,@EsAdministrador BIT,@EsCliente BIT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    IF NOT EXISTS(SELECT 1 FROM dbo.ComunicacionHilo h WHERE h.ComunicacionHiloId=@Id AND h.Eliminado=0 AND
+       (@EsAdministrador=1 OR (@EsCliente=1 AND h.Tipo=N'Cliente' AND EXISTS(SELECT 1 FROM dbo.ClienteUsuario cu WHERE cu.ClienteId=h.ClienteId AND cu.UsuarioId=@UsuarioId AND cu.Eliminado=0)) OR
+        (@EsCliente=0 AND (h.CreadoPorUsuarioId=@UsuarioId OR h.ResponsableUsuarioId=@UsuarioId OR EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio ug WHERE ug.UsuarioId=@UsuarioId AND ug.GiroNegocioId=h.GiroNegocioId AND ug.Eliminado=0))))) RETURN;
+    SELECT h.ComunicacionHiloId,h.Tipo,h.Asunto,h.Estado,h.ClienteId,c.Nombre AS Cliente,
+           h.GiroNegocioId,g.Nombre AS Giro,h.PedidoId,h.ResponsableUsuarioId,
+           CASE WHEN r.UsuarioId IS NULL THEN NULL ELSE CONCAT(r.Nombre,N' ',r.Apellido) END AS Responsable,
+           h.ModuloOrigen,h.RegistroOrigenId,u.NombreUsuario AS CreadoPor,h.UltimaActividad,h.FechaCreacion,h.FechaModificacion
+    FROM dbo.ComunicacionHilo h
+    LEFT JOIN dbo.Cliente c ON c.ClienteId=h.ClienteId
+    LEFT JOIN dbo.GiroNegocio g ON g.GiroNegocioId=h.GiroNegocioId
+    LEFT JOIN dbo.Usuario r ON r.UsuarioId=h.ResponsableUsuarioId
+    INNER JOIN dbo.Usuario u ON u.UsuarioId=h.CreadoPorUsuarioId
+    WHERE h.ComunicacionHiloId=@Id;
+    SELECT m.ComunicacionMensajeId,m.UsuarioId,u.NombreUsuario,m.Mensaje,m.EsInterno,m.Fecha
+    FROM dbo.ComunicacionMensaje m INNER JOIN dbo.Usuario u ON u.UsuarioId=m.UsuarioId
+    WHERE m.ComunicacionHiloId=@Id AND (@EsCliente=0 OR m.EsInterno=0)
+    ORDER BY m.Fecha,m.ComunicacionMensajeId;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_comunicaciones_leer_opciones
+    @UsuarioId INT,@EsAdministrador BIT,@EsCliente BIT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT DISTINCT c.ClienteId AS Id,c.Nombre FROM dbo.Cliente c
+    WHERE c.Eliminado=0 AND c.EsActivo=1 AND
+      (@EsAdministrador=1 OR (@EsCliente=1 AND EXISTS(SELECT 1 FROM dbo.ClienteUsuario cu WHERE cu.ClienteId=c.ClienteId AND cu.UsuarioId=@UsuarioId AND cu.Eliminado=0)) OR
+       (@EsCliente=0 AND EXISTS(SELECT 1 FROM dbo.ClienteGiroNegocio cg INNER JOIN dbo.UsuarioGiroNegocio ug ON ug.GiroNegocioId=cg.GiroNegocioId AND ug.UsuarioId=@UsuarioId AND ug.Eliminado=0 WHERE cg.ClienteId=c.ClienteId AND cg.Eliminado=0))) ORDER BY c.Nombre;
+    SELECT DISTINCT g.GiroNegocioId AS Id,g.Nombre FROM dbo.GiroNegocio g
+    WHERE g.Eliminado=0 AND g.EsActivo=1 AND
+      (@EsAdministrador=1 OR (@EsCliente=1 AND EXISTS(SELECT 1 FROM dbo.ClienteGiroNegocio cg INNER JOIN dbo.ClienteUsuario cu ON cu.ClienteId=cg.ClienteId AND cu.UsuarioId=@UsuarioId AND cu.Eliminado=0 WHERE cg.GiroNegocioId=g.GiroNegocioId AND cg.Eliminado=0)) OR
+       (@EsCliente=0 AND EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio ug WHERE ug.GiroNegocioId=g.GiroNegocioId AND ug.UsuarioId=@UsuarioId AND ug.Eliminado=0))) ORDER BY g.Nombre;
+    SELECT p.PedidoId AS Id,CONCAT(N'#',p.PedidoId,N' · ',p.Titulo) AS Nombre FROM dbo.Pedido p
+    WHERE p.Eliminado=0 AND (@EsAdministrador=1 OR
+      (@EsCliente=1 AND EXISTS(SELECT 1 FROM dbo.ClienteUsuario cu WHERE cu.ClienteId=p.ClienteId AND cu.UsuarioId=@UsuarioId AND cu.Eliminado=0)) OR
+      (@EsCliente=0 AND (p.VendedorUsuarioId=@UsuarioId OR EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio ug WHERE ug.UsuarioId=@UsuarioId AND ug.GiroNegocioId=p.GiroNegocioId AND ug.Eliminado=0))))
+    ORDER BY p.PedidoId DESC;
+    SELECT DISTINCT u.UsuarioId AS Id,CONCAT(u.Nombre,N' ',u.Apellido,N' (',u.NombreUsuario,N')') AS Nombre
+    FROM dbo.Usuario u INNER JOIN dbo.UsuarioRol ur ON ur.UsuarioId=u.UsuarioId AND ur.Eliminado=0
+    INNER JOIN dbo.Rol r ON r.RolId=ur.RolId AND r.Eliminado=0 AND r.EsActivo=1
+    WHERE @EsCliente=0 AND u.Eliminado=0 AND u.EsActivo=1 AND r.Nombre<>N'Cliente' AND
+      (@EsAdministrador=1 OR u.UsuarioId=@UsuarioId OR EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio a INNER JOIN dbo.UsuarioGiroNegocio b ON b.GiroNegocioId=a.GiroNegocioId AND b.UsuarioId=u.UsuarioId AND b.Eliminado=0 WHERE a.UsuarioId=@UsuarioId AND a.Eliminado=0))
+    ORDER BY Nombre;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_comunicaciones_crear
+    @Tipo NVARCHAR(20),@ClienteId INT=NULL,@GiroNegocioId INT=NULL,@PedidoId BIGINT=NULL,
+    @Asunto NVARCHAR(180),@MensajeInicial NVARCHAR(2000),@ModuloOrigen NVARCHAR(50)=NULL,
+    @RegistroOrigenId BIGINT=NULL,@UsuarioId INT,@EsAdministrador BIT,@EsCliente BIT
+AS
+BEGIN
+    SET NOCOUNT ON; SET XACT_ABORT ON;
+    BEGIN TRY
+        BEGIN TRANSACTION;
+        IF @Tipo NOT IN(N'Cliente',N'Interna') OR NULLIF(LTRIM(RTRIM(@Asunto)),N'') IS NULL OR NULLIF(LTRIM(RTRIM(@MensajeInicial)),N'') IS NULL THROW 50002,N'Datos de comunicación inválidos.',1;
+        IF @EsCliente=1 AND @Tipo<>N'Cliente' THROW 50002,N'El cliente solo puede iniciar comunicaciones con su empresa.',1;
+        IF @Tipo=N'Cliente' AND @ClienteId IS NULL THROW 50002,N'La comunicación requiere una empresa cliente.',1;
+        IF @ClienteId IS NOT NULL AND NOT EXISTS(SELECT 1 FROM dbo.Cliente WHERE ClienteId=@ClienteId AND Eliminado=0 AND EsActivo=1) THROW 50002,N'Cliente no disponible.',1;
+        IF @GiroNegocioId IS NOT NULL AND @ClienteId IS NOT NULL AND NOT EXISTS(SELECT 1 FROM dbo.ClienteGiroNegocio WHERE ClienteId=@ClienteId AND GiroNegocioId=@GiroNegocioId AND Eliminado=0) THROW 50002,N'El giro no está contratado por el cliente.',1;
+        IF @EsCliente=1 AND NOT EXISTS(SELECT 1 FROM dbo.ClienteUsuario WHERE ClienteId=@ClienteId AND UsuarioId=@UsuarioId AND Eliminado=0) THROW 50002,N'El usuario no pertenece al cliente.',1;
+        IF @EsCliente=0 AND @EsAdministrador=0 AND (@GiroNegocioId IS NULL OR NOT EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio WHERE UsuarioId=@UsuarioId AND GiroNegocioId=@GiroNegocioId AND Eliminado=0)) THROW 50002,N'Sin acceso al giro de la comunicación.',1;
+        IF @PedidoId IS NOT NULL AND NOT EXISTS(SELECT 1 FROM dbo.Pedido p WHERE p.PedidoId=@PedidoId AND p.Eliminado=0 AND (@ClienteId IS NULL OR p.ClienteId=@ClienteId) AND (@GiroNegocioId IS NULL OR p.GiroNegocioId=@GiroNegocioId)) THROW 50002,N'El pedido no corresponde con la comunicación.',1;
+        INSERT dbo.ComunicacionHilo(Tipo,ClienteId,GiroNegocioId,PedidoId,Asunto,ModuloOrigen,RegistroOrigenId,CreadoPorUsuarioId)
+        VALUES(@Tipo,@ClienteId,@GiroNegocioId,@PedidoId,LTRIM(RTRIM(@Asunto)),NULLIF(LTRIM(RTRIM(@ModuloOrigen)),N''),@RegistroOrigenId,@UsuarioId);
+        DECLARE @Id BIGINT=CONVERT(BIGINT,SCOPE_IDENTITY());
+        INSERT dbo.ComunicacionMensaje(ComunicacionHiloId,UsuarioId,Mensaje,EsInterno) VALUES(@Id,@UsuarioId,LTRIM(RTRIM(@MensajeInicial)),0);
+        EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'Comunicaciones',N'Crear',@Id,N'Exitoso',@Tipo;
+        COMMIT TRANSACTION;
+        SELECT @Id;
+    END TRY BEGIN CATCH IF XACT_STATE()<>0 ROLLBACK TRANSACTION; THROW; END CATCH
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_comunicaciones_agregar_mensaje
+    @Id BIGINT,@Mensaje NVARCHAR(2000),@EsInterno BIT,@UsuarioId INT,@EsAdministrador BIT,@EsCliente BIT
+AS
+BEGIN
+    SET NOCOUNT ON; SET XACT_ABORT ON;
+    IF NULLIF(LTRIM(RTRIM(@Mensaje)),N'') IS NULL OR (@EsCliente=1 AND @EsInterno=1) THROW 50002,N'Mensaje inválido.',1;
+    IF NOT EXISTS(SELECT 1 FROM dbo.ComunicacionHilo h WHERE h.ComunicacionHiloId=@Id AND h.Eliminado=0 AND h.Estado=N'Abierta' AND
+      (@EsAdministrador=1 OR (@EsCliente=1 AND h.Tipo=N'Cliente' AND EXISTS(SELECT 1 FROM dbo.ClienteUsuario cu WHERE cu.ClienteId=h.ClienteId AND cu.UsuarioId=@UsuarioId AND cu.Eliminado=0)) OR
+       (@EsCliente=0 AND (h.CreadoPorUsuarioId=@UsuarioId OR h.ResponsableUsuarioId=@UsuarioId OR EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio ug WHERE ug.UsuarioId=@UsuarioId AND ug.GiroNegocioId=h.GiroNegocioId AND ug.Eliminado=0))))) THROW 50002,N'Comunicación no disponible.',1;
+    INSERT dbo.ComunicacionMensaje(ComunicacionHiloId,UsuarioId,Mensaje,EsInterno) VALUES(@Id,@UsuarioId,LTRIM(RTRIM(@Mensaje)),@EsInterno);
+    DECLARE @MensajeId BIGINT=CONVERT(BIGINT,SCOPE_IDENTITY());
+    UPDATE dbo.ComunicacionHilo SET UltimaActividad=SYSUTCDATETIME(),FechaModificacion=SYSUTCDATETIME() WHERE ComunicacionHiloId=@Id;
+    EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'Comunicaciones',N'Mensaje',@MensajeId,N'Exitoso',NULL;
+    SELECT @MensajeId;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_comunicaciones_actualizar_gestion
+    @Id BIGINT,@Estado NVARCHAR(20),@ResponsableUsuarioId INT=NULL,@UsuarioId INT,@EsAdministrador BIT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    IF @Estado NOT IN(N'Abierta',N'Cerrada') THROW 50002,N'Estado de comunicación inválido.',1;
+    IF NOT EXISTS(SELECT 1 FROM dbo.ComunicacionHilo h WHERE h.ComunicacionHiloId=@Id AND h.Eliminado=0 AND
+      (@EsAdministrador=1 OR h.ResponsableUsuarioId=@UsuarioId OR EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio ug WHERE ug.UsuarioId=@UsuarioId AND ug.GiroNegocioId=h.GiroNegocioId AND ug.Eliminado=0))) THROW 50002,N'Sin acceso a la comunicación.',1;
+    IF @ResponsableUsuarioId IS NOT NULL AND NOT EXISTS(SELECT 1 FROM dbo.Usuario u INNER JOIN dbo.UsuarioRol ur ON ur.UsuarioId=u.UsuarioId AND ur.Eliminado=0 INNER JOIN dbo.Rol r ON r.RolId=ur.RolId AND r.Eliminado=0 AND r.Nombre<>N'Cliente' WHERE u.UsuarioId=@ResponsableUsuarioId AND u.Eliminado=0 AND u.EsActivo=1) THROW 50002,N'Responsable inválido.',1;
+    UPDATE dbo.ComunicacionHilo SET Estado=@Estado,ResponsableUsuarioId=@ResponsableUsuarioId,FechaModificacion=SYSUTCDATETIME(),UltimaActividad=SYSUTCDATETIME() WHERE ComunicacionHiloId=@Id;
+    EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'Comunicaciones',N'Gestionar',@Id,N'Exitoso',@Estado;
+    SELECT 1;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_comunicaciones_eliminar @Id BIGINT,@UsuarioId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE dbo.ComunicacionHilo SET Eliminado=1,FechaModificacion=SYSUTCDATETIME() WHERE ComunicacionHiloId=@Id AND Eliminado=0 AND Estado=N'Cerrada';
+    DECLARE @Filas INT=@@ROWCOUNT;
+    IF @Filas>0 EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'Comunicaciones',N'Eliminar',@Id,N'Exitoso',NULL;
+    SELECT @Filas;
+END;
+GO

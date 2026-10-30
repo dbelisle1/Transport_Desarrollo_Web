@@ -314,6 +314,52 @@ public sealed class OfertaCatalogoEditarViewModel
     public CatalogoComercialOpcionesModel Opciones { get; set; } = new([]);
 }
 
+public sealed record ComunicacionListadoModel(
+    long ComunicacionHiloId, string Tipo, string Asunto, string Estado,
+    int? ClienteId, string? Cliente, int? GiroNegocioId, string? Giro, long? PedidoId,
+    int? ResponsableUsuarioId, string? Responsable, string? ModuloOrigen,
+    long? RegistroOrigenId, DateTime UltimaActividad, DateTime FechaCreacion, int Mensajes);
+public sealed record ComunicacionMensajeModel(
+    long ComunicacionMensajeId, int UsuarioId, string NombreUsuario,
+    string Mensaje, bool EsInterno, DateTime Fecha);
+public sealed record ComunicacionDetalleModel(
+    long ComunicacionHiloId, string Tipo, string Asunto, string Estado,
+    int? ClienteId, string? Cliente, int? GiroNegocioId, string? Giro, long? PedidoId,
+    int? ResponsableUsuarioId, string? Responsable, string? ModuloOrigen,
+    long? RegistroOrigenId, string CreadoPor, DateTime UltimaActividad,
+    DateTime FechaCreacion, DateTime? FechaModificacion,
+    IReadOnlyList<ComunicacionMensajeModel> Mensajes);
+public sealed record ComunicacionPedidoOpcionModel(long Id, string Nombre);
+public sealed record ComunicacionOpcionesModel(
+    IReadOnlyList<CatalogoModel> Clientes, IReadOnlyList<CatalogoModel> Giros,
+    IReadOnlyList<ComunicacionPedidoOpcionModel> Pedidos, IReadOnlyList<CatalogoModel> Responsables);
+public sealed class ComunicacionCrearViewModel
+{
+    public string Tipo { get; set; } = "Cliente";
+    public int? ClienteId { get; set; }
+    public int? GiroNegocioId { get; set; }
+    public long? PedidoId { get; set; }
+    [Required, StringLength(180, MinimumLength = 3)] public string Asunto { get; set; } = string.Empty;
+    [Required, StringLength(2000, MinimumLength = 2)] [Display(Name = "Mensaje inicial")]
+    public string MensajeInicial { get; set; } = string.Empty;
+    [StringLength(50)] public string? ModuloOrigen { get; set; }
+    public long? RegistroOrigenId { get; set; }
+}
+public sealed class ComunicacionPaginaViewModel
+{
+    public string? Estado { get; set; }
+    public string? Tipo { get; set; }
+    public string? Busqueda { get; set; }
+    public IReadOnlyList<ComunicacionListadoModel> Comunicaciones { get; set; } = [];
+    public ComunicacionOpcionesModel Opciones { get; set; } = new([], [], [], []);
+    public ComunicacionCrearViewModel Nueva { get; set; } = new();
+}
+public sealed class ComunicacionDetalleViewModel
+{
+    public ComunicacionDetalleModel Comunicacion { get; set; } = null!;
+    public ComunicacionOpcionesModel Opciones { get; set; } = new([], [], [], []);
+}
+
 public sealed record EmpresaPortalClienteModel(
     int ClienteId, string Nombre, string? Nit, string? CorreoContacto,
     IReadOnlyList<CatalogoModel> ServiciosContratados);

@@ -31,6 +31,7 @@ builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 builder.Services.AddScoped<IAbastecimientoRepository, AbastecimientoRepository>();
 builder.Services.AddScoped<IAlertaRepository, AlertaRepository>();
 builder.Services.AddScoped<ICatalogoComercialRepository, CatalogoComercialRepository>();
+builder.Services.AddScoped<IComunicacionRepository, ComunicacionRepository>();
 builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();
 builder.Services.AddScoped<IConstruccionRepository, ConstruccionRepository>();
 builder.Services.AddScoped<IExtraccionRepository, ExtraccionRepository>();

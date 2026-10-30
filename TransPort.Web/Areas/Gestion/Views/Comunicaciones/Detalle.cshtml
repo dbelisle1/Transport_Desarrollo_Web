@@ -1,0 +1,15 @@
+@model ComunicacionDetalleViewModel
+@{ ViewData["Title"] = Model.Comunicacion.Asunto; var c=Model.Comunicacion; var puedeGestionar=User.IsInRole("AdministradorGeneral")||User.IsInRole("Gerente")||User.IsInRole("Vendedor"); }
+<section class="dashboard-page"><div class="container">
+    <div class="dashboard-hero"><div><span class="eyebrow">@c.Tipo · Comunicación #@c.ComunicacionHiloId</span><h1>@c.Asunto</h1><p>@(c.Cliente??"Comunicación interna") · @(c.Giro??"Alcance general") @if(c.PedidoId is not null){<text> · Pedido #@c.PedidoId</text>}</p></div><div><span class="status-pill">@c.Estado</span> <a class="button secondary" href="/gestion/comunicaciones">Volver</a></div></div>
+    @if(TempData["Exito"] is not null){<div class="alert success">@TempData["Exito"]</div>}
+    @if(TempData["Error"] is not null){<div class="alert error">@TempData["Error"]</div>}
+    <div class="content-grid"><section class="info-panel"><span class="eyebrow">Historial</span><h2>Conversación</h2><div class="timeline">
+        @foreach(var m in c.Mensajes){<article class="timeline-item"><div><strong>@m.NombreUsuario</strong> @if(m.EsInterno){<span class="status-pill">Nota interna</span>}<small>@m.Fecha.ToString("dd/MM/yyyy HH:mm")</small></div><p>@m.Mensaje</p></article>}
+    </div>@if(c.Estado=="Abierta"){<form method="post" action="/gestion/comunicaciones/@c.ComunicacionHiloId/mensajes" class="form-grid">@Html.AntiForgeryToken()<label class="full-width">Mensaje<textarea name="mensaje" maxlength="2000" required></textarea></label><label><input type="checkbox" name="esInterno" value="true" /> Nota interna (el cliente no podrá verla)</label><div class="full-width"><button class="button" type="submit">Agregar mensaje</button></div></form>}</section>
+        <aside class="info-panel"><span class="eyebrow">Gestión</span><h2>Asignación y estado</h2><p><strong>Creada por:</strong> @c.CreadoPor<br/><strong>Responsable:</strong> @(c.Responsable??"Sin asignar")<br/><strong>Última actividad:</strong> @c.UltimaActividad.ToString("dd/MM/yyyy HH:mm")</p>
+        @if(puedeGestionar){<form method="post" action="/gestion/comunicaciones/@c.ComunicacionHiloId/gestion" class="form-grid">@Html.AntiForgeryToken()<label>Responsable<select name="responsableUsuarioId"><option value="">Sin asignar</option>@foreach(var x in Model.Opciones.Responsables){<option value="@x.Id" selected="@(c.ResponsableUsuarioId==x.Id)">@x.Nombre</option>}</select></label><label>Estado<select name="estado"><option selected="@(c.Estado=="Abierta")">Abierta</option><option selected="@(c.Estado=="Cerrada")">Cerrada</option></select></label><button class="button" type="submit">Guardar gestión</button></form>}
+        @if(User.IsInRole("AdministradorGeneral")&&c.Estado=="Cerrada"){<form method="post" action="/gestion/comunicaciones/@c.ComunicacionHiloId/eliminar">@Html.AntiForgeryToken()<button class="button danger" type="submit">Eliminar comunicación</button></form>}
+        </aside>
+    </div>
+</div></section>

@@ -29,6 +29,13 @@ public interface ITransportApiClient
     Task<int> CrearOfertaCatalogoAsync(OfertaCatalogoEditarViewModel model, CancellationToken ct);
     Task ActualizarOfertaCatalogoAsync(OfertaCatalogoEditarViewModel model, CancellationToken ct);
     Task EliminarOfertaCatalogoAsync(int id, CancellationToken ct);
+    Task<IReadOnlyList<ComunicacionListadoModel>> ComunicacionesAsync(string? estado, string? tipo, string? busqueda, CancellationToken ct);
+    Task<ComunicacionDetalleModel?> ComunicacionAsync(long id, CancellationToken ct);
+    Task<ComunicacionOpcionesModel> ComunicacionOpcionesAsync(CancellationToken ct);
+    Task<long> CrearComunicacionAsync(ComunicacionCrearViewModel model, CancellationToken ct);
+    Task<long> AgregarMensajeComunicacionAsync(long id, string mensaje, bool esInterno, CancellationToken ct);
+    Task GestionarComunicacionAsync(long id, string estado, int? responsableUsuarioId, CancellationToken ct);
+    Task EliminarComunicacionAsync(long id, CancellationToken ct);
     Task<IReadOnlyList<PedidoListadoModel>> PedidosAsync(string? busqueda, string? estado, int? clienteId, int? giroId, CancellationToken ct);
     Task<PedidoDetalleModel?> PedidoAsync(long id, CancellationToken ct);
     Task<PedidoOpcionesModel> PedidoOpcionesAsync(CancellationToken ct);

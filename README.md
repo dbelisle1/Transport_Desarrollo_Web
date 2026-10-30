@@ -97,9 +97,9 @@ Estas claves son únicamente para desarrollo académico. Se almacenan en texto p
 
 La base incluye organización, seguridad, clientes, pedidos, inventarios,
 abastecimiento, extracción, producción, maquinaria, transporte, GPS,
-construcción, finanzas, alertas y catálogo comercial. Los scripts son la fuente
-ejecutable del esquema y se mantienen idempotentes; los conteos se actualizan
-al cerrar cada módulo.
+construcción, finanzas, alertas, catálogo comercial y comunicaciones. Los
+scripts son la fuente ejecutable del esquema y se mantienen idempotentes; los
+conteos se actualizan al cerrar cada módulo.
 
 Procedimientos principales:
 
@@ -136,6 +136,8 @@ Procedimientos principales:
   vínculos con pedidos, producción, transporte y construcción.
 - Alertas: avisos y recordatorios segmentados por rol, giro, sede o usuario,
   lectura individual, seguimientos, estados y trazabilidad del módulo origen.
+- Comunicaciones: conversaciones con clientes o internas, responsables,
+  estados, vínculos con pedidos/operaciones y notas privadas para el personal.
 
 Los repositorios no consultan tablas directamente cuando existe un procedimiento para la operación. La contraseña no aparece en listados, DTOs, tokens, auditoría ni logs.
 
@@ -203,6 +205,11 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 | `POST` | `/api/alertas/{id}/seguimientos` | Registrar seguimiento operativo |
 | `PUT` | `/api/alertas/{id}/estado` | Resolver o cancelar según permisos |
 | `DELETE` | `/api/alertas/{id}` | Eliminación lógica administrativa tras el cierre |
+| `GET/POST` | `/api/comunicaciones` | Bandeja o creación según empresa, giro y usuario |
+| `GET` | `/api/comunicaciones/{id}` | Conversación autorizada; oculta notas internas al cliente |
+| `POST` | `/api/comunicaciones/{id}/mensajes` | Agregar respuesta pública o nota interna autorizada |
+| `PUT` | `/api/comunicaciones/{id}/gestion` | Asignar responsable y abrir/cerrar la conversación |
+| `DELETE` | `/api/comunicaciones/{id}` | Eliminación lógica administrativa tras el cierre |
 
 ## Rutas web
 
@@ -212,6 +219,7 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 - `/cliente`: dashboard operativo con empresas, servicios e indicadores reales.
 - `/cliente/pedidos`: solicitudes y seguimiento del cliente.
 - `/cliente/pedidos/crear`: nuevo pedido, cotización o reunión.
+- `/cliente/comunicaciones`: bandeja y conversaciones del cliente.
 - `/gestion`: panel interno según roles, giros y sedes.
 - `/gestion/inventarios`: existencias, mínimos, artículos y movimientos.
 - `/gestion/abastecimientos`: solicitudes y trazabilidad entre giros.
@@ -223,6 +231,7 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 - `/gestion/construcciones`: obras, actividades, recursos, costos y avances.
 - `/gestion/finanzas`: presupuestos, gastos y ejecución por giro/sede.
 - `/gestion/alertas`: alertas, recordatorios, lectura y seguimiento por alcance.
+- `/gestion/comunicaciones`: consultas de clientes y coordinación interna.
 - `/gestion/pedidos`: asignación, cotización y seguimiento comercial.
 - `/gestion/catalogo`: administración de ofertas por giro.
 - `/admin`: panel general con conteos reales.
@@ -240,16 +249,16 @@ dotnet build TransPort.sln --no-restore
 dotnet test TransPort.sln --no-restore
 ```
 
-Las 78 pruebas actuales cubren seguridad JWT, autenticación, cierre de sesión,
+Las 83 pruebas actuales cubren seguridad JWT, autenticación, cierre de sesión,
 clientes, catálogos, auditoría, pedidos, portal, inventarios, abastecimiento,
 extracción, producción, maquinaria, transporte, GPS, construcción, finanzas y
-alertas y catálogo comercial: alcance, validaciones, autorización y
+alertas, catálogo comercial y comunicaciones: alcance, validaciones, autorización y
 operaciones críticas.
 
 ## Pendiente para fases posteriores
 
-Faltan comunicación, integración del portal cliente con
-viajes/maquinaria/construcción, simulaciones de terceros, registro mínimo de
+Faltan la integración del portal cliente con viajes/maquinaria/construcción,
+simulaciones de terceros, registro mínimo de
 ingresos, reportes operativos/financieros, cierre PWA/responsive y pruebas
 HTTP/SQL reproducibles.
 Los módulos que dependan de una fuente externa se probarán con formularios de

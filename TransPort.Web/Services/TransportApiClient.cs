@@ -232,6 +232,61 @@ public sealed class TransportApiClient(HttpClient http, IHttpContextAccessor con
         await EnsureAsync(response, ct);
     }
 
+    public async Task<IReadOnlyList<ComunicacionListadoModel>> ComunicacionesAsync(
+        string? estado, string? tipo, string? busqueda, CancellationToken ct)
+    {
+        var query = new List<string>();
+        Add(query, "estado", estado);
+        Add(query, "tipo", tipo);
+        Add(query, "busqueda", busqueda);
+        return await GetRequiredAsync<List<ComunicacionListadoModel>>(
+            "api/comunicaciones" + (query.Count > 0 ? "?" + string.Join('&', query) : ""), ct);
+    }
+
+    public async Task<ComunicacionDetalleModel?> ComunicacionAsync(long id, CancellationToken ct)
+    {
+        using var request = Request(HttpMethod.Get, $"api/comunicaciones/{id}");
+        using var response = await http.SendAsync(request, ct);
+        if (response.StatusCode == HttpStatusCode.NotFound) return null;
+        await EnsureAsync(response, ct);
+        return await response.Content.ReadFromJsonAsync<ComunicacionDetalleModel>(_json, ct);
+    }
+
+    public Task<ComunicacionOpcionesModel> ComunicacionOpcionesAsync(CancellationToken ct) =>
+        GetRequiredAsync<ComunicacionOpcionesModel>("api/comunicaciones/opciones", ct);
+
+    public async Task<long> CrearComunicacionAsync(ComunicacionCrearViewModel model, CancellationToken ct)
+    {
+        using var request = Request(HttpMethod.Post, "api/comunicaciones", model);
+        using var response = await http.SendAsync(request, ct);
+        await EnsureAsync(response, ct);
+        return (await response.Content.ReadFromJsonAsync<ResultadoIdModel>(_json, ct))!.Id;
+    }
+
+    public async Task<long> AgregarMensajeComunicacionAsync(
+        long id, string mensaje, bool esInterno, CancellationToken ct)
+    {
+        using var request = Request(HttpMethod.Post, $"api/comunicaciones/{id}/mensajes", new { mensaje, esInterno });
+        using var response = await http.SendAsync(request, ct);
+        await EnsureAsync(response, ct);
+        return (await response.Content.ReadFromJsonAsync<ResultadoIdModel>(_json, ct))!.Id;
+    }
+
+    public async Task GestionarComunicacionAsync(
+        long id, string estado, int? responsableUsuarioId, CancellationToken ct)
+    {
+        using var request = Request(HttpMethod.Put, $"api/comunicaciones/{id}/gestion", new { estado, responsableUsuarioId });
+        using var response = await http.SendAsync(request, ct);
+        await EnsureAsync(response, ct);
+    }
+
+    public async Task EliminarComunicacionAsync(long id, CancellationToken ct)
+    {
+        using var request = Request(HttpMethod.Delete, $"api/comunicaciones/{id}");
+        using var response = await http.SendAsync(request, ct);
+        await EnsureAsync(response, ct);
+    }
+
     public async Task<IReadOnlyList<PedidoListadoModel>> PedidosAsync(
         string? busqueda, string? estado, int? clienteId, int? giroId, CancellationToken ct)
     {

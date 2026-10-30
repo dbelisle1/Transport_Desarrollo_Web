@@ -1,0 +1,14 @@
+@model ComunicacionDetalleViewModel
+@{ ViewData["Title"] = Model.Comunicacion.Asunto; var c=Model.Comunicacion; }
+<section class="dashboard-page"><div class="container">
+    <div class="dashboard-hero"><div><span class="eyebrow">Comunicación #@c.ComunicacionHiloId</span><h1>@c.Asunto</h1><p>@c.Cliente · @c.Giro @if(c.PedidoId is not null){<text> · Pedido #@c.PedidoId</text>}</p></div><div><span class="status-pill">@c.Estado</span> <a class="button secondary" href="/cliente/comunicaciones">Volver</a></div></div>
+    @if(TempData["Exito"] is not null){<div class="alert success">@TempData["Exito"]</div>}
+    @if(TempData["Error"] is not null){<div class="alert error">@TempData["Error"]</div>}
+    <section class="info-panel"><span class="eyebrow">Historial</span><h2>Conversación</h2>
+        @if(c.Mensajes.Count==0){<p class="empty">Todavía no hay mensajes.</p>}
+        <div class="timeline">@foreach(var m in c.Mensajes){<article class="timeline-item"><div><strong>@m.NombreUsuario</strong><small>@m.Fecha.ToString("dd/MM/yyyy HH:mm")</small></div><p>@m.Mensaje</p></article>}</div>
+    </section>
+    @if(c.Estado=="Abierta"){
+    <section class="info-panel"><span class="eyebrow">Responder</span><form method="post" action="/cliente/comunicaciones/@c.ComunicacionHiloId/mensajes" class="form-grid">@Html.AntiForgeryToken()<label class="full-width">Mensaje<textarea name="mensaje" maxlength="2000" required placeholder="Escriba su respuesta"></textarea></label><div class="full-width"><button class="button" type="submit">Enviar mensaje</button></div></form></section>
+    }else{<div class="info-panel"><p>Esta comunicación está cerrada. Puede iniciar una nueva conversación si necesita más ayuda.</p></div>}
+</div></section>
