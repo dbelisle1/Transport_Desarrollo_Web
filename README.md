@@ -97,8 +97,8 @@ Estas claves son únicamente para desarrollo académico. Se almacenan en texto p
 
 La base incluye organización, seguridad, clientes, pedidos, inventarios,
 abastecimiento, extracción, producción, maquinaria, transporte, GPS,
-construcción, finanzas, alertas, catálogo comercial y comunicaciones. Los
-scripts son la fuente ejecutable del esquema y se mantienen idempotentes; los
+construcción, finanzas, alertas, catálogo comercial, comunicaciones e
+integraciones simuladas. Los scripts son la fuente ejecutable del esquema y se
 conteos se actualizan al cerrar cada módulo.
 
 Procedimientos principales:
@@ -138,6 +138,8 @@ Procedimientos principales:
   lectura individual, seguimientos, estados y trazabilidad del módulo origen.
 - Comunicaciones: conversaciones con clientes o internas, responsables,
   estados, vínculos con pedidos/operaciones y notas privadas para el personal.
+- Integraciones: eventos REST/Webhook/CSV simulados, idempotencia, errores,
+  reintentos y recepción transaccional de materia prima hacia inventario.
 
 Los repositorios no consultan tablas directamente cuando existe un procedimiento para la operación. La contraseña no aparece en listados, DTOs, tokens, auditoría ni logs.
 
@@ -211,6 +213,11 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 | `POST` | `/api/comunicaciones/{id}/mensajes` | Agregar respuesta pública o nota interna autorizada |
 | `PUT` | `/api/comunicaciones/{id}/gestion` | Asignar responsable y abrir/cerrar la conversación |
 | `DELETE` | `/api/comunicaciones/{id}` | Eliminación lógica administrativa tras el cierre |
+| `GET` | `/api/integraciones` | Trazabilidad de eventos externos según giro y sede |
+| `POST` | `/api/integraciones/simular` | Procesar un evento REST, Webhook o CSV simulado |
+| `GET` | `/api/integraciones/{id}` | Contenido original, intentos y resultado autorizado |
+| `POST` | `/api/integraciones/{id}/reintentar` | Reprocesar un evento que quedó en error |
+| `DELETE` | `/api/integraciones/{id}` | Eliminación lógica administrativa |
 
 ## Rutas web
 
@@ -234,6 +241,7 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 - `/gestion/finanzas`: presupuestos, gastos y ejecución por giro/sede.
 - `/gestion/alertas`: alertas, recordatorios, lectura y seguimiento por alcance.
 - `/gestion/comunicaciones`: consultas de clientes y coordinación interna.
+- `/gestion/integraciones`: simulador REST/Webhook/CSV y trazabilidad externa.
 - `/gestion/pedidos`: asignación, cotización y seguimiento comercial.
 - `/gestion/catalogo`: administración de ofertas por giro.
 - `/admin`: panel general con conteos reales.
@@ -243,6 +251,11 @@ Los repositorios no consultan tablas directamente cuando existe un procedimiento
 - `/admin/auditoria`: visor de auditoría con filtros por fecha, módulo, operación, usuario y resultado.
 - `/portal/cambiar/{admin|cliente|gestion}`: cambio de área sin reiniciar sesión.
 
+El simulador de integraciones se entrega con un JSON funcional, el artículo
+`MP-EXT-DEMO` y una cantidad de 25.5 t. El formulario registra explícitamente
+que el origen es simulado; reenviar la misma clave de idempotencia devuelve el
+mismo evento y no duplica la entrada de inventario.
+
 ## Pruebas
 
 ```powershell
@@ -251,16 +264,16 @@ dotnet build TransPort.sln --no-restore
 dotnet test TransPort.sln --no-restore
 ```
 
-Las 86 pruebas actuales cubren seguridad JWT, autenticación, cierre de sesión,
+Las 91 pruebas actuales cubren seguridad JWT, autenticación, cierre de sesión,
 clientes, catálogos, auditoría, pedidos, portal, inventarios, abastecimiento,
 extracción, producción, maquinaria, transporte, GPS, construcción, finanzas y
-alertas, catálogo comercial y comunicaciones: alcance, validaciones, autorización y
+alertas, catálogo comercial, comunicaciones e integraciones: alcance, validaciones, autorización y
 operaciones críticas.
 
 ## Pendiente para fases posteriores
 
-Faltan simulaciones de terceros, registro mínimo de
-ingresos, reportes operativos/financieros, cierre PWA/responsive y pruebas
+Faltan el registro mínimo de ingresos, reportes operativos/financieros,
+cierre PWA/responsive y pruebas
 HTTP/SQL reproducibles.
 Los módulos que dependan de una fuente externa se probarán con formularios de
 simulación y ejemplos funcionales precargados, identificando claramente el

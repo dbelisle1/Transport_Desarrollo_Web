@@ -373,6 +373,13 @@ public sealed class TransportApiClient(HttpClient http, IHttpContextAccessor con
         GetRequiredAsync<PortalClienteOperacionesModel>(
             "api/portal-cliente/operaciones" + (clienteId.HasValue ? $"?clienteId={clienteId}" : ""), ct);
 
+    public async Task<IReadOnlyList<IntegracionListadoModel>> IntegracionesAsync(string?estado,string?canal,string?busqueda,CancellationToken ct){var q=new List<string>();Add(q,"estado",estado);Add(q,"canal",canal);Add(q,"busqueda",busqueda);return await GetRequiredAsync<List<IntegracionListadoModel>>("api/integraciones"+(q.Count>0?"?"+string.Join('&',q):""),ct);}
+    public async Task<IntegracionDetalleModel?> IntegracionAsync(long id,CancellationToken ct){using var req=Request(HttpMethod.Get,$"api/integraciones/{id}");using var res=await http.SendAsync(req,ct);if(res.StatusCode==HttpStatusCode.NotFound)return null;await EnsureAsync(res,ct);return await res.Content.ReadFromJsonAsync<IntegracionDetalleModel>(_json,ct);}
+    public Task<IntegracionOpcionesModel> IntegracionOpcionesAsync(CancellationToken ct)=>GetRequiredAsync<IntegracionOpcionesModel>("api/integraciones/opciones",ct);
+    public async Task<long> SimularIntegracionAsync(IntegracionSimularViewModel m,CancellationToken ct){using var req=Request(HttpMethod.Post,"api/integraciones/simular",m);using var res=await http.SendAsync(req,ct);await EnsureAsync(res,ct);return(await res.Content.ReadFromJsonAsync<ResultadoIdModel>(_json,ct))!.Id;}
+    public async Task<long> ReintentarIntegracionAsync(long id,CancellationToken ct){using var req=Request(HttpMethod.Post,$"api/integraciones/{id}/reintentar");using var res=await http.SendAsync(req,ct);await EnsureAsync(res,ct);return(await res.Content.ReadFromJsonAsync<ResultadoIdModel>(_json,ct))!.Id;}
+    public async Task EliminarIntegracionAsync(long id,CancellationToken ct){using var req=Request(HttpMethod.Delete,$"api/integraciones/{id}");using var res=await http.SendAsync(req,ct);await EnsureAsync(res,ct);}
+
     public async Task<IReadOnlyList<InventarioExistenciaModel>> InventarioAsync(string? busqueda,int? giroId,int? sedeId,bool soloBajoMinimo,CancellationToken ct)
     {
         var q=new List<string>();Add(q,"busqueda",busqueda);if(giroId.HasValue)q.Add($"giroId={giroId}");if(sedeId.HasValue)q.Add($"sedeId={sedeId}");if(soloBajoMinimo)q.Add("soloBajoMinimo=true");

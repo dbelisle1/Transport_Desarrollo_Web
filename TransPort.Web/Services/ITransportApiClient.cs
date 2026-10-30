@@ -47,6 +47,12 @@ public interface ITransportApiClient
     Task EliminarPedidoAsync(long id, CancellationToken ct);
     Task<PortalClienteResumenModel> PortalClienteResumenAsync(CancellationToken ct);
     Task<PortalClienteOperacionesModel> PortalClienteOperacionesAsync(int? clienteId, CancellationToken ct);
+    Task<IReadOnlyList<IntegracionListadoModel>> IntegracionesAsync(string?estado,string?canal,string?busqueda,CancellationToken ct);
+    Task<IntegracionDetalleModel?> IntegracionAsync(long id,CancellationToken ct);
+    Task<IntegracionOpcionesModel> IntegracionOpcionesAsync(CancellationToken ct);
+    Task<long> SimularIntegracionAsync(IntegracionSimularViewModel model,CancellationToken ct);
+    Task<long> ReintentarIntegracionAsync(long id,CancellationToken ct);
+    Task EliminarIntegracionAsync(long id,CancellationToken ct);
     Task<IReadOnlyList<InventarioExistenciaModel>> InventarioAsync(string? busqueda,int? giroId,int? sedeId,bool soloBajoMinimo,CancellationToken ct);
     Task<IReadOnlyList<InventarioMovimientoModel>> InventarioMovimientosAsync(int? articuloId,int limite,CancellationToken ct);
     Task<InventarioOpcionesModel> InventarioOpcionesAsync(CancellationToken ct);

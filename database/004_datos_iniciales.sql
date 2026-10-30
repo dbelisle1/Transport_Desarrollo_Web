@@ -137,6 +137,16 @@ BEGIN TRY
     SELECT s.SedeId,@MaquinariaId FROM dbo.Sede s WHERE s.Nombre LIKE N'% - Maquinaria' AND s.Eliminado=0
       AND NOT EXISTS(SELECT 1 FROM dbo.SedeGiroNegocio x WHERE x.SedeId=s.SedeId AND x.GiroNegocioId=@MaquinariaId AND x.Eliminado=0);
 
+    /* Artículo funcional para probar la recepción externa simulada de M25. */
+    MERGE dbo.InventarioArticulo AS d
+    USING (VALUES(@ExtraccionId,N'MP-EXT-DEMO',N'Materia prima externa de demostración',N'Materia prima',N't',CONVERT(DECIMAL(18,3),10)))
+      AS s(GiroNegocioId,Codigo,Nombre,Categoria,UnidadMedida,StockMinimo)
+    ON d.Codigo=s.Codigo
+    WHEN MATCHED THEN UPDATE SET GiroNegocioId=s.GiroNegocioId,Nombre=s.Nombre,Categoria=s.Categoria,
+      UnidadMedida=s.UnidadMedida,StockMinimo=s.StockMinimo,EsActivo=1,Eliminado=0,FechaModificacion=SYSUTCDATETIME()
+    WHEN NOT MATCHED THEN INSERT(GiroNegocioId,Codigo,Nombre,Categoria,UnidadMedida,StockMinimo)
+      VALUES(s.GiroNegocioId,s.Codigo,s.Nombre,s.Categoria,s.UnidadMedida,s.StockMinimo);
+
     COMMIT TRANSACTION;
 END TRY
 BEGIN CATCH

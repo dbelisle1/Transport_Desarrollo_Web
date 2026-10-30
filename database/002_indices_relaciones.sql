@@ -235,3 +235,12 @@ IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.Comunica
 IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.ComunicacionHilo') AND name=N'IX_ComunicacionHilo_ResponsableEstado') CREATE INDEX IX_ComunicacionHilo_ResponsableEstado ON dbo.ComunicacionHilo(ResponsableUsuarioId,Estado,UltimaActividad DESC) INCLUDE(GiroNegocioId,ClienteId,Eliminado);
 IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.ComunicacionMensaje') AND name=N'IX_ComunicacionMensaje_HiloFecha') CREATE INDEX IX_ComunicacionMensaje_HiloFecha ON dbo.ComunicacionMensaje(ComunicacionHiloId,Fecha,ComunicacionMensajeId);
 GO
+
+IF NOT EXISTS(SELECT 1 FROM sys.foreign_keys WHERE name=N'FK_IntegracionEvento_Articulo') ALTER TABLE dbo.IntegracionEvento ADD CONSTRAINT FK_IntegracionEvento_Articulo FOREIGN KEY(InventarioArticuloId) REFERENCES dbo.InventarioArticulo(InventarioArticuloId);
+IF NOT EXISTS(SELECT 1 FROM sys.foreign_keys WHERE name=N'FK_IntegracionEvento_Sede') ALTER TABLE dbo.IntegracionEvento ADD CONSTRAINT FK_IntegracionEvento_Sede FOREIGN KEY(SedeId) REFERENCES dbo.Sede(SedeId);
+IF NOT EXISTS(SELECT 1 FROM sys.foreign_keys WHERE name=N'FK_IntegracionEvento_Movimiento') ALTER TABLE dbo.IntegracionEvento ADD CONSTRAINT FK_IntegracionEvento_Movimiento FOREIGN KEY(InventarioMovimientoId) REFERENCES dbo.InventarioMovimiento(InventarioMovimientoId);
+IF NOT EXISTS(SELECT 1 FROM sys.foreign_keys WHERE name=N'FK_IntegracionEvento_Usuario') ALTER TABLE dbo.IntegracionEvento ADD CONSTRAINT FK_IntegracionEvento_Usuario FOREIGN KEY(UsuarioId) REFERENCES dbo.Usuario(UsuarioId);
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.IntegracionEvento') AND name=N'UX_IntegracionEvento_Idempotencia') CREATE UNIQUE INDEX UX_IntegracionEvento_Idempotencia ON dbo.IntegracionEvento(ClaveIdempotencia) WHERE Eliminado=0;
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.IntegracionEvento') AND name=N'IX_IntegracionEvento_EstadoFecha') CREATE INDEX IX_IntegracionEvento_EstadoFecha ON dbo.IntegracionEvento(Estado,FechaCreacion DESC) INCLUDE(Canal,Direccion,SocioTipo,Operacion,UsuarioId,Eliminado);
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.IntegracionEvento') AND name=N'IX_IntegracionEvento_Inventario') CREATE INDEX IX_IntegracionEvento_Inventario ON dbo.IntegracionEvento(InventarioArticuloId,SedeId,FechaCreacion DESC) WHERE InventarioArticuloId IS NOT NULL;
+GO

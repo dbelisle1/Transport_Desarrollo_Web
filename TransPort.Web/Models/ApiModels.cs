@@ -401,6 +401,30 @@ public sealed class PortalClienteOperacionesPaginaViewModel
     public PortalClienteOperacionesModel Operaciones{get;set;}=PortalClienteOperacionesModel.Vacio;
 }
 
+public sealed record IntegracionListadoModel(long IntegracionEventoId,string Canal,string Direccion,string SocioTipo,string SocioNombre,string Operacion,string ClaveIdempotencia,string?DocumentoExterno,string Estado,int Intentos,string?Error,int?InventarioArticuloId,string?ArticuloCodigo,string?Articulo,int?SedeId,string?Sede,decimal?Cantidad,long?InventarioMovimientoId,string NombreUsuario,DateTime?FechaProcesamiento,DateTime FechaCreacion);
+public sealed record IntegracionDetalleModel(long IntegracionEventoId,string Canal,string Direccion,string SocioTipo,string SocioNombre,string Operacion,string ClaveIdempotencia,string?DocumentoExterno,string Contenido,string Estado,int Intentos,string?Error,int?InventarioArticuloId,string?ArticuloCodigo,string?Articulo,string?UnidadMedida,int?SedeId,string?Sede,decimal?Cantidad,long?InventarioMovimientoId,string NombreUsuario,DateTime?FechaProcesamiento,DateTime FechaCreacion,DateTime?FechaModificacion);
+public sealed record IntegracionOpcionesModel(IReadOnlyList<CatalogoModel>Articulos,IReadOnlyList<CatalogoModel>Sedes);
+public sealed class IntegracionSimularViewModel
+{
+    [Required]public string Canal{get;set;}="Webhook";
+    [Required]public string Direccion{get;set;}="Entrada";
+    [Required]public string SocioTipo{get;set;}="Proveedor";
+    [Required,StringLength(180,MinimumLength=2)]public string SocioNombre{get;set;}="Proveedor externo de demostración";
+    [Required]public string Operacion{get;set;}="RecepcionMateriaPrima";
+    [Required,StringLength(120,MinimumLength=3)]public string ClaveIdempotencia{get;set;}=string.Empty;
+    [StringLength(120)]public string?DocumentoExterno{get;set;}
+    [Required,StringLength(4000,MinimumLength=2)]public string Contenido{get;set;}="{\"proveedor\":\"Proveedor externo de demostración\",\"documento\":\"REC-001\",\"articulo\":\"MP-EXT-DEMO\",\"cantidad\":25.5,\"ubicacion\":\"Ciudad de Guatemala\"}";
+    public int?InventarioArticuloId{get;set;}public int?SedeId{get;set;}
+    [Range(0.001,999999999999999.999)]public decimal?Cantidad{get;set;}=25.5m;
+}
+public sealed class IntegracionPaginaViewModel
+{
+    public string?Estado{get;set;}public string?Canal{get;set;}public string?Busqueda{get;set;}
+    public IReadOnlyList<IntegracionListadoModel>Eventos{get;set;}=[];
+    public IntegracionOpcionesModel Opciones{get;set;}=new([],[]);
+    public IntegracionSimularViewModel Nueva{get;set;}=new();
+}
+
 public sealed record InventarioExistenciaModel(
     int InventarioArticuloId,string Codigo,string Nombre,string Categoria,string UnidadMedida,
     int GiroNegocioId,string Giro,decimal StockMinimo,int? SedeId,string? Sede,

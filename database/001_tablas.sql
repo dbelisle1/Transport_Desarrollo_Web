@@ -527,3 +527,36 @@ CREATE TABLE dbo.ComunicacionMensaje
     Fecha DATETIME2(0) NOT NULL CONSTRAINT DF_ComunicacionMensaje_Fecha DEFAULT(SYSUTCDATETIME())
 );
 GO
+
+IF OBJECT_ID(N'dbo.IntegracionEvento',N'U') IS NULL
+CREATE TABLE dbo.IntegracionEvento
+(
+    IntegracionEventoId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_IntegracionEvento PRIMARY KEY,
+    Canal NVARCHAR(20) NOT NULL,
+    Direccion NVARCHAR(20) NOT NULL,
+    SocioTipo NVARCHAR(20) NOT NULL,
+    SocioNombre NVARCHAR(180) NOT NULL,
+    Operacion NVARCHAR(40) NOT NULL,
+    ClaveIdempotencia NVARCHAR(120) NOT NULL,
+    DocumentoExterno NVARCHAR(120) NULL,
+    Contenido NVARCHAR(MAX) NOT NULL,
+    Estado NVARCHAR(20) NOT NULL CONSTRAINT DF_IntegracionEvento_Estado DEFAULT(N'Recibido'),
+    Intentos INT NOT NULL CONSTRAINT DF_IntegracionEvento_Intentos DEFAULT(0),
+    Error NVARCHAR(1000) NULL,
+    InventarioArticuloId INT NULL,
+    SedeId INT NULL,
+    Cantidad DECIMAL(18,3) NULL,
+    InventarioMovimientoId BIGINT NULL,
+    UsuarioId INT NOT NULL,
+    FechaProcesamiento DATETIME2(0) NULL,
+    Eliminado BIT NOT NULL CONSTRAINT DF_IntegracionEvento_Eliminado DEFAULT(0),
+    FechaCreacion DATETIME2(0) NOT NULL CONSTRAINT DF_IntegracionEvento_Fecha DEFAULT(SYSUTCDATETIME()),
+    FechaModificacion DATETIME2(0) NULL,
+    CONSTRAINT CK_IntegracionEvento_Canal CHECK(Canal IN(N'REST',N'Webhook',N'CSV')),
+    CONSTRAINT CK_IntegracionEvento_Direccion CHECK(Direccion IN(N'Entrada',N'Salida')),
+    CONSTRAINT CK_IntegracionEvento_Socio CHECK(SocioTipo IN(N'Cliente',N'Proveedor',N'Socio')),
+    CONSTRAINT CK_IntegracionEvento_Operacion CHECK(Operacion IN(N'RecepcionMateriaPrima',N'EstadoPedido',N'Notificacion',N'IntercambioDatos')),
+    CONSTRAINT CK_IntegracionEvento_Estado CHECK(Estado IN(N'Recibido',N'Procesado',N'Error')),
+    CONSTRAINT CK_IntegracionEvento_Valores CHECK(Intentos>=0 AND (Cantidad IS NULL OR Cantidad>0))
+);
+GO

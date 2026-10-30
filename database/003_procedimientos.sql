@@ -2024,3 +2024,155 @@ BEGIN
     ORDER BY p.FechaInicioPlanificada DESC,p.ConstruccionProyectoId DESC;
 END;
 GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_integraciones_leer_listado
+    @UsuarioId INT,@EsAdministrador BIT,@Estado NVARCHAR(20)=NULL,
+    @Canal NVARCHAR(20)=NULL,@Busqueda NVARCHAR(200)=NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET @Estado=NULLIF(LTRIM(RTRIM(@Estado)),N'');SET @Canal=NULLIF(LTRIM(RTRIM(@Canal)),N'');SET @Busqueda=NULLIF(LTRIM(RTRIM(@Busqueda)),N'');
+    SELECT e.IntegracionEventoId,e.Canal,e.Direccion,e.SocioTipo,e.SocioNombre,e.Operacion,
+           e.ClaveIdempotencia,e.DocumentoExterno,e.Estado,e.Intentos,e.Error,
+           e.InventarioArticuloId,a.Codigo AS ArticuloCodigo,a.Nombre AS Articulo,
+           e.SedeId,s.Nombre AS Sede,e.Cantidad,e.InventarioMovimientoId,
+           u.NombreUsuario,e.FechaProcesamiento,e.FechaCreacion
+    FROM dbo.IntegracionEvento e
+    INNER JOIN dbo.Usuario u ON u.UsuarioId=e.UsuarioId
+    LEFT JOIN dbo.InventarioArticulo a ON a.InventarioArticuloId=e.InventarioArticuloId
+    LEFT JOIN dbo.Sede s ON s.SedeId=e.SedeId
+    WHERE e.Eliminado=0 AND (@Estado IS NULL OR e.Estado=@Estado) AND (@Canal IS NULL OR e.Canal=@Canal)
+      AND (@Busqueda IS NULL OR e.SocioNombre LIKE N'%'+@Busqueda+N'%' OR e.ClaveIdempotencia LIKE N'%'+@Busqueda+N'%' OR e.DocumentoExterno LIKE N'%'+@Busqueda+N'%')
+      AND (@EsAdministrador=1 OR e.UsuarioId=@UsuarioId OR
+          (e.InventarioArticuloId IS NOT NULL AND EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio ug WHERE ug.UsuarioId=@UsuarioId AND ug.GiroNegocioId=a.GiroNegocioId AND ug.Eliminado=0)
+           AND e.SedeId IS NOT NULL AND EXISTS(SELECT 1 FROM dbo.UsuarioSede us WHERE us.UsuarioId=@UsuarioId AND us.SedeId=e.SedeId AND us.Eliminado=0)))
+    ORDER BY e.FechaCreacion DESC,e.IntegracionEventoId DESC;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_integraciones_leer_por_id
+    @Id BIGINT,@UsuarioId INT,@EsAdministrador BIT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT e.IntegracionEventoId,e.Canal,e.Direccion,e.SocioTipo,e.SocioNombre,e.Operacion,
+           e.ClaveIdempotencia,e.DocumentoExterno,e.Contenido,e.Estado,e.Intentos,e.Error,
+           e.InventarioArticuloId,a.Codigo AS ArticuloCodigo,a.Nombre AS Articulo,a.UnidadMedida,
+           e.SedeId,s.Nombre AS Sede,e.Cantidad,e.InventarioMovimientoId,
+           u.NombreUsuario,e.FechaProcesamiento,e.FechaCreacion,e.FechaModificacion
+    FROM dbo.IntegracionEvento e
+    INNER JOIN dbo.Usuario u ON u.UsuarioId=e.UsuarioId
+    LEFT JOIN dbo.InventarioArticulo a ON a.InventarioArticuloId=e.InventarioArticuloId
+    LEFT JOIN dbo.Sede s ON s.SedeId=e.SedeId
+    WHERE e.IntegracionEventoId=@Id AND e.Eliminado=0 AND
+      (@EsAdministrador=1 OR e.UsuarioId=@UsuarioId OR
+       (e.InventarioArticuloId IS NOT NULL AND EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio ug WHERE ug.UsuarioId=@UsuarioId AND ug.GiroNegocioId=a.GiroNegocioId AND ug.Eliminado=0)
+        AND e.SedeId IS NOT NULL AND EXISTS(SELECT 1 FROM dbo.UsuarioSede us WHERE us.UsuarioId=@UsuarioId AND us.SedeId=e.SedeId AND us.Eliminado=0)));
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_integraciones_leer_opciones @UsuarioId INT,@EsAdministrador BIT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT a.InventarioArticuloId AS Id,CONCAT(a.Codigo,N' · ',a.Nombre,N' (',a.UnidadMedida,N')') AS Nombre
+    FROM dbo.InventarioArticulo a WHERE a.Eliminado=0 AND a.EsActivo=1 AND
+      (@EsAdministrador=1 OR EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio ug WHERE ug.UsuarioId=@UsuarioId AND ug.GiroNegocioId=a.GiroNegocioId AND ug.Eliminado=0))
+    ORDER BY a.Codigo;
+    SELECT s.SedeId AS Id,s.Nombre FROM dbo.Sede s WHERE s.Eliminado=0 AND s.EsActivo=1 AND
+      (@EsAdministrador=1 OR EXISTS(SELECT 1 FROM dbo.UsuarioSede us WHERE us.UsuarioId=@UsuarioId AND us.SedeId=s.SedeId AND us.Eliminado=0))
+    ORDER BY CASE WHEN s.Nombre=N'Sede central' THEN 0 ELSE 1 END,s.Nombre;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_integraciones_procesar @Id BIGINT,@UsuarioId INT,@EsAdministrador BIT
+AS
+BEGIN
+    SET NOCOUNT ON;SET XACT_ABORT ON;
+    UPDATE dbo.IntegracionEvento SET Intentos=Intentos+1,Estado=N'Recibido',Error=NULL,FechaModificacion=SYSUTCDATETIME()
+    WHERE IntegracionEventoId=@Id AND Eliminado=0 AND Estado IN(N'Recibido',N'Error');
+    IF @@ROWCOUNT=0 THROW 50002,N'El evento no está disponible para procesamiento.',1;
+    BEGIN TRY
+        BEGIN TRANSACTION;
+        DECLARE @Operacion NVARCHAR(40),@Direccion NVARCHAR(20),@Canal NVARCHAR(20),@Socio NVARCHAR(180),
+                @Documento NVARCHAR(120),@ArticuloId INT,@SedeId INT,@Cantidad DECIMAL(18,3),@GiroId INT,@MovimientoId BIGINT;
+        SELECT @Operacion=Operacion,@Direccion=Direccion,@Canal=Canal,@Socio=SocioNombre,@Documento=DocumentoExterno,
+               @ArticuloId=InventarioArticuloId,@SedeId=SedeId,@Cantidad=Cantidad
+        FROM dbo.IntegracionEvento WITH(UPDLOCK,HOLDLOCK) WHERE IntegracionEventoId=@Id;
+        IF @Operacion=N'RecepcionMateriaPrima'
+        BEGIN
+            IF @Direccion<>N'Entrada' OR @ArticuloId IS NULL OR @SedeId IS NULL OR @Cantidad IS NULL OR @Cantidad<=0
+                THROW 50002,N'La recepción requiere dirección Entrada, artículo, sede y cantidad positiva.',1;
+            SELECT @GiroId=GiroNegocioId FROM dbo.InventarioArticulo WHERE InventarioArticuloId=@ArticuloId AND Eliminado=0 AND EsActivo=1;
+            IF @GiroId IS NULL THROW 50002,N'El artículo recibido no está disponible.',1;
+            IF NOT EXISTS(SELECT 1 FROM dbo.SedeGiroNegocio WHERE SedeId=@SedeId AND GiroNegocioId=@GiroId AND Eliminado=0)
+                THROW 50002,N'La sede destino no opera el giro del artículo.',1;
+            IF @EsAdministrador=0 AND NOT EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio WHERE UsuarioId=@UsuarioId AND GiroNegocioId=@GiroId AND Eliminado=0)
+                THROW 50002,N'El usuario no tiene acceso al giro.',1;
+            IF @EsAdministrador=0 AND NOT EXISTS(SELECT 1 FROM dbo.UsuarioSede WHERE UsuarioId=@UsuarioId AND SedeId=@SedeId AND Eliminado=0)
+                THROW 50002,N'El usuario no tiene acceso a la sede destino.',1;
+            IF NOT EXISTS(SELECT 1 FROM dbo.InventarioExistencia WHERE InventarioArticuloId=@ArticuloId AND SedeId=@SedeId)
+                INSERT dbo.InventarioExistencia(InventarioArticuloId,SedeId) VALUES(@ArticuloId,@SedeId);
+            UPDATE dbo.InventarioExistencia SET Cantidad=Cantidad+@Cantidad,FechaModificacion=SYSUTCDATETIME()
+            WHERE InventarioArticuloId=@ArticuloId AND SedeId=@SedeId;
+            INSERT dbo.InventarioMovimiento(InventarioArticuloId,Tipo,SedeDestinoId,Cantidad,Referencia,Observacion,UsuarioId)
+            VALUES(@ArticuloId,N'Entrada',@SedeId,@Cantidad,COALESCE(NULLIF(@Documento,N''),CONCAT(N'Integración #',@Id)),
+                   CONCAT(N'Recepción externa simulada vía ',@Canal,N' desde ',@Socio,N'.'),@UsuarioId);
+            SET @MovimientoId=CONVERT(BIGINT,SCOPE_IDENTITY());
+        END;
+        UPDATE dbo.IntegracionEvento SET Estado=N'Procesado',Error=NULL,InventarioMovimientoId=@MovimientoId,
+               FechaProcesamiento=SYSUTCDATETIME(),FechaModificacion=SYSUTCDATETIME() WHERE IntegracionEventoId=@Id;
+        EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'Integraciones',N'Procesar',@Id,N'Exitoso',@Operacion;
+        COMMIT TRANSACTION;
+        SELECT @Id;
+    END TRY
+    BEGIN CATCH
+        IF XACT_STATE()<>0 ROLLBACK TRANSACTION;
+        DECLARE @Error NVARCHAR(1000)=ERROR_MESSAGE();
+        UPDATE dbo.IntegracionEvento SET Estado=N'Error',Error=@Error,FechaModificacion=SYSUTCDATETIME() WHERE IntegracionEventoId=@Id;
+        EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'Integraciones',N'Procesar',@Id,N'Error',@Error;
+        THROW;
+    END CATCH
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_integraciones_simular
+    @Canal NVARCHAR(20),@Direccion NVARCHAR(20),@SocioTipo NVARCHAR(20),@SocioNombre NVARCHAR(180),
+    @Operacion NVARCHAR(40),@ClaveIdempotencia NVARCHAR(120),@DocumentoExterno NVARCHAR(120)=NULL,
+    @Contenido NVARCHAR(MAX),@InventarioArticuloId INT=NULL,@SedeId INT=NULL,@Cantidad DECIMAL(18,3)=NULL,
+    @UsuarioId INT,@EsAdministrador BIT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DECLARE @Existente BIGINT=(SELECT IntegracionEventoId FROM dbo.IntegracionEvento WHERE ClaveIdempotencia=@ClaveIdempotencia AND Eliminado=0);
+    IF @Existente IS NOT NULL BEGIN SELECT @Existente;RETURN;END;
+    INSERT dbo.IntegracionEvento(Canal,Direccion,SocioTipo,SocioNombre,Operacion,ClaveIdempotencia,DocumentoExterno,Contenido,InventarioArticuloId,SedeId,Cantidad,UsuarioId)
+    VALUES(@Canal,@Direccion,@SocioTipo,LTRIM(RTRIM(@SocioNombre)),@Operacion,LTRIM(RTRIM(@ClaveIdempotencia)),NULLIF(LTRIM(RTRIM(@DocumentoExterno)),N''),@Contenido,@InventarioArticuloId,@SedeId,@Cantidad,@UsuarioId);
+    DECLARE @Id BIGINT=CONVERT(BIGINT,SCOPE_IDENTITY());
+    EXEC dbo.sp_integraciones_procesar @Id,@UsuarioId,@EsAdministrador;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_integraciones_reintentar @Id BIGINT,@UsuarioId INT,@EsAdministrador BIT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    IF NOT EXISTS(SELECT 1 FROM dbo.IntegracionEvento e LEFT JOIN dbo.InventarioArticulo a ON a.InventarioArticuloId=e.InventarioArticuloId
+       WHERE e.IntegracionEventoId=@Id AND e.Eliminado=0 AND e.Estado=N'Error' AND
+       (@EsAdministrador=1 OR e.UsuarioId=@UsuarioId OR (EXISTS(SELECT 1 FROM dbo.UsuarioGiroNegocio ug WHERE ug.UsuarioId=@UsuarioId AND ug.GiroNegocioId=a.GiroNegocioId AND ug.Eliminado=0)
+        AND EXISTS(SELECT 1 FROM dbo.UsuarioSede us WHERE us.UsuarioId=@UsuarioId AND us.SedeId=e.SedeId AND us.Eliminado=0))))
+       THROW 50002,N'El evento con error no está disponible para reintento.',1;
+    EXEC dbo.sp_integraciones_procesar @Id,@UsuarioId,@EsAdministrador;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_integraciones_eliminar @Id BIGINT,@UsuarioId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE dbo.IntegracionEvento SET Eliminado=1,FechaModificacion=SYSUTCDATETIME() WHERE IntegracionEventoId=@Id AND Eliminado=0;
+    DECLARE @Filas INT=@@ROWCOUNT;
+    IF @Filas>0 EXEC dbo.sp_auditoria_crear_evento @UsuarioId,N'Integraciones',N'Eliminar',@Id,N'Exitoso',NULL;
+    SELECT @Filas;
+END;
+GO
