@@ -53,8 +53,8 @@
                             <a href="/admin/catalogos/@Model.Tipo/@item.Id/editar">Editar</a>
                             @if (!protegido)
                             {
-                                <form method="post" action="/admin/catalogos/@Model.Tipo/@item.Id/estado"><button class="link-button" type="submit">@(item.EsActivo ? "Desactivar" : "Activar")</button></form>
-                                <form method="post" action="/admin/catalogos/@Model.Tipo/@item.Id/eliminar" data-confirm="¿Eliminar lógicamente este @Model.Singular?"><button class="link-button danger" type="submit">Eliminar</button></form>
+                                <form method="post" action="/admin/catalogos/@Model.Tipo/@item.Id/estado">@Html.AntiForgeryToken()<button class="link-button" type="submit">@(item.EsActivo ? "Desactivar" : "Activar")</button></form>
+                                <form method="post" action="/admin/catalogos/@Model.Tipo/@item.Id/eliminar" data-confirm="¿Eliminar lógicamente este @Model.Singular?">@Html.AntiForgeryToken()<button class="link-button danger" type="submit">Eliminar</button></form>
                             }
                         </td>
                     </tr>

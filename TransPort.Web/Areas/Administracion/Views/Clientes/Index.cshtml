@@ -49,8 +49,8 @@
                         <td data-label="Estado"><span class="status-pill @(cliente.EsActivo ? "" : "inactive")">@(cliente.EsActivo ? "Activo" : "Inactivo")</span></td>
                         <td data-label="Acciones" class="row-actions">
                             <a href="/admin/clientes/@cliente.ClienteId/editar">Editar</a>
-                            <form method="post" action="/admin/clientes/@cliente.ClienteId/estado"><button class="link-button" type="submit">@(cliente.EsActivo ? "Desactivar" : "Activar")</button></form>
-                            <form method="post" action="/admin/clientes/@cliente.ClienteId/eliminar" data-confirm="¿Eliminar lógicamente este cliente?"><button class="link-button danger" type="submit">Eliminar</button></form>
+                            <form method="post" action="/admin/clientes/@cliente.ClienteId/estado">@Html.AntiForgeryToken()<button class="link-button" type="submit">@(cliente.EsActivo ? "Desactivar" : "Activar")</button></form>
+                            <form method="post" action="/admin/clientes/@cliente.ClienteId/eliminar" data-confirm="¿Eliminar lógicamente este cliente?">@Html.AntiForgeryToken()<button class="link-button danger" type="submit">Eliminar</button></form>
                         </td>
                     </tr>
                 }
