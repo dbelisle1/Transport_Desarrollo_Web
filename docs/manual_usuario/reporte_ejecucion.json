@@ -1,0 +1,2206 @@
+{
+  "generated_at": "2026-10-31T02:53:11",
+  "base_url": "http://localhost:8080",
+  "run_id": "MANUAL-20261031-025056",
+  "summary": {
+    "checks": 109,
+    "passed": 109,
+    "failed": 0,
+    "screenshots": 177
+  },
+  "generated_records": {
+    "pedido_cliente": "/cliente/pedidos/20",
+    "abastecimiento": "/gestion/abastecimientos/7",
+    "extraccion": "/gestion/extracciones/9",
+    "produccion": "/gestion/producciones/8",
+    "maquinaria": "/gestion/maquinarias/10",
+    "construccion": "/gestion/construcciones/11",
+    "finanzas": "/gestion/finanzas/10",
+    "alerta": "/gestion/alertas/14",
+    "comunicacion": "/gestion/comunicaciones/20",
+    "viaje": "/gestion/transportes/11"
+  },
+  "checks": [
+    {
+      "name": "Portada pública",
+      "chapter": "Sitio público",
+      "status": "correcto",
+      "url": "http://localhost:8080/",
+      "detail": ""
+    },
+    {
+      "name": "Catálogo público",
+      "chapter": "Sitio público",
+      "status": "correcto",
+      "url": "http://localhost:8080/catalogo",
+      "detail": ""
+    },
+    {
+      "name": "Filtro del catálogo público",
+      "chapter": "Sitio público",
+      "status": "correcto",
+      "url": "http://localhost:8080/catalogo?giroId=1&tipo=",
+      "detail": ""
+    },
+    {
+      "name": "Inicio de sesión",
+      "chapter": "Acceso y seguridad",
+      "status": "correcto",
+      "url": "http://localhost:8080/admin",
+      "detail": ""
+    },
+    {
+      "name": "Cierre de sesión",
+      "chapter": "Acceso y seguridad",
+      "status": "correcto",
+      "url": "http://localhost:8080/acceso",
+      "detail": ""
+    },
+    {
+      "name": "Portal de administrador",
+      "chapter": "Perfiles y portales",
+      "status": "correcto",
+      "url": "http://localhost:8080/admin",
+      "detail": ""
+    },
+    {
+      "name": "Portal de gerente",
+      "chapter": "Perfiles y portales",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion",
+      "detail": ""
+    },
+    {
+      "name": "Portal de empleado",
+      "chapter": "Perfiles y portales",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion",
+      "detail": ""
+    },
+    {
+      "name": "Portal de operativo",
+      "chapter": "Perfiles y portales",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion",
+      "detail": ""
+    },
+    {
+      "name": "Portal de vendedor",
+      "chapter": "Perfiles y portales",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion",
+      "detail": ""
+    },
+    {
+      "name": "Portal de cliente",
+      "chapter": "Perfiles y portales",
+      "status": "correcto",
+      "url": "http://localhost:8080/cliente",
+      "detail": ""
+    },
+    {
+      "name": "Portal de cliente_una_empresa",
+      "chapter": "Perfiles y portales",
+      "status": "correcto",
+      "url": "http://localhost:8080/cliente",
+      "detail": ""
+    },
+    {
+      "name": "Portal de cliente_varias_empresas",
+      "chapter": "Perfiles y portales",
+      "status": "correcto",
+      "url": "http://localhost:8080/cliente",
+      "detail": ""
+    },
+    {
+      "name": "Acceso cliente",
+      "chapter": "Portal del cliente",
+      "status": "correcto",
+      "url": "http://localhost:8080/cliente",
+      "detail": ""
+    },
+    {
+      "name": "Inicio del cliente",
+      "chapter": "Portal del cliente",
+      "status": "correcto",
+      "url": "http://localhost:8080/cliente",
+      "detail": ""
+    },
+    {
+      "name": "Pedidos del cliente",
+      "chapter": "Portal del cliente",
+      "status": "correcto",
+      "url": "http://localhost:8080/cliente/pedidos",
+      "detail": ""
+    },
+    {
+      "name": "Seguimiento operativo",
+      "chapter": "Portal del cliente",
+      "status": "correcto",
+      "url": "http://localhost:8080/cliente/operaciones",
+      "detail": ""
+    },
+    {
+      "name": "Reportes del cliente",
+      "chapter": "Portal del cliente",
+      "status": "correcto",
+      "url": "http://localhost:8080/cliente/reportes",
+      "detail": ""
+    },
+    {
+      "name": "Comunicaciones del cliente",
+      "chapter": "Portal del cliente",
+      "status": "correcto",
+      "url": "http://localhost:8080/cliente/comunicaciones",
+      "detail": ""
+    },
+    {
+      "name": "Crear solicitud",
+      "chapter": "Portal del cliente",
+      "status": "correcto",
+      "url": "http://localhost:8080/cliente/pedidos/20",
+      "detail": ""
+    },
+    {
+      "name": "Comentar solicitud",
+      "chapter": "Portal del cliente",
+      "status": "correcto",
+      "url": "http://localhost:8080/cliente/pedidos/20",
+      "detail": ""
+    },
+    {
+      "name": "Crear comunicación cliente",
+      "chapter": "Portal del cliente",
+      "status": "correcto",
+      "url": "http://localhost:8080/cliente/comunicaciones/19",
+      "detail": ""
+    },
+    {
+      "name": "Responder comunicación cliente",
+      "chapter": "Portal del cliente",
+      "status": "correcto",
+      "url": "http://localhost:8080/cliente/comunicaciones/19",
+      "detail": ""
+    },
+    {
+      "name": "Filtrar pedidos del cliente",
+      "chapter": "Portal del cliente",
+      "status": "correcto",
+      "url": "http://localhost:8080/cliente/pedidos?busqueda=DEMO&estado=",
+      "detail": ""
+    },
+    {
+      "name": "Filtrar operaciones por empresa",
+      "chapter": "Portal del cliente",
+      "status": "correcto",
+      "url": "http://localhost:8080/cliente/operaciones?clienteId=8",
+      "detail": ""
+    },
+    {
+      "name": "Generar reporte del cliente",
+      "chapter": "Portal del cliente",
+      "status": "correcto",
+      "url": "http://localhost:8080/cliente/reportes?desde=2026-01-01&hasta=2026-12-31&clienteId=8",
+      "detail": ""
+    },
+    {
+      "name": "Filtrar comunicaciones del cliente",
+      "chapter": "Portal del cliente",
+      "status": "correcto",
+      "url": "http://localhost:8080/cliente/comunicaciones?estado=&busqueda=DEMO",
+      "detail": ""
+    },
+    {
+      "name": "Acceso administrador para pruebas",
+      "chapter": "Administración",
+      "status": "correcto",
+      "url": "http://localhost:8080/admin",
+      "detail": ""
+    },
+    {
+      "name": "Panel de administración",
+      "chapter": "Administración",
+      "status": "correcto",
+      "url": "http://localhost:8080/admin",
+      "detail": ""
+    },
+    {
+      "name": "Listado de usuarios",
+      "chapter": "Administración",
+      "status": "correcto",
+      "url": "http://localhost:8080/admin/usuarios",
+      "detail": ""
+    },
+    {
+      "name": "Listado de clientes",
+      "chapter": "Administración",
+      "status": "correcto",
+      "url": "http://localhost:8080/admin/clientes",
+      "detail": ""
+    },
+    {
+      "name": "Catálogo de roles",
+      "chapter": "Administración",
+      "status": "correcto",
+      "url": "http://localhost:8080/admin/catalogos/roles",
+      "detail": ""
+    },
+    {
+      "name": "Catálogo de giros",
+      "chapter": "Administración",
+      "status": "correcto",
+      "url": "http://localhost:8080/admin/catalogos/giros",
+      "detail": ""
+    },
+    {
+      "name": "Catálogo de sedes",
+      "chapter": "Administración",
+      "status": "correcto",
+      "url": "http://localhost:8080/admin/catalogos/sedes",
+      "detail": ""
+    },
+    {
+      "name": "Auditoría",
+      "chapter": "Administración",
+      "status": "correcto",
+      "url": "http://localhost:8080/admin/auditoria",
+      "detail": ""
+    },
+    {
+      "name": "Filtrar usuarios",
+      "chapter": "Administración",
+      "status": "correcto",
+      "url": "http://localhost:8080/admin/usuarios?busqueda=demo&esActivo=true&rolId=",
+      "detail": ""
+    },
+    {
+      "name": "Filtrar clientes",
+      "chapter": "Administración",
+      "status": "correcto",
+      "url": "http://localhost:8080/admin/clientes?busqueda=DEMO&esActivo=true",
+      "detail": ""
+    },
+    {
+      "name": "Filtrar auditoría",
+      "chapter": "Administración",
+      "status": "correcto",
+      "url": "http://localhost:8080/admin/auditoria?Busqueda=&FechaDesde=&__Invariant=FechaDesde&FechaHasta=&__Invariant=FechaHasta&Modulo=&TipoOperacion=Crear&NombreUsuario=&Resultado=&TamanoPagina=25&Pagina=1",
+      "detail": ""
+    },
+    {
+      "name": "Crear roles",
+      "chapter": "Administración",
+      "status": "correcto",
+      "url": "http://localhost:8080/admin/catalogos/roles",
+      "detail": ""
+    },
+    {
+      "name": "Crear giros",
+      "chapter": "Administración",
+      "status": "correcto",
+      "url": "http://localhost:8080/admin/catalogos/giros",
+      "detail": ""
+    },
+    {
+      "name": "Crear sedes",
+      "chapter": "Administración",
+      "status": "correcto",
+      "url": "http://localhost:8080/admin/catalogos/sedes",
+      "detail": ""
+    },
+    {
+      "name": "Crear usuario",
+      "chapter": "Administración",
+      "status": "correcto",
+      "url": "http://localhost:8080/admin/usuarios",
+      "detail": ""
+    },
+    {
+      "name": "Crear cliente",
+      "chapter": "Administración",
+      "status": "correcto",
+      "url": "http://localhost:8080/admin/clientes",
+      "detail": ""
+    },
+    {
+      "name": "Panel de gestión",
+      "chapter": "Gestión operativa",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion",
+      "detail": ""
+    },
+    {
+      "name": "Pedidos comerciales",
+      "chapter": "Gestión operativa",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/pedidos",
+      "detail": ""
+    },
+    {
+      "name": "Inventarios y bodegas",
+      "chapter": "Gestión operativa",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/inventarios",
+      "detail": ""
+    },
+    {
+      "name": "Catálogo comercial",
+      "chapter": "Gestión operativa",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/catalogo",
+      "detail": ""
+    },
+    {
+      "name": "Abastecimiento",
+      "chapter": "Gestión operativa",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/abastecimientos",
+      "detail": ""
+    },
+    {
+      "name": "Extracción minera",
+      "chapter": "Gestión operativa",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/extracciones",
+      "detail": ""
+    },
+    {
+      "name": "Producción",
+      "chapter": "Gestión operativa",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/producciones",
+      "detail": ""
+    },
+    {
+      "name": "Maquinaria",
+      "chapter": "Gestión operativa",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/maquinarias",
+      "detail": ""
+    },
+    {
+      "name": "Transporte",
+      "chapter": "Gestión operativa",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/transportes",
+      "detail": ""
+    },
+    {
+      "name": "GPS",
+      "chapter": "Gestión operativa",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/gps",
+      "detail": ""
+    },
+    {
+      "name": "Construcción",
+      "chapter": "Gestión operativa",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/construcciones",
+      "detail": ""
+    },
+    {
+      "name": "Finanzas",
+      "chapter": "Gestión operativa",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/finanzas",
+      "detail": ""
+    },
+    {
+      "name": "Ingresos",
+      "chapter": "Gestión operativa",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/finanzas/ingresos",
+      "detail": ""
+    },
+    {
+      "name": "Alertas",
+      "chapter": "Gestión operativa",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/alertas",
+      "detail": ""
+    },
+    {
+      "name": "Comunicaciones",
+      "chapter": "Gestión operativa",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/comunicaciones",
+      "detail": ""
+    },
+    {
+      "name": "Integraciones",
+      "chapter": "Gestión operativa",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/integraciones",
+      "detail": ""
+    },
+    {
+      "name": "Reportes",
+      "chapter": "Gestión operativa",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/reportes",
+      "detail": ""
+    },
+    {
+      "name": "Filtrar Pedidos",
+      "chapter": "Gestión operativa",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/pedidos?busqueda=DEMO&estado=&clienteId=&giroId=",
+      "detail": ""
+    },
+    {
+      "name": "Filtrar Inventarios",
+      "chapter": "Gestión operativa",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/inventarios?busqueda=DEMO&giroId=&sedeId=",
+      "detail": ""
+    },
+    {
+      "name": "Filtrar Catálogo",
+      "chapter": "Gestión operativa",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/catalogo?busqueda=DEMO&giroId=&tipo=&esActivo=",
+      "detail": ""
+    },
+    {
+      "name": "Filtrar Abastecimiento",
+      "chapter": "Gestión operativa",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/abastecimientos?busqueda=DEMO&estado=",
+      "detail": ""
+    },
+    {
+      "name": "Filtrar Extracciones",
+      "chapter": "Gestión operativa",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/extracciones?estado=Registrada&sedeId=&fechaDesde=&fechaHasta=",
+      "detail": ""
+    },
+    {
+      "name": "Filtrar Producciones",
+      "chapter": "Gestión operativa",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/producciones?estado=Planificada&sedeId=&fechaDesde=&fechaHasta=",
+      "detail": ""
+    },
+    {
+      "name": "Filtrar Maquinaria",
+      "chapter": "Gestión operativa",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/maquinarias?busqueda=DEMO&estado=&sedeId=",
+      "detail": ""
+    },
+    {
+      "name": "Filtrar Transportes",
+      "chapter": "Gestión operativa",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/transportes?estado=Programado&tipo=",
+      "detail": ""
+    },
+    {
+      "name": "Filtrar Construcciones",
+      "chapter": "Gestión operativa",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/construcciones?busqueda=DEMO&estado=",
+      "detail": ""
+    },
+    {
+      "name": "Filtrar Finanzas",
+      "chapter": "Gestión operativa",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/finanzas?anio=2026&mes=10&giroId=&sedeId=",
+      "detail": ""
+    },
+    {
+      "name": "Filtrar Alertas",
+      "chapter": "Gestión operativa",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/alertas?estado=Activa",
+      "detail": ""
+    },
+    {
+      "name": "Filtrar Comunicaciones",
+      "chapter": "Gestión operativa",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/comunicaciones?estado=&tipo=&busqueda=DEMO",
+      "detail": ""
+    },
+    {
+      "name": "Filtrar Integraciones",
+      "chapter": "Gestión operativa",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/integraciones?estado=&canal=&busqueda=DEMO",
+      "detail": ""
+    },
+    {
+      "name": "Filtrar Reportes",
+      "chapter": "Gestión operativa",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/reportes?desde=2026-01-01&hasta=2026-12-31&giroId=&sedeId=",
+      "detail": ""
+    },
+    {
+      "name": "Crear artículo de inventario",
+      "chapter": "Inventarios y bodegas",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/inventarios",
+      "detail": ""
+    },
+    {
+      "name": "Registrar movimiento de inventario",
+      "chapter": "Inventarios y bodegas",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/inventarios",
+      "detail": ""
+    },
+    {
+      "name": "Flujo de inventario",
+      "chapter": "Inventarios y bodegas",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/inventarios",
+      "detail": ""
+    },
+    {
+      "name": "Crear Abastecimiento",
+      "chapter": "Abastecimiento",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/abastecimientos/7",
+      "detail": ""
+    },
+    {
+      "name": "Crear Extracción minera",
+      "chapter": "Extracción minera",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/extracciones/9",
+      "detail": ""
+    },
+    {
+      "name": "Crear Orden de producción",
+      "chapter": "Orden de producción",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/producciones/8",
+      "detail": ""
+    },
+    {
+      "name": "Crear Equipo de maquinaria",
+      "chapter": "Equipo de maquinaria",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/maquinarias/10",
+      "detail": ""
+    },
+    {
+      "name": "Crear Proyecto de construcción",
+      "chapter": "Proyecto de construcción",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/construcciones/11",
+      "detail": ""
+    },
+    {
+      "name": "Crear Presupuesto",
+      "chapter": "Presupuesto",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/finanzas/10",
+      "detail": ""
+    },
+    {
+      "name": "Crear Alerta",
+      "chapter": "Alerta",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/alertas/14",
+      "detail": ""
+    },
+    {
+      "name": "Crear Comunicación interna",
+      "chapter": "Comunicación interna",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/comunicaciones/20",
+      "detail": ""
+    },
+    {
+      "name": "Aprobar solicitud",
+      "chapter": "Abastecimiento",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/abastecimientos/7",
+      "detail": ""
+    },
+    {
+      "name": "Comentar solicitud",
+      "chapter": "Abastecimiento",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/abastecimientos/7",
+      "detail": ""
+    },
+    {
+      "name": "Confirmar extracción",
+      "chapter": "Extraccion",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/extracciones/9",
+      "detail": ""
+    },
+    {
+      "name": "Iniciar producción",
+      "chapter": "Produccion",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/producciones/8",
+      "detail": ""
+    },
+    {
+      "name": "Registrar gasto",
+      "chapter": "Finanzas",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/finanzas/10",
+      "detail": ""
+    },
+    {
+      "name": "Agregar seguimiento",
+      "chapter": "Alerta",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/alertas/14",
+      "detail": ""
+    },
+    {
+      "name": "Responder comunicación",
+      "chapter": "Comunicacion",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/comunicaciones/20",
+      "detail": ""
+    },
+    {
+      "name": "Programar mantenimiento",
+      "chapter": "Maquinaria",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/maquinarias/10",
+      "detail": ""
+    },
+    {
+      "name": "Reservar maquinaria",
+      "chapter": "Maquinaria",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/maquinarias/10",
+      "detail": ""
+    },
+    {
+      "name": "Iniciar proyecto",
+      "chapter": "Construcción",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/construcciones/11",
+      "detail": ""
+    },
+    {
+      "name": "Registrar actividad de obra",
+      "chapter": "Construcción",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/construcciones/11",
+      "detail": ""
+    },
+    {
+      "name": "Asignar recurso de obra",
+      "chapter": "Construcción",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/construcciones/11",
+      "detail": ""
+    },
+    {
+      "name": "Registrar avance de obra",
+      "chapter": "Construcción",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/construcciones/11",
+      "detail": ""
+    },
+    {
+      "name": "Registrar vehículo",
+      "chapter": "Transporte y GPS",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/transportes",
+      "detail": ""
+    },
+    {
+      "name": "Registrar conductor",
+      "chapter": "Transporte y GPS",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/transportes",
+      "detail": ""
+    },
+    {
+      "name": "Programar viaje",
+      "chapter": "Transporte y GPS",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/transportes/11",
+      "detail": ""
+    },
+    {
+      "name": "Iniciar viaje",
+      "chapter": "Transporte y GPS",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/transportes/11",
+      "detail": ""
+    },
+    {
+      "name": "Registrar incidencia",
+      "chapter": "Transporte y GPS",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/transportes/11",
+      "detail": ""
+    },
+    {
+      "name": "Registrar GPS",
+      "chapter": "Transporte y GPS",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/gps",
+      "detail": ""
+    },
+    {
+      "name": "Simular GPS",
+      "chapter": "Transporte y GPS",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/gps",
+      "detail": ""
+    },
+    {
+      "name": "Integración Webhook",
+      "chapter": "Integraciones y finanzas",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/integraciones/25",
+      "detail": ""
+    },
+    {
+      "name": "Integración REST",
+      "chapter": "Integraciones y finanzas",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/integraciones/26",
+      "detail": ""
+    },
+    {
+      "name": "Integración CSV",
+      "chapter": "Integraciones y finanzas",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/integraciones/27",
+      "detail": ""
+    },
+    {
+      "name": "Registrar ingreso",
+      "chapter": "Integraciones y finanzas",
+      "status": "correcto",
+      "url": "http://localhost:8080/gestion/finanzas/ingresos",
+      "detail": ""
+    }
+  ],
+  "captures": [
+    {
+      "chapter": "Sitio público",
+      "title": "Portada pública",
+      "description": "Página de bienvenida y acceso a los servicios públicos de TransPort.",
+      "image": "capturas/001_portada-p-blica.png",
+      "url": "http://localhost:8080/",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Sitio público",
+      "title": "Catálogo público de productos y servicios",
+      "description": "Ofertas comerciales visibles sin autenticación.",
+      "image": "capturas/002_cat-logo-p-blico-de-productos-y-servicios.png",
+      "url": "http://localhost:8080/catalogo",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Sitio público",
+      "title": "Filtrar catálogo público - datos",
+      "description": "Selección de un giro para reducir las ofertas visibles. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/003_filtrar-cat-logo-p-blico-datos.png",
+      "url": "http://localhost:8080/catalogo",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Sitio público",
+      "title": "Filtrar catálogo público - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/004_filtrar-cat-logo-p-blico-resultado.png",
+      "url": "http://localhost:8080/catalogo?giroId=1&tipo=",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Acceso y seguridad",
+      "title": "Inicio de sesión con clave incorrecta - datos",
+      "description": "El formulario completo antes de intentar el acceso con una clave incorrecta.",
+      "image": "capturas/005_inicio-de-sesi-n-con-clave-incorrecta-datos.png",
+      "url": "http://localhost:8080/acceso",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Acceso y seguridad",
+      "title": "Inicio de sesión con clave incorrecta - resultado",
+      "description": "La aplicación conserva el formulario y presenta el mensaje de validación.",
+      "image": "capturas/006_inicio-de-sesi-n-con-clave-incorrecta-resultado.png",
+      "url": "http://localhost:8080/acceso",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Acceso y seguridad",
+      "title": "Inicio de sesión administrador - datos",
+      "description": "Credenciales de demostración introducidas para el perfil administrador.",
+      "image": "capturas/007_inicio-de-sesi-n-administrador-datos.png",
+      "url": "http://localhost:8080/acceso",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Acceso y seguridad",
+      "title": "Inicio de sesión administrador - resultado",
+      "description": "Portal inicial mostrado después de autenticar el perfil administrador.",
+      "image": "capturas/008_inicio-de-sesi-n-administrador-resultado.png",
+      "url": "http://localhost:8080/admin",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Acceso y seguridad",
+      "title": "Cerrar sesión - datos",
+      "description": "El botón termina la sesión y regresa al sitio público. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/009_cerrar-sesi-n-datos.png",
+      "url": "http://localhost:8080/admin",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Acceso y seguridad",
+      "title": "Cerrar sesión - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/010_cerrar-sesi-n-resultado.png",
+      "url": "http://localhost:8080/acceso",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Perfiles y portales",
+      "title": "Portal del perfil administrador",
+      "description": "Menú y página inicial disponibles de acuerdo con los permisos de este usuario.",
+      "image": "capturas/011_portal-del-perfil-administrador.png",
+      "url": "http://localhost:8080/admin",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Perfiles y portales",
+      "title": "Portal del perfil gerente",
+      "description": "Menú y página inicial disponibles de acuerdo con los permisos de este usuario.",
+      "image": "capturas/012_portal-del-perfil-gerente.png",
+      "url": "http://localhost:8080/gestion",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Perfiles y portales",
+      "title": "Portal del perfil empleado",
+      "description": "Menú y página inicial disponibles de acuerdo con los permisos de este usuario.",
+      "image": "capturas/013_portal-del-perfil-empleado.png",
+      "url": "http://localhost:8080/gestion",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Perfiles y portales",
+      "title": "Portal del perfil operativo",
+      "description": "Menú y página inicial disponibles de acuerdo con los permisos de este usuario.",
+      "image": "capturas/014_portal-del-perfil-operativo.png",
+      "url": "http://localhost:8080/gestion",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Perfiles y portales",
+      "title": "Portal del perfil vendedor",
+      "description": "Menú y página inicial disponibles de acuerdo con los permisos de este usuario.",
+      "image": "capturas/015_portal-del-perfil-vendedor.png",
+      "url": "http://localhost:8080/gestion",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Perfiles y portales",
+      "title": "Portal del perfil cliente",
+      "description": "Menú y página inicial disponibles de acuerdo con los permisos de este usuario.",
+      "image": "capturas/016_portal-del-perfil-cliente.png",
+      "url": "http://localhost:8080/cliente",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Perfiles y portales",
+      "title": "Portal del perfil cliente_una_empresa",
+      "description": "Menú y página inicial disponibles de acuerdo con los permisos de este usuario.",
+      "image": "capturas/017_portal-del-perfil-cliente-una-empresa.png",
+      "url": "http://localhost:8080/cliente",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Perfiles y portales",
+      "title": "Portal del perfil cliente_varias_empresas",
+      "description": "Menú y página inicial disponibles de acuerdo con los permisos de este usuario.",
+      "image": "capturas/018_portal-del-perfil-cliente-varias-empresas.png",
+      "url": "http://localhost:8080/cliente",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Acceso y seguridad",
+      "title": "Inicio de sesión cliente_varias_empresas - datos",
+      "description": "Credenciales de demostración introducidas para el perfil cliente_varias_empresas.",
+      "image": "capturas/019_inicio-de-sesi-n-cliente-varias-empresas-datos.png",
+      "url": "http://localhost:8080/acceso",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Acceso y seguridad",
+      "title": "Inicio de sesión cliente_varias_empresas - resultado",
+      "description": "Portal inicial mostrado después de autenticar el perfil cliente_varias_empresas.",
+      "image": "capturas/020_inicio-de-sesi-n-cliente-varias-empresas-resultado.png",
+      "url": "http://localhost:8080/cliente",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Portal del cliente",
+      "title": "Inicio del cliente",
+      "description": "Pantalla inicio del cliente con alcance de varias empresas.",
+      "image": "capturas/021_inicio-del-cliente.png",
+      "url": "http://localhost:8080/cliente",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Portal del cliente",
+      "title": "Pedidos del cliente",
+      "description": "Pantalla pedidos del cliente con alcance de varias empresas.",
+      "image": "capturas/022_pedidos-del-cliente.png",
+      "url": "http://localhost:8080/cliente/pedidos",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Portal del cliente",
+      "title": "Seguimiento operativo",
+      "description": "Pantalla seguimiento operativo con alcance de varias empresas.",
+      "image": "capturas/023_seguimiento-operativo.png",
+      "url": "http://localhost:8080/cliente/operaciones",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Portal del cliente",
+      "title": "Reportes del cliente",
+      "description": "Pantalla reportes del cliente con alcance de varias empresas.",
+      "image": "capturas/024_reportes-del-cliente.png",
+      "url": "http://localhost:8080/cliente/reportes",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Portal del cliente",
+      "title": "Comunicaciones del cliente",
+      "description": "Pantalla comunicaciones del cliente con alcance de varias empresas.",
+      "image": "capturas/025_comunicaciones-del-cliente.png",
+      "url": "http://localhost:8080/cliente/comunicaciones",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Portal del cliente",
+      "title": "Crear solicitud comercial - datos",
+      "description": "Solicitud de pedido con dos líneas del catálogo. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/026_crear-solicitud-comercial-datos.png",
+      "url": "http://localhost:8080/cliente/pedidos/crear",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Portal del cliente",
+      "title": "Crear solicitud comercial - resultado",
+      "description": "Resultado devuelto por la aplicación. Solicitud creada correctamente.",
+      "image": "capturas/027_crear-solicitud-comercial-resultado.png",
+      "url": "http://localhost:8080/cliente/pedidos/20",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Portal del cliente",
+      "title": "Comentar solicitud - datos",
+      "description": "Mensaje adicional del cliente sobre su pedido. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/028_comentar-solicitud-datos.png",
+      "url": "http://localhost:8080/cliente/pedidos/20",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Portal del cliente",
+      "title": "Comentar solicitud - resultado",
+      "description": "Resultado devuelto por la aplicación. Comentario agregado.",
+      "image": "capturas/029_comentar-solicitud-resultado.png",
+      "url": "http://localhost:8080/cliente/pedidos/20",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Portal del cliente",
+      "title": "Iniciar comunicación con TransPort - datos",
+      "description": "Consulta nueva enviada desde el portal del cliente. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/030_iniciar-comunicaci-n-con-transport-datos.png",
+      "url": "http://localhost:8080/cliente/comunicaciones",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Portal del cliente",
+      "title": "Iniciar comunicación con TransPort - resultado",
+      "description": "Resultado devuelto por la aplicación. Comunicación iniciada.",
+      "image": "capturas/031_iniciar-comunicaci-n-con-transport-resultado.png",
+      "url": "http://localhost:8080/cliente/comunicaciones/19",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Portal del cliente",
+      "title": "Responder comunicación - datos",
+      "description": "Respuesta adicional dentro de la conversación. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/032_responder-comunicaci-n-datos.png",
+      "url": "http://localhost:8080/cliente/comunicaciones/19",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Portal del cliente",
+      "title": "Responder comunicación - resultado",
+      "description": "Resultado devuelto por la aplicación. Mensaje enviado.",
+      "image": "capturas/033_responder-comunicaci-n-resultado.png",
+      "url": "http://localhost:8080/cliente/comunicaciones/19",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Portal del cliente",
+      "title": "Filtrar pedidos del cliente - datos",
+      "description": "Aplicación de criterios dentro del portal del cliente. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/034_filtrar-pedidos-del-cliente-datos.png",
+      "url": "http://localhost:8080/cliente/pedidos",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Portal del cliente",
+      "title": "Filtrar pedidos del cliente - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/035_filtrar-pedidos-del-cliente-resultado.png",
+      "url": "http://localhost:8080/cliente/pedidos?busqueda=DEMO&estado=",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Portal del cliente",
+      "title": "Filtrar operaciones por empresa - datos",
+      "description": "Aplicación de criterios dentro del portal del cliente. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/036_filtrar-operaciones-por-empresa-datos.png",
+      "url": "http://localhost:8080/cliente/operaciones",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Portal del cliente",
+      "title": "Filtrar operaciones por empresa - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/037_filtrar-operaciones-por-empresa-resultado.png",
+      "url": "http://localhost:8080/cliente/operaciones?clienteId=8",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Portal del cliente",
+      "title": "Generar reporte del cliente - datos",
+      "description": "Aplicación de criterios dentro del portal del cliente. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/038_generar-reporte-del-cliente-datos.png",
+      "url": "http://localhost:8080/cliente/reportes",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Portal del cliente",
+      "title": "Generar reporte del cliente - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/039_generar-reporte-del-cliente-resultado.png",
+      "url": "http://localhost:8080/cliente/reportes?desde=2026-01-01&hasta=2026-12-31&clienteId=8",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Portal del cliente",
+      "title": "Filtrar comunicaciones del cliente - datos",
+      "description": "Aplicación de criterios dentro del portal del cliente. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/040_filtrar-comunicaciones-del-cliente-datos.png",
+      "url": "http://localhost:8080/cliente/comunicaciones",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Portal del cliente",
+      "title": "Filtrar comunicaciones del cliente - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/041_filtrar-comunicaciones-del-cliente-resultado.png",
+      "url": "http://localhost:8080/cliente/comunicaciones?estado=&busqueda=DEMO",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Administración",
+      "title": "Panel de administración",
+      "description": "Pantalla panel de administración disponible para administración.",
+      "image": "capturas/042_panel-de-administraci-n.png",
+      "url": "http://localhost:8080/admin",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Administración",
+      "title": "Listado de usuarios",
+      "description": "Pantalla listado de usuarios disponible para administración.",
+      "image": "capturas/043_listado-de-usuarios.png",
+      "url": "http://localhost:8080/admin/usuarios",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Administración",
+      "title": "Listado de clientes",
+      "description": "Pantalla listado de clientes disponible para administración.",
+      "image": "capturas/044_listado-de-clientes.png",
+      "url": "http://localhost:8080/admin/clientes",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Administración",
+      "title": "Catálogo de roles",
+      "description": "Pantalla catálogo de roles disponible para administración.",
+      "image": "capturas/045_cat-logo-de-roles.png",
+      "url": "http://localhost:8080/admin/catalogos/roles",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Administración",
+      "title": "Catálogo de giros",
+      "description": "Pantalla catálogo de giros disponible para administración.",
+      "image": "capturas/046_cat-logo-de-giros.png",
+      "url": "http://localhost:8080/admin/catalogos/giros",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Administración",
+      "title": "Catálogo de sedes",
+      "description": "Pantalla catálogo de sedes disponible para administración.",
+      "image": "capturas/047_cat-logo-de-sedes.png",
+      "url": "http://localhost:8080/admin/catalogos/sedes",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Administración",
+      "title": "Auditoría",
+      "description": "Pantalla auditoría disponible para administración.",
+      "image": "capturas/048_auditor-a.png",
+      "url": "http://localhost:8080/admin/auditoria",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Administración",
+      "title": "Filtrar usuarios - datos",
+      "description": "Uso de los criterios de búsqueda de la pantalla. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/049_filtrar-usuarios-datos.png",
+      "url": "http://localhost:8080/admin/usuarios",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Administración",
+      "title": "Filtrar usuarios - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/050_filtrar-usuarios-resultado.png",
+      "url": "http://localhost:8080/admin/usuarios?busqueda=demo&esActivo=true&rolId=",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Administración",
+      "title": "Filtrar clientes - datos",
+      "description": "Uso de los criterios de búsqueda de la pantalla. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/051_filtrar-clientes-datos.png",
+      "url": "http://localhost:8080/admin/clientes",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Administración",
+      "title": "Filtrar clientes - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/052_filtrar-clientes-resultado.png",
+      "url": "http://localhost:8080/admin/clientes?busqueda=DEMO&esActivo=true",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Administración",
+      "title": "Filtrar auditoría - datos",
+      "description": "Uso de los criterios de búsqueda de la pantalla. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/053_filtrar-auditor-a-datos.png",
+      "url": "http://localhost:8080/admin/auditoria",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Administración",
+      "title": "Filtrar auditoría - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/054_filtrar-auditor-a-resultado.png",
+      "url": "http://localhost:8080/admin/auditoria?Busqueda=&FechaDesde=&__Invariant=FechaDesde&FechaHasta=&__Invariant=FechaHasta&Modulo=&TipoOperacion=Crear&NombreUsuario=&Resultado=&TamanoPagina=25&Pagina=1",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Administración",
+      "title": "Crear catálogo de roles - datos",
+      "description": "Alta de un registro temporal en el catálogo de roles. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/055_crear-cat-logo-de-roles-datos.png",
+      "url": "http://localhost:8080/admin/catalogos/roles/crear",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Administración",
+      "title": "Crear catálogo de roles - resultado",
+      "description": "Resultado devuelto por la aplicación. Rol creado correctamente.",
+      "image": "capturas/056_crear-cat-logo-de-roles-resultado.png",
+      "url": "http://localhost:8080/admin/catalogos/roles",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Administración",
+      "title": "Crear catálogo de giros - datos",
+      "description": "Alta de un registro temporal en el catálogo de giros. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/057_crear-cat-logo-de-giros-datos.png",
+      "url": "http://localhost:8080/admin/catalogos/giros/crear",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Administración",
+      "title": "Crear catálogo de giros - resultado",
+      "description": "Resultado devuelto por la aplicación. Giro de negocio creado correctamente.",
+      "image": "capturas/058_crear-cat-logo-de-giros-resultado.png",
+      "url": "http://localhost:8080/admin/catalogos/giros",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Administración",
+      "title": "Crear catálogo de sedes - datos",
+      "description": "Alta de un registro temporal en el catálogo de sedes. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/059_crear-cat-logo-de-sedes-datos.png",
+      "url": "http://localhost:8080/admin/catalogos/sedes/crear",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Administración",
+      "title": "Crear catálogo de sedes - resultado",
+      "description": "Resultado devuelto por la aplicación. Sede creado correctamente.",
+      "image": "capturas/060_crear-cat-logo-de-sedes-resultado.png",
+      "url": "http://localhost:8080/admin/catalogos/sedes",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Administración",
+      "title": "Crear usuario - datos",
+      "description": "Alta de un usuario temporal con rol, giro y sede. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/061_crear-usuario-datos.png",
+      "url": "http://localhost:8080/admin/usuarios/crear",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Administración",
+      "title": "Crear usuario - resultado",
+      "description": "Resultado devuelto por la aplicación. Usuario creado correctamente.",
+      "image": "capturas/062_crear-usuario-resultado.png",
+      "url": "http://localhost:8080/admin/usuarios",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Administración",
+      "title": "Crear cliente - datos",
+      "description": "Alta de una empresa cliente temporal y asignación de alcance. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/063_crear-cliente-datos.png",
+      "url": "http://localhost:8080/admin/clientes/crear",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Administración",
+      "title": "Crear cliente - resultado",
+      "description": "Resultado devuelto por la aplicación. Cliente creado correctamente.",
+      "image": "capturas/064_crear-cliente-resultado.png",
+      "url": "http://localhost:8080/admin/clientes",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Panel de gestión",
+      "description": "Vista general del módulo panel de gestión.",
+      "image": "capturas/065_panel-de-gesti-n.png",
+      "url": "http://localhost:8080/gestion",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Pedidos comerciales",
+      "description": "Vista general del módulo pedidos comerciales.",
+      "image": "capturas/066_pedidos-comerciales.png",
+      "url": "http://localhost:8080/gestion/pedidos",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Inventarios y bodegas",
+      "description": "Vista general del módulo inventarios y bodegas.",
+      "image": "capturas/067_inventarios-y-bodegas.png",
+      "url": "http://localhost:8080/gestion/inventarios",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Catálogo comercial",
+      "description": "Vista general del módulo catálogo comercial.",
+      "image": "capturas/068_cat-logo-comercial.png",
+      "url": "http://localhost:8080/gestion/catalogo",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Abastecimiento",
+      "description": "Vista general del módulo abastecimiento.",
+      "image": "capturas/069_abastecimiento.png",
+      "url": "http://localhost:8080/gestion/abastecimientos",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Extracción minera",
+      "description": "Vista general del módulo extracción minera.",
+      "image": "capturas/070_extracci-n-minera.png",
+      "url": "http://localhost:8080/gestion/extracciones",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Producción",
+      "description": "Vista general del módulo producción.",
+      "image": "capturas/071_producci-n.png",
+      "url": "http://localhost:8080/gestion/producciones",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Maquinaria",
+      "description": "Vista general del módulo maquinaria.",
+      "image": "capturas/072_maquinaria.png",
+      "url": "http://localhost:8080/gestion/maquinarias",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Transporte",
+      "description": "Vista general del módulo transporte.",
+      "image": "capturas/073_transporte.png",
+      "url": "http://localhost:8080/gestion/transportes",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "GPS",
+      "description": "Vista general del módulo gps.",
+      "image": "capturas/074_gps.png",
+      "url": "http://localhost:8080/gestion/gps",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Construcción",
+      "description": "Vista general del módulo construcción.",
+      "image": "capturas/075_construcci-n.png",
+      "url": "http://localhost:8080/gestion/construcciones",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Finanzas",
+      "description": "Vista general del módulo finanzas.",
+      "image": "capturas/076_finanzas.png",
+      "url": "http://localhost:8080/gestion/finanzas",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Ingresos",
+      "description": "Vista general del módulo ingresos.",
+      "image": "capturas/077_ingresos.png",
+      "url": "http://localhost:8080/gestion/finanzas/ingresos",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Alertas",
+      "description": "Vista general del módulo alertas.",
+      "image": "capturas/078_alertas.png",
+      "url": "http://localhost:8080/gestion/alertas",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Comunicaciones",
+      "description": "Vista general del módulo comunicaciones.",
+      "image": "capturas/079_comunicaciones.png",
+      "url": "http://localhost:8080/gestion/comunicaciones",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Integraciones",
+      "description": "Vista general del módulo integraciones.",
+      "image": "capturas/080_integraciones.png",
+      "url": "http://localhost:8080/gestion/integraciones",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Reportes",
+      "description": "Vista general del módulo reportes.",
+      "image": "capturas/081_reportes.png",
+      "url": "http://localhost:8080/gestion/reportes",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Filtrar Pedidos - datos",
+      "description": "Aplicación de filtros en pedidos. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/082_filtrar-pedidos-datos.png",
+      "url": "http://localhost:8080/gestion/pedidos",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Filtrar Pedidos - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/083_filtrar-pedidos-resultado.png",
+      "url": "http://localhost:8080/gestion/pedidos?busqueda=DEMO&estado=&clienteId=&giroId=",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Filtrar Inventarios - datos",
+      "description": "Aplicación de filtros en inventarios. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/084_filtrar-inventarios-datos.png",
+      "url": "http://localhost:8080/gestion/inventarios",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Filtrar Inventarios - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/085_filtrar-inventarios-resultado.png",
+      "url": "http://localhost:8080/gestion/inventarios?busqueda=DEMO&giroId=&sedeId=",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Filtrar Catálogo - datos",
+      "description": "Aplicación de filtros en catálogo. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/086_filtrar-cat-logo-datos.png",
+      "url": "http://localhost:8080/gestion/catalogo",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Filtrar Catálogo - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/087_filtrar-cat-logo-resultado.png",
+      "url": "http://localhost:8080/gestion/catalogo?busqueda=DEMO&giroId=&tipo=&esActivo=",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Filtrar Abastecimiento - datos",
+      "description": "Aplicación de filtros en abastecimiento. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/088_filtrar-abastecimiento-datos.png",
+      "url": "http://localhost:8080/gestion/abastecimientos",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Filtrar Abastecimiento - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/089_filtrar-abastecimiento-resultado.png",
+      "url": "http://localhost:8080/gestion/abastecimientos?busqueda=DEMO&estado=",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Filtrar Extracciones - datos",
+      "description": "Aplicación de filtros en extracciones. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/090_filtrar-extracciones-datos.png",
+      "url": "http://localhost:8080/gestion/extracciones",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Filtrar Extracciones - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/091_filtrar-extracciones-resultado.png",
+      "url": "http://localhost:8080/gestion/extracciones?estado=Registrada&sedeId=&fechaDesde=&fechaHasta=",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Filtrar Producciones - datos",
+      "description": "Aplicación de filtros en producciones. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/092_filtrar-producciones-datos.png",
+      "url": "http://localhost:8080/gestion/producciones",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Filtrar Producciones - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/093_filtrar-producciones-resultado.png",
+      "url": "http://localhost:8080/gestion/producciones?estado=Planificada&sedeId=&fechaDesde=&fechaHasta=",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Filtrar Maquinaria - datos",
+      "description": "Aplicación de filtros en maquinaria. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/094_filtrar-maquinaria-datos.png",
+      "url": "http://localhost:8080/gestion/maquinarias",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Filtrar Maquinaria - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/095_filtrar-maquinaria-resultado.png",
+      "url": "http://localhost:8080/gestion/maquinarias?busqueda=DEMO&estado=&sedeId=",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Filtrar Transportes - datos",
+      "description": "Aplicación de filtros en transportes. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/096_filtrar-transportes-datos.png",
+      "url": "http://localhost:8080/gestion/transportes",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Filtrar Transportes - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/097_filtrar-transportes-resultado.png",
+      "url": "http://localhost:8080/gestion/transportes?estado=Programado&tipo=",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Filtrar Construcciones - datos",
+      "description": "Aplicación de filtros en construcciones. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/098_filtrar-construcciones-datos.png",
+      "url": "http://localhost:8080/gestion/construcciones",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Filtrar Construcciones - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/099_filtrar-construcciones-resultado.png",
+      "url": "http://localhost:8080/gestion/construcciones?busqueda=DEMO&estado=",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Filtrar Finanzas - datos",
+      "description": "Aplicación de filtros en finanzas. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/100_filtrar-finanzas-datos.png",
+      "url": "http://localhost:8080/gestion/finanzas",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Filtrar Finanzas - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/101_filtrar-finanzas-resultado.png",
+      "url": "http://localhost:8080/gestion/finanzas?anio=2026&mes=10&giroId=&sedeId=",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Filtrar Alertas - datos",
+      "description": "Aplicación de filtros en alertas. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/102_filtrar-alertas-datos.png",
+      "url": "http://localhost:8080/gestion/alertas",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Filtrar Alertas - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/103_filtrar-alertas-resultado.png",
+      "url": "http://localhost:8080/gestion/alertas?estado=Activa",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Filtrar Comunicaciones - datos",
+      "description": "Aplicación de filtros en comunicaciones. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/104_filtrar-comunicaciones-datos.png",
+      "url": "http://localhost:8080/gestion/comunicaciones",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Filtrar Comunicaciones - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/105_filtrar-comunicaciones-resultado.png",
+      "url": "http://localhost:8080/gestion/comunicaciones?estado=&tipo=&busqueda=DEMO",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Filtrar Integraciones - datos",
+      "description": "Aplicación de filtros en integraciones. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/106_filtrar-integraciones-datos.png",
+      "url": "http://localhost:8080/gestion/integraciones",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Filtrar Integraciones - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/107_filtrar-integraciones-resultado.png",
+      "url": "http://localhost:8080/gestion/integraciones?estado=&canal=&busqueda=DEMO",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Filtrar Reportes - datos",
+      "description": "Aplicación de filtros en reportes. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/108_filtrar-reportes-datos.png",
+      "url": "http://localhost:8080/gestion/reportes",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Gestión operativa",
+      "title": "Filtrar Reportes - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/109_filtrar-reportes-resultado.png",
+      "url": "http://localhost:8080/gestion/reportes?desde=2026-01-01&hasta=2026-12-31&giroId=&sedeId=",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Inventarios y bodegas",
+      "title": "Crear artículo de inventario - datos",
+      "description": "Registro de crear artículo de inventario con datos ficticios identificados por MANUAL-20261031-025056. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/110_crear-art-culo-de-inventario-datos.png",
+      "url": "http://localhost:8080/gestion/inventarios",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Inventarios y bodegas",
+      "title": "Crear artículo de inventario - resultado",
+      "description": "Resultado devuelto por la aplicación. Artículo creado.",
+      "image": "capturas/111_crear-art-culo-de-inventario-resultado.png",
+      "url": "http://localhost:8080/gestion/inventarios",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Inventarios y bodegas",
+      "title": "Registrar entrada de inventario - datos",
+      "description": "Entrada de existencias sobre un artículo de demostración existente. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/112_registrar-entrada-de-inventario-datos.png",
+      "url": "http://localhost:8080/gestion/inventarios",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Inventarios y bodegas",
+      "title": "Registrar entrada de inventario - resultado",
+      "description": "Resultado devuelto por la aplicación. Movimiento registrado.",
+      "image": "capturas/113_registrar-entrada-de-inventario-resultado.png",
+      "url": "http://localhost:8080/gestion/inventarios",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Abastecimiento",
+      "title": "Crear abastecimiento - datos",
+      "description": "Registro de crear abastecimiento con datos ficticios identificados por MANUAL-20261031-025056. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/114_crear-abastecimiento-datos.png",
+      "url": "http://localhost:8080/gestion/abastecimientos",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Abastecimiento",
+      "title": "Crear abastecimiento - resultado",
+      "description": "Resultado devuelto por la aplicación. Solicitud creada.",
+      "image": "capturas/115_crear-abastecimiento-resultado.png",
+      "url": "http://localhost:8080/gestion/abastecimientos/7",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Extracción minera",
+      "title": "Crear extracción minera - datos",
+      "description": "Registro de crear extracción minera con datos ficticios identificados por MANUAL-20261031-025056. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/116_crear-extracci-n-minera-datos.png",
+      "url": "http://localhost:8080/gestion/extracciones",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Extracción minera",
+      "title": "Crear extracción minera - resultado",
+      "description": "Resultado devuelto por la aplicación. Jornada registrada.",
+      "image": "capturas/117_crear-extracci-n-minera-resultado.png",
+      "url": "http://localhost:8080/gestion/extracciones/9",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Orden de producción",
+      "title": "Crear orden de producción - datos",
+      "description": "Registro de crear orden de producción con datos ficticios identificados por MANUAL-20261031-025056. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/118_crear-orden-de-producci-n-datos.png",
+      "url": "http://localhost:8080/gestion/producciones",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Orden de producción",
+      "title": "Crear orden de producción - resultado",
+      "description": "Resultado devuelto por la aplicación. Orden creada.",
+      "image": "capturas/119_crear-orden-de-producci-n-resultado.png",
+      "url": "http://localhost:8080/gestion/producciones/8",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Equipo de maquinaria",
+      "title": "Crear equipo de maquinaria - datos",
+      "description": "Registro de crear equipo de maquinaria con datos ficticios identificados por MANUAL-20261031-025056. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/120_crear-equipo-de-maquinaria-datos.png",
+      "url": "http://localhost:8080/gestion/maquinarias",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Equipo de maquinaria",
+      "title": "Crear equipo de maquinaria - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/121_crear-equipo-de-maquinaria-resultado.png",
+      "url": "http://localhost:8080/gestion/maquinarias/10",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Proyecto de construcción",
+      "title": "Crear proyecto de construcción - datos",
+      "description": "Registro de crear proyecto de construcción con datos ficticios identificados por MANUAL-20261031-025056. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/122_crear-proyecto-de-construcci-n-datos.png",
+      "url": "http://localhost:8080/gestion/construcciones",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Proyecto de construcción",
+      "title": "Crear proyecto de construcción - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/123_crear-proyecto-de-construcci-n-resultado.png",
+      "url": "http://localhost:8080/gestion/construcciones/11",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Presupuesto",
+      "title": "Crear presupuesto - datos",
+      "description": "Registro de crear presupuesto con datos ficticios identificados por MANUAL-20261031-025056. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/124_crear-presupuesto-datos.png",
+      "url": "http://localhost:8080/gestion/finanzas",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Presupuesto",
+      "title": "Crear presupuesto - resultado",
+      "description": "Resultado devuelto por la aplicación. Presupuesto creado.",
+      "image": "capturas/125_crear-presupuesto-resultado.png",
+      "url": "http://localhost:8080/gestion/finanzas/10",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Alerta",
+      "title": "Crear alerta - datos",
+      "description": "Registro de crear alerta con datos ficticios identificados por MANUAL-20261031-025056. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/126_crear-alerta-datos.png",
+      "url": "http://localhost:8080/gestion/alertas",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Alerta",
+      "title": "Crear alerta - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/127_crear-alerta-resultado.png",
+      "url": "http://localhost:8080/gestion/alertas/14",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Comunicación interna",
+      "title": "Crear comunicación interna - datos",
+      "description": "Registro de crear comunicación interna con datos ficticios identificados por MANUAL-20261031-025056. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/128_crear-comunicaci-n-interna-datos.png",
+      "url": "http://localhost:8080/gestion/comunicaciones",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Comunicación interna",
+      "title": "Crear comunicación interna - resultado",
+      "description": "Resultado devuelto por la aplicación. Comunicación iniciada.",
+      "image": "capturas/129_crear-comunicaci-n-interna-resultado.png",
+      "url": "http://localhost:8080/gestion/comunicaciones/20",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Abastecimiento",
+      "title": "Aprobar solicitud - datos",
+      "description": "Actualización del registro creado en el paso anterior. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/130_aprobar-solicitud-datos.png",
+      "url": "http://localhost:8080/gestion/abastecimientos/7",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Abastecimiento",
+      "title": "Aprobar solicitud - resultado",
+      "description": "Resultado devuelto por la aplicación. Estado actualizado.",
+      "image": "capturas/131_aprobar-solicitud-resultado.png",
+      "url": "http://localhost:8080/gestion/abastecimientos/7",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Abastecimiento",
+      "title": "Comentar solicitud - datos",
+      "description": "Actualización del registro creado en el paso anterior. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/132_comentar-solicitud-datos.png",
+      "url": "http://localhost:8080/gestion/abastecimientos/7",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Abastecimiento",
+      "title": "Comentar solicitud - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/133_comentar-solicitud-resultado.png",
+      "url": "http://localhost:8080/gestion/abastecimientos/7",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Extraccion",
+      "title": "Confirmar extracción - datos",
+      "description": "Actualización del registro creado en el paso anterior. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/134_confirmar-extracci-n-datos.png",
+      "url": "http://localhost:8080/gestion/extracciones/9",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Extraccion",
+      "title": "Confirmar extracción - resultado",
+      "description": "Resultado devuelto por la aplicación. Estado actualizado.",
+      "image": "capturas/135_confirmar-extracci-n-resultado.png",
+      "url": "http://localhost:8080/gestion/extracciones/9",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Produccion",
+      "title": "Iniciar producción - datos",
+      "description": "Actualización del registro creado en el paso anterior. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/136_iniciar-producci-n-datos.png",
+      "url": "http://localhost:8080/gestion/producciones/8",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Produccion",
+      "title": "Iniciar producción - resultado",
+      "description": "Resultado devuelto por la aplicación. Estado actualizado.",
+      "image": "capturas/137_iniciar-producci-n-resultado.png",
+      "url": "http://localhost:8080/gestion/producciones/8",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Finanzas",
+      "title": "Registrar gasto - datos",
+      "description": "Actualización del registro creado en el paso anterior. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/138_registrar-gasto-datos.png",
+      "url": "http://localhost:8080/gestion/finanzas/10",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Finanzas",
+      "title": "Registrar gasto - resultado",
+      "description": "Resultado devuelto por la aplicación. Gasto registrado.",
+      "image": "capturas/139_registrar-gasto-resultado.png",
+      "url": "http://localhost:8080/gestion/finanzas/10",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Alerta",
+      "title": "Agregar seguimiento - datos",
+      "description": "Actualización del registro creado en el paso anterior. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/140_agregar-seguimiento-datos.png",
+      "url": "http://localhost:8080/gestion/alertas/14",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Alerta",
+      "title": "Agregar seguimiento - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/141_agregar-seguimiento-resultado.png",
+      "url": "http://localhost:8080/gestion/alertas/14",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Comunicacion",
+      "title": "Responder comunicación - datos",
+      "description": "Actualización del registro creado en el paso anterior. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/142_responder-comunicaci-n-datos.png",
+      "url": "http://localhost:8080/gestion/comunicaciones/20",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Comunicacion",
+      "title": "Responder comunicación - resultado",
+      "description": "Resultado devuelto por la aplicación. Nota interna agregada.",
+      "image": "capturas/143_responder-comunicaci-n-resultado.png",
+      "url": "http://localhost:8080/gestion/comunicaciones/20",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Maquinaria",
+      "title": "Programar mantenimiento - datos",
+      "description": "Programación de mantenimiento preventivo del equipo. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/144_programar-mantenimiento-datos.png",
+      "url": "http://localhost:8080/gestion/maquinarias/10",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Maquinaria",
+      "title": "Programar mantenimiento - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/145_programar-mantenimiento-resultado.png",
+      "url": "http://localhost:8080/gestion/maquinarias/10",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Maquinaria",
+      "title": "Reservar maquinaria - datos",
+      "description": "Creación de un contrato de alquiler para el equipo registrado. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/146_reservar-maquinaria-datos.png",
+      "url": "http://localhost:8080/gestion/maquinarias/10",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Maquinaria",
+      "title": "Reservar maquinaria - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/147_reservar-maquinaria-resultado.png",
+      "url": "http://localhost:8080/gestion/maquinarias/10",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Construcción",
+      "title": "Iniciar proyecto - datos",
+      "description": "Operación sobre el proyecto de construcción. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/148_iniciar-proyecto-datos.png",
+      "url": "http://localhost:8080/gestion/construcciones/11",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Construcción",
+      "title": "Iniciar proyecto - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/149_iniciar-proyecto-resultado.png",
+      "url": "http://localhost:8080/gestion/construcciones/11",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Construcción",
+      "title": "Registrar actividad de obra - datos",
+      "description": "Operación sobre el proyecto de construcción. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/150_registrar-actividad-de-obra-datos.png",
+      "url": "http://localhost:8080/gestion/construcciones/11",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Construcción",
+      "title": "Registrar actividad de obra - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/151_registrar-actividad-de-obra-resultado.png",
+      "url": "http://localhost:8080/gestion/construcciones/11",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Construcción",
+      "title": "Asignar recurso de obra - datos",
+      "description": "Operación sobre el proyecto de construcción. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/152_asignar-recurso-de-obra-datos.png",
+      "url": "http://localhost:8080/gestion/construcciones/11",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Construcción",
+      "title": "Asignar recurso de obra - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/153_asignar-recurso-de-obra-resultado.png",
+      "url": "http://localhost:8080/gestion/construcciones/11",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Construcción",
+      "title": "Registrar avance de obra - datos",
+      "description": "Operación sobre el proyecto de construcción. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/154_registrar-avance-de-obra-datos.png",
+      "url": "http://localhost:8080/gestion/construcciones/11",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Construcción",
+      "title": "Registrar avance de obra - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/155_registrar-avance-de-obra-resultado.png",
+      "url": "http://localhost:8080/gestion/construcciones/11",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Transporte y GPS",
+      "title": "Registrar vehículo - datos",
+      "description": "Alta del vehículo que se usará en el viaje de prueba. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/156_registrar-veh-culo-datos.png",
+      "url": "http://localhost:8080/gestion/transportes",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Transporte y GPS",
+      "title": "Registrar vehículo - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/157_registrar-veh-culo-resultado.png",
+      "url": "http://localhost:8080/gestion/transportes",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Transporte y GPS",
+      "title": "Registrar conductor - datos",
+      "description": "Alta del conductor que se usará en el viaje de prueba. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/158_registrar-conductor-datos.png",
+      "url": "http://localhost:8080/gestion/transportes",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Transporte y GPS",
+      "title": "Registrar conductor - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/159_registrar-conductor-resultado.png",
+      "url": "http://localhost:8080/gestion/transportes",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Transporte y GPS",
+      "title": "Programar viaje - datos",
+      "description": "Programación de un traslado nacional con los recursos creados. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/160_programar-viaje-datos.png",
+      "url": "http://localhost:8080/gestion/transportes",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Transporte y GPS",
+      "title": "Programar viaje - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/161_programar-viaje-resultado.png",
+      "url": "http://localhost:8080/gestion/transportes/11",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Transporte y GPS",
+      "title": "Iniciar viaje - datos",
+      "description": "Cambio del viaje programado al estado en ruta. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/162_iniciar-viaje-datos.png",
+      "url": "http://localhost:8080/gestion/transportes/11",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Transporte y GPS",
+      "title": "Iniciar viaje - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/163_iniciar-viaje-resultado.png",
+      "url": "http://localhost:8080/gestion/transportes/11",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Transporte y GPS",
+      "title": "Registrar incidencia - datos",
+      "description": "Registro de una novedad durante el traslado. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/164_registrar-incidencia-datos.png",
+      "url": "http://localhost:8080/gestion/transportes/11",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Transporte y GPS",
+      "title": "Registrar incidencia - resultado",
+      "description": "Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.",
+      "image": "capturas/165_registrar-incidencia-resultado.png",
+      "url": "http://localhost:8080/gestion/transportes/11",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Transporte y GPS",
+      "title": "Registrar dispositivo GPS - datos",
+      "description": "Alta de un dispositivo externo sin asociación obligatoria. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/166_registrar-dispositivo-gps-datos.png",
+      "url": "http://localhost:8080/gestion/gps",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Transporte y GPS",
+      "title": "Registrar dispositivo GPS - resultado",
+      "description": "Resultado devuelto por la aplicación. Dispositivo registrado.",
+      "image": "capturas/167_registrar-dispositivo-gps-resultado.png",
+      "url": "http://localhost:8080/gestion/gps",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Transporte y GPS",
+      "title": "Simular dato GPS externo - datos",
+      "description": "Recepción simulada de latitud y longitud de Ciudad de Guatemala. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/168_simular-dato-gps-externo-datos.png",
+      "url": "http://localhost:8080/gestion/gps",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Transporte y GPS",
+      "title": "Simular dato GPS externo - resultado",
+      "description": "Resultado devuelto por la aplicación. Dato externo simulado correctamente.",
+      "image": "capturas/169_simular-dato-gps-externo-resultado.png",
+      "url": "http://localhost:8080/gestion/gps",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Integraciones y finanzas",
+      "title": "Simular integración Webhook - datos",
+      "description": "Ingreso de un dato externo por el canal Webhook. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/170_simular-integraci-n-webhook-datos.png",
+      "url": "http://localhost:8080/gestion/integraciones",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Integraciones y finanzas",
+      "title": "Simular integración Webhook - resultado",
+      "description": "Resultado devuelto por la aplicación. Dato externo simulado y procesado.",
+      "image": "capturas/171_simular-integraci-n-webhook-resultado.png",
+      "url": "http://localhost:8080/gestion/integraciones/25",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Integraciones y finanzas",
+      "title": "Simular integración REST - datos",
+      "description": "Ingreso de un dato externo por el canal REST. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/172_simular-integraci-n-rest-datos.png",
+      "url": "http://localhost:8080/gestion/integraciones",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Integraciones y finanzas",
+      "title": "Simular integración REST - resultado",
+      "description": "Resultado devuelto por la aplicación. Dato externo simulado y procesado.",
+      "image": "capturas/173_simular-integraci-n-rest-resultado.png",
+      "url": "http://localhost:8080/gestion/integraciones/26",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Integraciones y finanzas",
+      "title": "Simular integración CSV - datos",
+      "description": "Ingreso de un dato externo por el canal CSV. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/174_simular-integraci-n-csv-datos.png",
+      "url": "http://localhost:8080/gestion/integraciones",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Integraciones y finanzas",
+      "title": "Simular integración CSV - resultado",
+      "description": "Resultado devuelto por la aplicación. Dato externo simulado y procesado.",
+      "image": "capturas/175_simular-integraci-n-csv-resultado.png",
+      "url": "http://localhost:8080/gestion/integraciones/27",
+      "outcome": "correcto"
+    },
+    {
+      "chapter": "Integraciones y finanzas",
+      "title": "Registrar ingreso - datos",
+      "description": "Registro manual de un ingreso financiero ficticio. Esta captura muestra los datos antes de enviarlos.",
+      "image": "capturas/176_registrar-ingreso-datos.png",
+      "url": "http://localhost:8080/gestion/finanzas/ingresos",
+      "outcome": "informativo"
+    },
+    {
+      "chapter": "Integraciones y finanzas",
+      "title": "Registrar ingreso - resultado",
+      "description": "Resultado devuelto por la aplicación. Ingreso registrado.",
+      "image": "capturas/177_registrar-ingreso-resultado.png",
+      "url": "http://localhost:8080/gestion/finanzas/ingresos",
+      "outcome": "correcto"
+    }
+  ]
+}

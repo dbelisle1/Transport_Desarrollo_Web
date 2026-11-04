@@ -1,0 +1,2120 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Manual de usuario · TransPort</title>
+<style>
+  :root{--ink:#102b3a;--muted:#56717f;--brand:#ef7d22;--line:#d9e3e8;--soft:#f3f7f8;--danger:#a92727;--ok:#26734d}
+  *{box-sizing:border-box} body{margin:0;color:var(--ink);font:15px/1.5 Arial,sans-serif;background:#fff}
+  main{max-width:1120px;margin:auto;padding:42px} h1,h2,h3{line-height:1.15;margin-top:0} h1{font-size:52px} h2{font-size:34px} h3{font-size:23px}
+  .cover{min-height:92vh;display:flex;flex-direction:column;justify-content:center;border-bottom:12px solid var(--brand)}
+  .cover-mark{font-size:24px;font-weight:800;color:var(--brand);letter-spacing:.08em} .subtitle{font-size:24px;color:var(--muted);max-width:720px}
+  .meta{margin-top:70px;color:var(--muted)} .intro,.toc,.credentials,.appendix{padding:50px 0;border-bottom:1px solid var(--line)}
+  .toc ol{columns:2;gap:40px} .toc li{margin:0 0 10px} a{color:#155d77} table{width:100%;border-collapse:collapse;margin:18px 0}
+  th,td{padding:10px;border:1px solid var(--line);text-align:left;vertical-align:top} th{background:var(--soft)} code{font:13px Consolas,monospace;word-break:break-all}
+  .chapter{padding-top:54px} .chapter-title{border-left:8px solid var(--brand);padding:6px 0 6px 22px;margin-bottom:40px} .chapter-title>span,.step{text-transform:uppercase;letter-spacing:.08em;font-weight:700;font-size:12px;color:var(--brand)}
+  .capture-card{margin:0 0 54px;padding:24px;border:1px solid var(--line);border-radius:16px;break-inside:avoid;page-break-inside:avoid;background:white}
+  .capture-card.failure{border-color:#e7a5a5} .capture-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:20px}
+  .status{font-size:12px;font-weight:700;border-radius:20px;padding:7px 11px;background:#e8f5ee;color:var(--ok)} .failure .status{background:#fdeaea;color:var(--danger)}
+  .route{font-size:13px;color:var(--muted)} img{display:block;max-width:100%;max-height:860px;object-fit:contain;margin:18px auto;border:1px solid #cbd8dd;border-radius:8px}
+  .caption{font-size:12px;text-align:center;color:var(--muted)} .summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:22px 0}
+  .metric{background:var(--soft);padding:18px;border-radius:12px} .metric strong{display:block;font-size:30px} .warning{padding:18px;border-left:6px solid var(--danger);background:#fff1f1}
+  .success-note{padding:18px;border-left:6px solid var(--ok);background:#e8f5ee}
+  @page{size:A4;margin:14mm} @media print{main{max-width:none;padding:0} .cover{min-height:260mm;page-break-after:always} .intro,.toc,.credentials{page-break-after:always} .chapter{page-break-before:always} .capture-card{page-break-before:always;margin:0;padding:10px;border:none} .capture-card:first-of-type{page-break-before:auto} img{max-height:190mm} a{color:inherit;text-decoration:none}}
+  @media(max-width:760px){main{padding:22px}h1{font-size:38px}.toc ol{columns:1}.summary-grid{grid-template-columns:1fr 1fr}}
+</style></head><body><main>
+<section class="cover"><div class="cover-mark">TRANSPORT</div><h1>Manual de usuario</h1><p class="subtitle">Guía completa de navegación y operación del prototipo, elaborada a partir de pruebas reales con evidencia visual antes y después de enviar los formularios.</p><p class="meta">Versión documentada: 31/10/2026<br/>Entorno: http://localhost:8080<br/>Ejecución: MANUAL-20261031-025056</p></section>
+<section class="intro"><h2>Cómo usar este manual</h2><p>Abra TransPort en <code>http://localhost:8080</code>. Cada capítulo muestra la pantalla, los datos introducidos y el resultado observado. Las capturas con borde rojo corresponden a una función que falló durante la prueba y se conservan como evidencia; consulte el apéndice de incidencias antes de demostrar esos flujos.</p>
+<h3>Convenciones</h3><ul><li><strong>Evidencia:</strong> la pantalla se abrió o el formulario devolvió un resultado normal.</li><li><strong>Resultado con fallo:</strong> el navegador o la aplicación rechazó la operación.</li><li>Todos los datos creados por la prueba incluyen el prefijo <code>MANUAL-20261031-025056</code>.</li></ul></section>
+<section class="toc"><h2>Contenido</h2><ol><li><a href="#cap-1">1. Sitio público</a></li><li><a href="#cap-2">2. Acceso y seguridad</a></li><li><a href="#cap-3">3. Perfiles y portales</a></li><li><a href="#cap-4">4. Portal del cliente</a></li><li><a href="#cap-5">5. Administración</a></li><li><a href="#cap-6">6. Gestión operativa</a></li><li><a href="#cap-7">7. Inventarios y bodegas</a></li><li><a href="#cap-8">8. Abastecimiento</a></li><li><a href="#cap-9">9. Extracción minera</a></li><li><a href="#cap-10">10. Orden de producción</a></li><li><a href="#cap-11">11. Equipo de maquinaria</a></li><li><a href="#cap-12">12. Proyecto de construcción</a></li><li><a href="#cap-13">13. Presupuesto</a></li><li><a href="#cap-14">14. Alerta</a></li><li><a href="#cap-15">15. Comunicación interna</a></li><li><a href="#cap-16">16. Extraccion</a></li><li><a href="#cap-17">17. Produccion</a></li><li><a href="#cap-18">18. Finanzas</a></li><li><a href="#cap-19">19. Comunicacion</a></li><li><a href="#cap-20">20. Maquinaria</a></li><li><a href="#cap-21">21. Construcción</a></li><li><a href="#cap-22">22. Transporte y GPS</a></li><li><a href="#cap-23">23. Integraciones y finanzas</a></li><li><a href="#incidencias">Apéndice: resultado de pruebas e incidencias</a></li></ol></section>
+<section class="credentials"><h2>Credenciales de demostración</h2><p>Estas cuentas pertenecen exclusivamente al entorno local de demostración.</p><table><thead><tr><th>Perfil</th><th>Usuario</th><th>Contraseña</th><th>Alcance</th></tr></thead><tbody><tr><td>Administrador</td><td><code>admin.demo</code></td><td><code>TransPortAdmin2026!</code></td><td>Configuración, auditoría y todos los módulos.</td></tr><tr><td>Gerente</td><td><code>gerente.demo</code></td><td><code>TransPortGerente2026!</code></td><td>Gestión y supervisión operativa.</td></tr><tr><td>Empleado</td><td><code>empleado.demo</code></td><td><code>TransPortEmpleado2026!</code></td><td>Operación interna asignada.</td></tr><tr><td>Operativo</td><td><code>operativo.demo</code></td><td><code>TransPortOperativo2026!</code></td><td>Flujos operativos y logísticos.</td></tr><tr><td>Vendedor</td><td><code>vendedor.demo</code></td><td><code>TransPortVendedor2026!</code></td><td>Catálogo, pedidos y comunicaciones.</td></tr><tr><td>Cliente</td><td><code>cliente.demo</code></td><td><code>TransPortCliente2026!</code></td><td>Portal de una empresa cliente.</td></tr><tr><td>Cliente — una empresa</td><td><code>cliente2.demo</code></td><td><code>TransPortCliente22026!</code></td><td>Alcance restringido a una empresa.</td></tr><tr><td>Cliente — varias empresas</td><td><code>cliente3.demo</code></td><td><code>TransPortCliente32026!</code></td><td>Selección entre dos empresas.</td></tr></tbody></table></section>
+
+            <section class="chapter" id="cap-1">
+              <header class="chapter-title"><span>Capítulo 1</span><h2>Sitio público</h2>
+              <p>Consulta de la portada y del catálogo sin iniciar sesión.</p></header>
+              
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 1</span><h3>Portada pública</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Página de bienvenida y acceso a los servicios públicos de TransPort.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/</code></p>
+                  <img src="manual_usuario/capturas/001_portada-p-blica.png" alt="Portada pública" loading="eager" />
+                  <p class="caption">Figura 1.1. Portada pública</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 2</span><h3>Catálogo público de productos y servicios</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Ofertas comerciales visibles sin autenticación.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/catalogo</code></p>
+                  <img src="manual_usuario/capturas/002_cat-logo-p-blico-de-productos-y-servicios.png" alt="Catálogo público de productos y servicios" loading="eager" />
+                  <p class="caption">Figura 1.2. Catálogo público de productos y servicios</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 3</span><h3>Filtrar catálogo público - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Selección de un giro para reducir las ofertas visibles. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/catalogo</code></p>
+                  <img src="manual_usuario/capturas/003_filtrar-cat-logo-p-blico-datos.png" alt="Filtrar catálogo público - datos" loading="eager" />
+                  <p class="caption">Figura 1.3. Filtrar catálogo público - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 4</span><h3>Filtrar catálogo público - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/catalogo?giroId=1&amp;tipo=</code></p>
+                  <img src="manual_usuario/capturas/004_filtrar-cat-logo-p-blico-resultado.png" alt="Filtrar catálogo público - resultado" loading="eager" />
+                  <p class="caption">Figura 1.4. Filtrar catálogo público - resultado</p>
+                </article>
+                
+            </section>
+            
+            <section class="chapter" id="cap-2">
+              <header class="chapter-title"><span>Capítulo 2</span><h2>Acceso y seguridad</h2>
+              <p>Autenticación, validación de credenciales y cierre de sesión.</p></header>
+              
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 1</span><h3>Inicio de sesión con clave incorrecta - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>El formulario completo antes de intentar el acceso con una clave incorrecta.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/acceso</code></p>
+                  <img src="manual_usuario/capturas/005_inicio-de-sesi-n-con-clave-incorrecta-datos.png" alt="Inicio de sesión con clave incorrecta - datos" loading="eager" />
+                  <p class="caption">Figura 2.1. Inicio de sesión con clave incorrecta - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 2</span><h3>Inicio de sesión con clave incorrecta - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>La aplicación conserva el formulario y presenta el mensaje de validación.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/acceso</code></p>
+                  <img src="manual_usuario/capturas/006_inicio-de-sesi-n-con-clave-incorrecta-resultado.png" alt="Inicio de sesión con clave incorrecta - resultado" loading="eager" />
+                  <p class="caption">Figura 2.2. Inicio de sesión con clave incorrecta - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 3</span><h3>Inicio de sesión administrador - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Credenciales de demostración introducidas para el perfil administrador.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/acceso</code></p>
+                  <img src="manual_usuario/capturas/007_inicio-de-sesi-n-administrador-datos.png" alt="Inicio de sesión administrador - datos" loading="eager" />
+                  <p class="caption">Figura 2.3. Inicio de sesión administrador - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 4</span><h3>Inicio de sesión administrador - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Portal inicial mostrado después de autenticar el perfil administrador.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/admin</code></p>
+                  <img src="manual_usuario/capturas/008_inicio-de-sesi-n-administrador-resultado.png" alt="Inicio de sesión administrador - resultado" loading="eager" />
+                  <p class="caption">Figura 2.4. Inicio de sesión administrador - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 5</span><h3>Cerrar sesión - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>El botón termina la sesión y regresa al sitio público. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/admin</code></p>
+                  <img src="manual_usuario/capturas/009_cerrar-sesi-n-datos.png" alt="Cerrar sesión - datos" loading="eager" />
+                  <p class="caption">Figura 2.5. Cerrar sesión - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 6</span><h3>Cerrar sesión - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/acceso</code></p>
+                  <img src="manual_usuario/capturas/010_cerrar-sesi-n-resultado.png" alt="Cerrar sesión - resultado" loading="eager" />
+                  <p class="caption">Figura 2.6. Cerrar sesión - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 7</span><h3>Inicio de sesión cliente_varias_empresas - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Credenciales de demostración introducidas para el perfil cliente_varias_empresas.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/acceso</code></p>
+                  <img src="manual_usuario/capturas/019_inicio-de-sesi-n-cliente-varias-empresas-datos.png" alt="Inicio de sesión cliente_varias_empresas - datos" loading="eager" />
+                  <p class="caption">Figura 2.7. Inicio de sesión cliente_varias_empresas - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 8</span><h3>Inicio de sesión cliente_varias_empresas - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Portal inicial mostrado después de autenticar el perfil cliente_varias_empresas.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/cliente</code></p>
+                  <img src="manual_usuario/capturas/020_inicio-de-sesi-n-cliente-varias-empresas-resultado.png" alt="Inicio de sesión cliente_varias_empresas - resultado" loading="eager" />
+                  <p class="caption">Figura 2.8. Inicio de sesión cliente_varias_empresas - resultado</p>
+                </article>
+                
+            </section>
+            
+            <section class="chapter" id="cap-3">
+              <header class="chapter-title"><span>Capítulo 3</span><h2>Perfiles y portales</h2>
+              <p>Menús iniciales según rol y alcance autorizado.</p></header>
+              
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 1</span><h3>Portal del perfil administrador</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Menú y página inicial disponibles de acuerdo con los permisos de este usuario.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/admin</code></p>
+                  <img src="manual_usuario/capturas/011_portal-del-perfil-administrador.png" alt="Portal del perfil administrador" loading="eager" />
+                  <p class="caption">Figura 3.1. Portal del perfil administrador</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 2</span><h3>Portal del perfil gerente</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Menú y página inicial disponibles de acuerdo con los permisos de este usuario.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion</code></p>
+                  <img src="manual_usuario/capturas/012_portal-del-perfil-gerente.png" alt="Portal del perfil gerente" loading="eager" />
+                  <p class="caption">Figura 3.2. Portal del perfil gerente</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 3</span><h3>Portal del perfil empleado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Menú y página inicial disponibles de acuerdo con los permisos de este usuario.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion</code></p>
+                  <img src="manual_usuario/capturas/013_portal-del-perfil-empleado.png" alt="Portal del perfil empleado" loading="eager" />
+                  <p class="caption">Figura 3.3. Portal del perfil empleado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 4</span><h3>Portal del perfil operativo</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Menú y página inicial disponibles de acuerdo con los permisos de este usuario.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion</code></p>
+                  <img src="manual_usuario/capturas/014_portal-del-perfil-operativo.png" alt="Portal del perfil operativo" loading="eager" />
+                  <p class="caption">Figura 3.4. Portal del perfil operativo</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 5</span><h3>Portal del perfil vendedor</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Menú y página inicial disponibles de acuerdo con los permisos de este usuario.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion</code></p>
+                  <img src="manual_usuario/capturas/015_portal-del-perfil-vendedor.png" alt="Portal del perfil vendedor" loading="eager" />
+                  <p class="caption">Figura 3.5. Portal del perfil vendedor</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 6</span><h3>Portal del perfil cliente</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Menú y página inicial disponibles de acuerdo con los permisos de este usuario.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/cliente</code></p>
+                  <img src="manual_usuario/capturas/016_portal-del-perfil-cliente.png" alt="Portal del perfil cliente" loading="eager" />
+                  <p class="caption">Figura 3.6. Portal del perfil cliente</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 7</span><h3>Portal del perfil cliente_una_empresa</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Menú y página inicial disponibles de acuerdo con los permisos de este usuario.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/cliente</code></p>
+                  <img src="manual_usuario/capturas/017_portal-del-perfil-cliente-una-empresa.png" alt="Portal del perfil cliente_una_empresa" loading="eager" />
+                  <p class="caption">Figura 3.7. Portal del perfil cliente_una_empresa</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 8</span><h3>Portal del perfil cliente_varias_empresas</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Menú y página inicial disponibles de acuerdo con los permisos de este usuario.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/cliente</code></p>
+                  <img src="manual_usuario/capturas/018_portal-del-perfil-cliente-varias-empresas.png" alt="Portal del perfil cliente_varias_empresas" loading="eager" />
+                  <p class="caption">Figura 3.8. Portal del perfil cliente_varias_empresas</p>
+                </article>
+                
+            </section>
+            
+            <section class="chapter" id="cap-4">
+              <header class="chapter-title"><span>Capítulo 4</span><h2>Portal del cliente</h2>
+              <p>Pedidos, operaciones, reportes y comunicaciones de las empresas asociadas.</p></header>
+              
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 1</span><h3>Inicio del cliente</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Pantalla inicio del cliente con alcance de varias empresas.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/cliente</code></p>
+                  <img src="manual_usuario/capturas/021_inicio-del-cliente.png" alt="Inicio del cliente" loading="eager" />
+                  <p class="caption">Figura 4.1. Inicio del cliente</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 2</span><h3>Pedidos del cliente</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Pantalla pedidos del cliente con alcance de varias empresas.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/cliente/pedidos</code></p>
+                  <img src="manual_usuario/capturas/022_pedidos-del-cliente.png" alt="Pedidos del cliente" loading="eager" />
+                  <p class="caption">Figura 4.2. Pedidos del cliente</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 3</span><h3>Seguimiento operativo</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Pantalla seguimiento operativo con alcance de varias empresas.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/cliente/operaciones</code></p>
+                  <img src="manual_usuario/capturas/023_seguimiento-operativo.png" alt="Seguimiento operativo" loading="eager" />
+                  <p class="caption">Figura 4.3. Seguimiento operativo</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 4</span><h3>Reportes del cliente</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Pantalla reportes del cliente con alcance de varias empresas.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/cliente/reportes</code></p>
+                  <img src="manual_usuario/capturas/024_reportes-del-cliente.png" alt="Reportes del cliente" loading="eager" />
+                  <p class="caption">Figura 4.4. Reportes del cliente</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 5</span><h3>Comunicaciones del cliente</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Pantalla comunicaciones del cliente con alcance de varias empresas.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/cliente/comunicaciones</code></p>
+                  <img src="manual_usuario/capturas/025_comunicaciones-del-cliente.png" alt="Comunicaciones del cliente" loading="eager" />
+                  <p class="caption">Figura 4.5. Comunicaciones del cliente</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 6</span><h3>Crear solicitud comercial - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Solicitud de pedido con dos líneas del catálogo. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/cliente/pedidos/crear</code></p>
+                  <img src="manual_usuario/capturas/026_crear-solicitud-comercial-datos.png" alt="Crear solicitud comercial - datos" loading="eager" />
+                  <p class="caption">Figura 4.6. Crear solicitud comercial - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 7</span><h3>Crear solicitud comercial - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. Solicitud creada correctamente.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/cliente/pedidos/20</code></p>
+                  <img src="manual_usuario/capturas/027_crear-solicitud-comercial-resultado.png" alt="Crear solicitud comercial - resultado" loading="eager" />
+                  <p class="caption">Figura 4.7. Crear solicitud comercial - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 8</span><h3>Comentar solicitud - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Mensaje adicional del cliente sobre su pedido. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/cliente/pedidos/20</code></p>
+                  <img src="manual_usuario/capturas/028_comentar-solicitud-datos.png" alt="Comentar solicitud - datos" loading="eager" />
+                  <p class="caption">Figura 4.8. Comentar solicitud - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 9</span><h3>Comentar solicitud - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. Comentario agregado.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/cliente/pedidos/20</code></p>
+                  <img src="manual_usuario/capturas/029_comentar-solicitud-resultado.png" alt="Comentar solicitud - resultado" loading="eager" />
+                  <p class="caption">Figura 4.9. Comentar solicitud - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 10</span><h3>Iniciar comunicación con TransPort - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Consulta nueva enviada desde el portal del cliente. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/cliente/comunicaciones</code></p>
+                  <img src="manual_usuario/capturas/030_iniciar-comunicaci-n-con-transport-datos.png" alt="Iniciar comunicación con TransPort - datos" loading="eager" />
+                  <p class="caption">Figura 4.10. Iniciar comunicación con TransPort - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 11</span><h3>Iniciar comunicación con TransPort - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. Comunicación iniciada.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/cliente/comunicaciones/19</code></p>
+                  <img src="manual_usuario/capturas/031_iniciar-comunicaci-n-con-transport-resultado.png" alt="Iniciar comunicación con TransPort - resultado" loading="eager" />
+                  <p class="caption">Figura 4.11. Iniciar comunicación con TransPort - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 12</span><h3>Responder comunicación - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Respuesta adicional dentro de la conversación. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/cliente/comunicaciones/19</code></p>
+                  <img src="manual_usuario/capturas/032_responder-comunicaci-n-datos.png" alt="Responder comunicación - datos" loading="eager" />
+                  <p class="caption">Figura 4.12. Responder comunicación - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 13</span><h3>Responder comunicación - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. Mensaje enviado.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/cliente/comunicaciones/19</code></p>
+                  <img src="manual_usuario/capturas/033_responder-comunicaci-n-resultado.png" alt="Responder comunicación - resultado" loading="eager" />
+                  <p class="caption">Figura 4.13. Responder comunicación - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 14</span><h3>Filtrar pedidos del cliente - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Aplicación de criterios dentro del portal del cliente. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/cliente/pedidos</code></p>
+                  <img src="manual_usuario/capturas/034_filtrar-pedidos-del-cliente-datos.png" alt="Filtrar pedidos del cliente - datos" loading="eager" />
+                  <p class="caption">Figura 4.14. Filtrar pedidos del cliente - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 15</span><h3>Filtrar pedidos del cliente - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/cliente/pedidos?busqueda=DEMO&amp;estado=</code></p>
+                  <img src="manual_usuario/capturas/035_filtrar-pedidos-del-cliente-resultado.png" alt="Filtrar pedidos del cliente - resultado" loading="eager" />
+                  <p class="caption">Figura 4.15. Filtrar pedidos del cliente - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 16</span><h3>Filtrar operaciones por empresa - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Aplicación de criterios dentro del portal del cliente. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/cliente/operaciones</code></p>
+                  <img src="manual_usuario/capturas/036_filtrar-operaciones-por-empresa-datos.png" alt="Filtrar operaciones por empresa - datos" loading="eager" />
+                  <p class="caption">Figura 4.16. Filtrar operaciones por empresa - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 17</span><h3>Filtrar operaciones por empresa - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/cliente/operaciones?clienteId=8</code></p>
+                  <img src="manual_usuario/capturas/037_filtrar-operaciones-por-empresa-resultado.png" alt="Filtrar operaciones por empresa - resultado" loading="eager" />
+                  <p class="caption">Figura 4.17. Filtrar operaciones por empresa - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 18</span><h3>Generar reporte del cliente - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Aplicación de criterios dentro del portal del cliente. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/cliente/reportes</code></p>
+                  <img src="manual_usuario/capturas/038_generar-reporte-del-cliente-datos.png" alt="Generar reporte del cliente - datos" loading="eager" />
+                  <p class="caption">Figura 4.18. Generar reporte del cliente - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 19</span><h3>Generar reporte del cliente - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/cliente/reportes?desde=2026-01-01&amp;hasta=2026-12-31&amp;clienteId=8</code></p>
+                  <img src="manual_usuario/capturas/039_generar-reporte-del-cliente-resultado.png" alt="Generar reporte del cliente - resultado" loading="eager" />
+                  <p class="caption">Figura 4.19. Generar reporte del cliente - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 20</span><h3>Filtrar comunicaciones del cliente - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Aplicación de criterios dentro del portal del cliente. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/cliente/comunicaciones</code></p>
+                  <img src="manual_usuario/capturas/040_filtrar-comunicaciones-del-cliente-datos.png" alt="Filtrar comunicaciones del cliente - datos" loading="eager" />
+                  <p class="caption">Figura 4.20. Filtrar comunicaciones del cliente - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 21</span><h3>Filtrar comunicaciones del cliente - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/cliente/comunicaciones?estado=&amp;busqueda=DEMO</code></p>
+                  <img src="manual_usuario/capturas/041_filtrar-comunicaciones-del-cliente-resultado.png" alt="Filtrar comunicaciones del cliente - resultado" loading="eager" />
+                  <p class="caption">Figura 4.21. Filtrar comunicaciones del cliente - resultado</p>
+                </article>
+                
+            </section>
+            
+            <section class="chapter" id="cap-5">
+              <header class="chapter-title"><span>Capítulo 5</span><h2>Administración</h2>
+              <p>Usuarios, clientes, roles, giros, sedes y auditoría.</p></header>
+              
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 1</span><h3>Panel de administración</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Pantalla panel de administración disponible para administración.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/admin</code></p>
+                  <img src="manual_usuario/capturas/042_panel-de-administraci-n.png" alt="Panel de administración" loading="eager" />
+                  <p class="caption">Figura 5.1. Panel de administración</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 2</span><h3>Listado de usuarios</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Pantalla listado de usuarios disponible para administración.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/admin/usuarios</code></p>
+                  <img src="manual_usuario/capturas/043_listado-de-usuarios.png" alt="Listado de usuarios" loading="eager" />
+                  <p class="caption">Figura 5.2. Listado de usuarios</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 3</span><h3>Listado de clientes</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Pantalla listado de clientes disponible para administración.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/admin/clientes</code></p>
+                  <img src="manual_usuario/capturas/044_listado-de-clientes.png" alt="Listado de clientes" loading="eager" />
+                  <p class="caption">Figura 5.3. Listado de clientes</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 4</span><h3>Catálogo de roles</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Pantalla catálogo de roles disponible para administración.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/admin/catalogos/roles</code></p>
+                  <img src="manual_usuario/capturas/045_cat-logo-de-roles.png" alt="Catálogo de roles" loading="eager" />
+                  <p class="caption">Figura 5.4. Catálogo de roles</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 5</span><h3>Catálogo de giros</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Pantalla catálogo de giros disponible para administración.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/admin/catalogos/giros</code></p>
+                  <img src="manual_usuario/capturas/046_cat-logo-de-giros.png" alt="Catálogo de giros" loading="eager" />
+                  <p class="caption">Figura 5.5. Catálogo de giros</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 6</span><h3>Catálogo de sedes</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Pantalla catálogo de sedes disponible para administración.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/admin/catalogos/sedes</code></p>
+                  <img src="manual_usuario/capturas/047_cat-logo-de-sedes.png" alt="Catálogo de sedes" loading="eager" />
+                  <p class="caption">Figura 5.6. Catálogo de sedes</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 7</span><h3>Auditoría</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Pantalla auditoría disponible para administración.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/admin/auditoria</code></p>
+                  <img src="manual_usuario/capturas/048_auditor-a.png" alt="Auditoría" loading="eager" />
+                  <p class="caption">Figura 5.7. Auditoría</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 8</span><h3>Filtrar usuarios - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Uso de los criterios de búsqueda de la pantalla. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/admin/usuarios</code></p>
+                  <img src="manual_usuario/capturas/049_filtrar-usuarios-datos.png" alt="Filtrar usuarios - datos" loading="eager" />
+                  <p class="caption">Figura 5.8. Filtrar usuarios - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 9</span><h3>Filtrar usuarios - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/admin/usuarios?busqueda=demo&amp;esActivo=true&amp;rolId=</code></p>
+                  <img src="manual_usuario/capturas/050_filtrar-usuarios-resultado.png" alt="Filtrar usuarios - resultado" loading="eager" />
+                  <p class="caption">Figura 5.9. Filtrar usuarios - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 10</span><h3>Filtrar clientes - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Uso de los criterios de búsqueda de la pantalla. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/admin/clientes</code></p>
+                  <img src="manual_usuario/capturas/051_filtrar-clientes-datos.png" alt="Filtrar clientes - datos" loading="eager" />
+                  <p class="caption">Figura 5.10. Filtrar clientes - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 11</span><h3>Filtrar clientes - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/admin/clientes?busqueda=DEMO&amp;esActivo=true</code></p>
+                  <img src="manual_usuario/capturas/052_filtrar-clientes-resultado.png" alt="Filtrar clientes - resultado" loading="eager" />
+                  <p class="caption">Figura 5.11. Filtrar clientes - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 12</span><h3>Filtrar auditoría - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Uso de los criterios de búsqueda de la pantalla. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/admin/auditoria</code></p>
+                  <img src="manual_usuario/capturas/053_filtrar-auditor-a-datos.png" alt="Filtrar auditoría - datos" loading="eager" />
+                  <p class="caption">Figura 5.12. Filtrar auditoría - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 13</span><h3>Filtrar auditoría - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/admin/auditoria?Busqueda=&amp;FechaDesde=&amp;__Invariant=FechaDesde&amp;FechaHasta=&amp;__Invariant=FechaHasta&amp;Modulo=&amp;TipoOperacion=Crear&amp;NombreUsuario=&amp;Resultado=&amp;TamanoPagina=25&amp;Pagina=1</code></p>
+                  <img src="manual_usuario/capturas/054_filtrar-auditor-a-resultado.png" alt="Filtrar auditoría - resultado" loading="eager" />
+                  <p class="caption">Figura 5.13. Filtrar auditoría - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 14</span><h3>Crear catálogo de roles - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Alta de un registro temporal en el catálogo de roles. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/admin/catalogos/roles/crear</code></p>
+                  <img src="manual_usuario/capturas/055_crear-cat-logo-de-roles-datos.png" alt="Crear catálogo de roles - datos" loading="eager" />
+                  <p class="caption">Figura 5.14. Crear catálogo de roles - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 15</span><h3>Crear catálogo de roles - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. Rol creado correctamente.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/admin/catalogos/roles</code></p>
+                  <img src="manual_usuario/capturas/056_crear-cat-logo-de-roles-resultado.png" alt="Crear catálogo de roles - resultado" loading="eager" />
+                  <p class="caption">Figura 5.15. Crear catálogo de roles - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 16</span><h3>Crear catálogo de giros - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Alta de un registro temporal en el catálogo de giros. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/admin/catalogos/giros/crear</code></p>
+                  <img src="manual_usuario/capturas/057_crear-cat-logo-de-giros-datos.png" alt="Crear catálogo de giros - datos" loading="eager" />
+                  <p class="caption">Figura 5.16. Crear catálogo de giros - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 17</span><h3>Crear catálogo de giros - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. Giro de negocio creado correctamente.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/admin/catalogos/giros</code></p>
+                  <img src="manual_usuario/capturas/058_crear-cat-logo-de-giros-resultado.png" alt="Crear catálogo de giros - resultado" loading="eager" />
+                  <p class="caption">Figura 5.17. Crear catálogo de giros - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 18</span><h3>Crear catálogo de sedes - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Alta de un registro temporal en el catálogo de sedes. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/admin/catalogos/sedes/crear</code></p>
+                  <img src="manual_usuario/capturas/059_crear-cat-logo-de-sedes-datos.png" alt="Crear catálogo de sedes - datos" loading="eager" />
+                  <p class="caption">Figura 5.18. Crear catálogo de sedes - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 19</span><h3>Crear catálogo de sedes - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. Sede creado correctamente.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/admin/catalogos/sedes</code></p>
+                  <img src="manual_usuario/capturas/060_crear-cat-logo-de-sedes-resultado.png" alt="Crear catálogo de sedes - resultado" loading="eager" />
+                  <p class="caption">Figura 5.19. Crear catálogo de sedes - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 20</span><h3>Crear usuario - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Alta de un usuario temporal con rol, giro y sede. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/admin/usuarios/crear</code></p>
+                  <img src="manual_usuario/capturas/061_crear-usuario-datos.png" alt="Crear usuario - datos" loading="eager" />
+                  <p class="caption">Figura 5.20. Crear usuario - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 21</span><h3>Crear usuario - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. Usuario creado correctamente.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/admin/usuarios</code></p>
+                  <img src="manual_usuario/capturas/062_crear-usuario-resultado.png" alt="Crear usuario - resultado" loading="eager" />
+                  <p class="caption">Figura 5.21. Crear usuario - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 22</span><h3>Crear cliente - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Alta de una empresa cliente temporal y asignación de alcance. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/admin/clientes/crear</code></p>
+                  <img src="manual_usuario/capturas/063_crear-cliente-datos.png" alt="Crear cliente - datos" loading="eager" />
+                  <p class="caption">Figura 5.22. Crear cliente - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 23</span><h3>Crear cliente - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. Cliente creado correctamente.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/admin/clientes</code></p>
+                  <img src="manual_usuario/capturas/064_crear-cliente-resultado.png" alt="Crear cliente - resultado" loading="eager" />
+                  <p class="caption">Figura 5.23. Crear cliente - resultado</p>
+                </article>
+                
+            </section>
+            
+            <section class="chapter" id="cap-6">
+              <header class="chapter-title"><span>Capítulo 6</span><h2>Gestión operativa</h2>
+              <p>Páginas de entrada, listados, búsqueda y filtros de los módulos internos.</p></header>
+              
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 1</span><h3>Panel de gestión</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Vista general del módulo panel de gestión.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion</code></p>
+                  <img src="manual_usuario/capturas/065_panel-de-gesti-n.png" alt="Panel de gestión" loading="eager" />
+                  <p class="caption">Figura 6.1. Panel de gestión</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 2</span><h3>Pedidos comerciales</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Vista general del módulo pedidos comerciales.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/pedidos</code></p>
+                  <img src="manual_usuario/capturas/066_pedidos-comerciales.png" alt="Pedidos comerciales" loading="eager" />
+                  <p class="caption">Figura 6.2. Pedidos comerciales</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 3</span><h3>Inventarios y bodegas</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Vista general del módulo inventarios y bodegas.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/inventarios</code></p>
+                  <img src="manual_usuario/capturas/067_inventarios-y-bodegas.png" alt="Inventarios y bodegas" loading="eager" />
+                  <p class="caption">Figura 6.3. Inventarios y bodegas</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 4</span><h3>Catálogo comercial</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Vista general del módulo catálogo comercial.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/catalogo</code></p>
+                  <img src="manual_usuario/capturas/068_cat-logo-comercial.png" alt="Catálogo comercial" loading="eager" />
+                  <p class="caption">Figura 6.4. Catálogo comercial</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 5</span><h3>Abastecimiento</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Vista general del módulo abastecimiento.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/abastecimientos</code></p>
+                  <img src="manual_usuario/capturas/069_abastecimiento.png" alt="Abastecimiento" loading="eager" />
+                  <p class="caption">Figura 6.5. Abastecimiento</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 6</span><h3>Extracción minera</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Vista general del módulo extracción minera.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/extracciones</code></p>
+                  <img src="manual_usuario/capturas/070_extracci-n-minera.png" alt="Extracción minera" loading="eager" />
+                  <p class="caption">Figura 6.6. Extracción minera</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 7</span><h3>Producción</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Vista general del módulo producción.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/producciones</code></p>
+                  <img src="manual_usuario/capturas/071_producci-n.png" alt="Producción" loading="eager" />
+                  <p class="caption">Figura 6.7. Producción</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 8</span><h3>Maquinaria</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Vista general del módulo maquinaria.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/maquinarias</code></p>
+                  <img src="manual_usuario/capturas/072_maquinaria.png" alt="Maquinaria" loading="eager" />
+                  <p class="caption">Figura 6.8. Maquinaria</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 9</span><h3>Transporte</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Vista general del módulo transporte.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/transportes</code></p>
+                  <img src="manual_usuario/capturas/073_transporte.png" alt="Transporte" loading="eager" />
+                  <p class="caption">Figura 6.9. Transporte</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 10</span><h3>GPS</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Vista general del módulo gps.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/gps</code></p>
+                  <img src="manual_usuario/capturas/074_gps.png" alt="GPS" loading="eager" />
+                  <p class="caption">Figura 6.10. GPS</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 11</span><h3>Construcción</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Vista general del módulo construcción.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/construcciones</code></p>
+                  <img src="manual_usuario/capturas/075_construcci-n.png" alt="Construcción" loading="eager" />
+                  <p class="caption">Figura 6.11. Construcción</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 12</span><h3>Finanzas</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Vista general del módulo finanzas.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/finanzas</code></p>
+                  <img src="manual_usuario/capturas/076_finanzas.png" alt="Finanzas" loading="eager" />
+                  <p class="caption">Figura 6.12. Finanzas</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 13</span><h3>Ingresos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Vista general del módulo ingresos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/finanzas/ingresos</code></p>
+                  <img src="manual_usuario/capturas/077_ingresos.png" alt="Ingresos" loading="eager" />
+                  <p class="caption">Figura 6.13. Ingresos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 14</span><h3>Alertas</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Vista general del módulo alertas.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/alertas</code></p>
+                  <img src="manual_usuario/capturas/078_alertas.png" alt="Alertas" loading="eager" />
+                  <p class="caption">Figura 6.14. Alertas</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 15</span><h3>Comunicaciones</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Vista general del módulo comunicaciones.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/comunicaciones</code></p>
+                  <img src="manual_usuario/capturas/079_comunicaciones.png" alt="Comunicaciones" loading="eager" />
+                  <p class="caption">Figura 6.15. Comunicaciones</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 16</span><h3>Integraciones</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Vista general del módulo integraciones.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/integraciones</code></p>
+                  <img src="manual_usuario/capturas/080_integraciones.png" alt="Integraciones" loading="eager" />
+                  <p class="caption">Figura 6.16. Integraciones</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 17</span><h3>Reportes</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Vista general del módulo reportes.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/reportes</code></p>
+                  <img src="manual_usuario/capturas/081_reportes.png" alt="Reportes" loading="eager" />
+                  <p class="caption">Figura 6.17. Reportes</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 18</span><h3>Filtrar Pedidos - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Aplicación de filtros en pedidos. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/pedidos</code></p>
+                  <img src="manual_usuario/capturas/082_filtrar-pedidos-datos.png" alt="Filtrar Pedidos - datos" loading="eager" />
+                  <p class="caption">Figura 6.18. Filtrar Pedidos - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 19</span><h3>Filtrar Pedidos - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/pedidos?busqueda=DEMO&amp;estado=&amp;clienteId=&amp;giroId=</code></p>
+                  <img src="manual_usuario/capturas/083_filtrar-pedidos-resultado.png" alt="Filtrar Pedidos - resultado" loading="eager" />
+                  <p class="caption">Figura 6.19. Filtrar Pedidos - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 20</span><h3>Filtrar Inventarios - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Aplicación de filtros en inventarios. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/inventarios</code></p>
+                  <img src="manual_usuario/capturas/084_filtrar-inventarios-datos.png" alt="Filtrar Inventarios - datos" loading="eager" />
+                  <p class="caption">Figura 6.20. Filtrar Inventarios - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 21</span><h3>Filtrar Inventarios - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/inventarios?busqueda=DEMO&amp;giroId=&amp;sedeId=</code></p>
+                  <img src="manual_usuario/capturas/085_filtrar-inventarios-resultado.png" alt="Filtrar Inventarios - resultado" loading="eager" />
+                  <p class="caption">Figura 6.21. Filtrar Inventarios - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 22</span><h3>Filtrar Catálogo - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Aplicación de filtros en catálogo. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/catalogo</code></p>
+                  <img src="manual_usuario/capturas/086_filtrar-cat-logo-datos.png" alt="Filtrar Catálogo - datos" loading="eager" />
+                  <p class="caption">Figura 6.22. Filtrar Catálogo - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 23</span><h3>Filtrar Catálogo - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/catalogo?busqueda=DEMO&amp;giroId=&amp;tipo=&amp;esActivo=</code></p>
+                  <img src="manual_usuario/capturas/087_filtrar-cat-logo-resultado.png" alt="Filtrar Catálogo - resultado" loading="eager" />
+                  <p class="caption">Figura 6.23. Filtrar Catálogo - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 24</span><h3>Filtrar Abastecimiento - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Aplicación de filtros en abastecimiento. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/abastecimientos</code></p>
+                  <img src="manual_usuario/capturas/088_filtrar-abastecimiento-datos.png" alt="Filtrar Abastecimiento - datos" loading="eager" />
+                  <p class="caption">Figura 6.24. Filtrar Abastecimiento - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 25</span><h3>Filtrar Abastecimiento - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/abastecimientos?busqueda=DEMO&amp;estado=</code></p>
+                  <img src="manual_usuario/capturas/089_filtrar-abastecimiento-resultado.png" alt="Filtrar Abastecimiento - resultado" loading="eager" />
+                  <p class="caption">Figura 6.25. Filtrar Abastecimiento - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 26</span><h3>Filtrar Extracciones - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Aplicación de filtros en extracciones. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/extracciones</code></p>
+                  <img src="manual_usuario/capturas/090_filtrar-extracciones-datos.png" alt="Filtrar Extracciones - datos" loading="eager" />
+                  <p class="caption">Figura 6.26. Filtrar Extracciones - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 27</span><h3>Filtrar Extracciones - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/extracciones?estado=Registrada&amp;sedeId=&amp;fechaDesde=&amp;fechaHasta=</code></p>
+                  <img src="manual_usuario/capturas/091_filtrar-extracciones-resultado.png" alt="Filtrar Extracciones - resultado" loading="eager" />
+                  <p class="caption">Figura 6.27. Filtrar Extracciones - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 28</span><h3>Filtrar Producciones - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Aplicación de filtros en producciones. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/producciones</code></p>
+                  <img src="manual_usuario/capturas/092_filtrar-producciones-datos.png" alt="Filtrar Producciones - datos" loading="eager" />
+                  <p class="caption">Figura 6.28. Filtrar Producciones - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 29</span><h3>Filtrar Producciones - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/producciones?estado=Planificada&amp;sedeId=&amp;fechaDesde=&amp;fechaHasta=</code></p>
+                  <img src="manual_usuario/capturas/093_filtrar-producciones-resultado.png" alt="Filtrar Producciones - resultado" loading="eager" />
+                  <p class="caption">Figura 6.29. Filtrar Producciones - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 30</span><h3>Filtrar Maquinaria - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Aplicación de filtros en maquinaria. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/maquinarias</code></p>
+                  <img src="manual_usuario/capturas/094_filtrar-maquinaria-datos.png" alt="Filtrar Maquinaria - datos" loading="eager" />
+                  <p class="caption">Figura 6.30. Filtrar Maquinaria - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 31</span><h3>Filtrar Maquinaria - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/maquinarias?busqueda=DEMO&amp;estado=&amp;sedeId=</code></p>
+                  <img src="manual_usuario/capturas/095_filtrar-maquinaria-resultado.png" alt="Filtrar Maquinaria - resultado" loading="eager" />
+                  <p class="caption">Figura 6.31. Filtrar Maquinaria - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 32</span><h3>Filtrar Transportes - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Aplicación de filtros en transportes. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/transportes</code></p>
+                  <img src="manual_usuario/capturas/096_filtrar-transportes-datos.png" alt="Filtrar Transportes - datos" loading="eager" />
+                  <p class="caption">Figura 6.32. Filtrar Transportes - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 33</span><h3>Filtrar Transportes - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/transportes?estado=Programado&amp;tipo=</code></p>
+                  <img src="manual_usuario/capturas/097_filtrar-transportes-resultado.png" alt="Filtrar Transportes - resultado" loading="eager" />
+                  <p class="caption">Figura 6.33. Filtrar Transportes - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 34</span><h3>Filtrar Construcciones - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Aplicación de filtros en construcciones. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/construcciones</code></p>
+                  <img src="manual_usuario/capturas/098_filtrar-construcciones-datos.png" alt="Filtrar Construcciones - datos" loading="eager" />
+                  <p class="caption">Figura 6.34. Filtrar Construcciones - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 35</span><h3>Filtrar Construcciones - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/construcciones?busqueda=DEMO&amp;estado=</code></p>
+                  <img src="manual_usuario/capturas/099_filtrar-construcciones-resultado.png" alt="Filtrar Construcciones - resultado" loading="eager" />
+                  <p class="caption">Figura 6.35. Filtrar Construcciones - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 36</span><h3>Filtrar Finanzas - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Aplicación de filtros en finanzas. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/finanzas</code></p>
+                  <img src="manual_usuario/capturas/100_filtrar-finanzas-datos.png" alt="Filtrar Finanzas - datos" loading="eager" />
+                  <p class="caption">Figura 6.36. Filtrar Finanzas - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 37</span><h3>Filtrar Finanzas - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/finanzas?anio=2026&amp;mes=10&amp;giroId=&amp;sedeId=</code></p>
+                  <img src="manual_usuario/capturas/101_filtrar-finanzas-resultado.png" alt="Filtrar Finanzas - resultado" loading="eager" />
+                  <p class="caption">Figura 6.37. Filtrar Finanzas - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 38</span><h3>Filtrar Alertas - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Aplicación de filtros en alertas. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/alertas</code></p>
+                  <img src="manual_usuario/capturas/102_filtrar-alertas-datos.png" alt="Filtrar Alertas - datos" loading="eager" />
+                  <p class="caption">Figura 6.38. Filtrar Alertas - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 39</span><h3>Filtrar Alertas - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/alertas?estado=Activa</code></p>
+                  <img src="manual_usuario/capturas/103_filtrar-alertas-resultado.png" alt="Filtrar Alertas - resultado" loading="eager" />
+                  <p class="caption">Figura 6.39. Filtrar Alertas - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 40</span><h3>Filtrar Comunicaciones - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Aplicación de filtros en comunicaciones. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/comunicaciones</code></p>
+                  <img src="manual_usuario/capturas/104_filtrar-comunicaciones-datos.png" alt="Filtrar Comunicaciones - datos" loading="eager" />
+                  <p class="caption">Figura 6.40. Filtrar Comunicaciones - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 41</span><h3>Filtrar Comunicaciones - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/comunicaciones?estado=&amp;tipo=&amp;busqueda=DEMO</code></p>
+                  <img src="manual_usuario/capturas/105_filtrar-comunicaciones-resultado.png" alt="Filtrar Comunicaciones - resultado" loading="eager" />
+                  <p class="caption">Figura 6.41. Filtrar Comunicaciones - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 42</span><h3>Filtrar Integraciones - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Aplicación de filtros en integraciones. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/integraciones</code></p>
+                  <img src="manual_usuario/capturas/106_filtrar-integraciones-datos.png" alt="Filtrar Integraciones - datos" loading="eager" />
+                  <p class="caption">Figura 6.42. Filtrar Integraciones - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 43</span><h3>Filtrar Integraciones - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/integraciones?estado=&amp;canal=&amp;busqueda=DEMO</code></p>
+                  <img src="manual_usuario/capturas/107_filtrar-integraciones-resultado.png" alt="Filtrar Integraciones - resultado" loading="eager" />
+                  <p class="caption">Figura 6.43. Filtrar Integraciones - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 44</span><h3>Filtrar Reportes - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Aplicación de filtros en reportes. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/reportes</code></p>
+                  <img src="manual_usuario/capturas/108_filtrar-reportes-datos.png" alt="Filtrar Reportes - datos" loading="eager" />
+                  <p class="caption">Figura 6.44. Filtrar Reportes - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 45</span><h3>Filtrar Reportes - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/reportes?desde=2026-01-01&amp;hasta=2026-12-31&amp;giroId=&amp;sedeId=</code></p>
+                  <img src="manual_usuario/capturas/109_filtrar-reportes-resultado.png" alt="Filtrar Reportes - resultado" loading="eager" />
+                  <p class="caption">Figura 6.45. Filtrar Reportes - resultado</p>
+                </article>
+                
+            </section>
+            
+            <section class="chapter" id="cap-7">
+              <header class="chapter-title"><span>Capítulo 7</span><h2>Inventarios y bodegas</h2>
+              <p>Artículos, existencias y movimientos entre bodegas.</p></header>
+              
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 1</span><h3>Crear artículo de inventario - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Registro de crear artículo de inventario con datos ficticios identificados por MANUAL-20261031-025056. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/inventarios</code></p>
+                  <img src="manual_usuario/capturas/110_crear-art-culo-de-inventario-datos.png" alt="Crear artículo de inventario - datos" loading="eager" />
+                  <p class="caption">Figura 7.1. Crear artículo de inventario - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 2</span><h3>Crear artículo de inventario - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. Artículo creado.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/inventarios</code></p>
+                  <img src="manual_usuario/capturas/111_crear-art-culo-de-inventario-resultado.png" alt="Crear artículo de inventario - resultado" loading="eager" />
+                  <p class="caption">Figura 7.2. Crear artículo de inventario - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 3</span><h3>Registrar entrada de inventario - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Entrada de existencias sobre un artículo de demostración existente. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/inventarios</code></p>
+                  <img src="manual_usuario/capturas/112_registrar-entrada-de-inventario-datos.png" alt="Registrar entrada de inventario - datos" loading="eager" />
+                  <p class="caption">Figura 7.3. Registrar entrada de inventario - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 4</span><h3>Registrar entrada de inventario - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. Movimiento registrado.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/inventarios</code></p>
+                  <img src="manual_usuario/capturas/113_registrar-entrada-de-inventario-resultado.png" alt="Registrar entrada de inventario - resultado" loading="eager" />
+                  <p class="caption">Figura 7.4. Registrar entrada de inventario - resultado</p>
+                </article>
+                
+            </section>
+            
+            <section class="chapter" id="cap-8">
+              <header class="chapter-title"><span>Capítulo 8</span><h2>Abastecimiento</h2>
+              <p>Solicitudes internas de abastecimiento y sus transiciones.</p></header>
+              
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 1</span><h3>Crear abastecimiento - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Registro de crear abastecimiento con datos ficticios identificados por MANUAL-20261031-025056. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/abastecimientos</code></p>
+                  <img src="manual_usuario/capturas/114_crear-abastecimiento-datos.png" alt="Crear abastecimiento - datos" loading="eager" />
+                  <p class="caption">Figura 8.1. Crear abastecimiento - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 2</span><h3>Crear abastecimiento - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. Solicitud creada.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/abastecimientos/7</code></p>
+                  <img src="manual_usuario/capturas/115_crear-abastecimiento-resultado.png" alt="Crear abastecimiento - resultado" loading="eager" />
+                  <p class="caption">Figura 8.2. Crear abastecimiento - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 3</span><h3>Aprobar solicitud - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Actualización del registro creado en el paso anterior. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/abastecimientos/7</code></p>
+                  <img src="manual_usuario/capturas/130_aprobar-solicitud-datos.png" alt="Aprobar solicitud - datos" loading="eager" />
+                  <p class="caption">Figura 8.3. Aprobar solicitud - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 4</span><h3>Aprobar solicitud - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. Estado actualizado.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/abastecimientos/7</code></p>
+                  <img src="manual_usuario/capturas/131_aprobar-solicitud-resultado.png" alt="Aprobar solicitud - resultado" loading="eager" />
+                  <p class="caption">Figura 8.4. Aprobar solicitud - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 5</span><h3>Comentar solicitud - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Actualización del registro creado en el paso anterior. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/abastecimientos/7</code></p>
+                  <img src="manual_usuario/capturas/132_comentar-solicitud-datos.png" alt="Comentar solicitud - datos" loading="eager" />
+                  <p class="caption">Figura 8.5. Comentar solicitud - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 6</span><h3>Comentar solicitud - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/abastecimientos/7</code></p>
+                  <img src="manual_usuario/capturas/133_comentar-solicitud-resultado.png" alt="Comentar solicitud - resultado" loading="eager" />
+                  <p class="caption">Figura 8.6. Comentar solicitud - resultado</p>
+                </article>
+                
+            </section>
+            
+            <section class="chapter" id="cap-9">
+              <header class="chapter-title"><span>Capítulo 9</span><h2>Extracción minera</h2>
+              <p>Registro y seguimiento de jornadas de extracción.</p></header>
+              
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 1</span><h3>Crear extracción minera - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Registro de crear extracción minera con datos ficticios identificados por MANUAL-20261031-025056. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/extracciones</code></p>
+                  <img src="manual_usuario/capturas/116_crear-extracci-n-minera-datos.png" alt="Crear extracción minera - datos" loading="eager" />
+                  <p class="caption">Figura 9.1. Crear extracción minera - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 2</span><h3>Crear extracción minera - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. Jornada registrada.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/extracciones/9</code></p>
+                  <img src="manual_usuario/capturas/117_crear-extracci-n-minera-resultado.png" alt="Crear extracción minera - resultado" loading="eager" />
+                  <p class="caption">Figura 9.2. Crear extracción minera - resultado</p>
+                </article>
+                
+            </section>
+            
+            <section class="chapter" id="cap-10">
+              <header class="chapter-title"><span>Capítulo 10</span><h2>Orden de producción</h2>
+              <p>Creación de órdenes de transformación.</p></header>
+              
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 1</span><h3>Crear orden de producción - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Registro de crear orden de producción con datos ficticios identificados por MANUAL-20261031-025056. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/producciones</code></p>
+                  <img src="manual_usuario/capturas/118_crear-orden-de-producci-n-datos.png" alt="Crear orden de producción - datos" loading="eager" />
+                  <p class="caption">Figura 10.1. Crear orden de producción - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 2</span><h3>Crear orden de producción - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. Orden creada.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/producciones/8</code></p>
+                  <img src="manual_usuario/capturas/119_crear-orden-de-producci-n-resultado.png" alt="Crear orden de producción - resultado" loading="eager" />
+                  <p class="caption">Figura 10.2. Crear orden de producción - resultado</p>
+                </article>
+                
+            </section>
+            
+            <section class="chapter" id="cap-11">
+              <header class="chapter-title"><span>Capítulo 11</span><h2>Equipo de maquinaria</h2>
+              <p>Registro de maquinaria, contratos y mantenimiento.</p></header>
+              
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 1</span><h3>Crear equipo de maquinaria - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Registro de crear equipo de maquinaria con datos ficticios identificados por MANUAL-20261031-025056. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/maquinarias</code></p>
+                  <img src="manual_usuario/capturas/120_crear-equipo-de-maquinaria-datos.png" alt="Crear equipo de maquinaria - datos" loading="eager" />
+                  <p class="caption">Figura 11.1. Crear equipo de maquinaria - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 2</span><h3>Crear equipo de maquinaria - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/maquinarias/10</code></p>
+                  <img src="manual_usuario/capturas/121_crear-equipo-de-maquinaria-resultado.png" alt="Crear equipo de maquinaria - resultado" loading="eager" />
+                  <p class="caption">Figura 11.2. Crear equipo de maquinaria - resultado</p>
+                </article>
+                
+            </section>
+            
+            <section class="chapter" id="cap-12">
+              <header class="chapter-title"><span>Capítulo 12</span><h2>Proyecto de construcción</h2>
+              <p>Creación de obras, actividades, recursos y avances.</p></header>
+              
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 1</span><h3>Crear proyecto de construcción - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Registro de crear proyecto de construcción con datos ficticios identificados por MANUAL-20261031-025056. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/construcciones</code></p>
+                  <img src="manual_usuario/capturas/122_crear-proyecto-de-construcci-n-datos.png" alt="Crear proyecto de construcción - datos" loading="eager" />
+                  <p class="caption">Figura 12.1. Crear proyecto de construcción - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 2</span><h3>Crear proyecto de construcción - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/construcciones/11</code></p>
+                  <img src="manual_usuario/capturas/123_crear-proyecto-de-construcci-n-resultado.png" alt="Crear proyecto de construcción - resultado" loading="eager" />
+                  <p class="caption">Figura 12.2. Crear proyecto de construcción - resultado</p>
+                </article>
+                
+            </section>
+            
+            <section class="chapter" id="cap-13">
+              <header class="chapter-title"><span>Capítulo 13</span><h2>Presupuesto</h2>
+              <p>Creación de presupuestos operativos.</p></header>
+              
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 1</span><h3>Crear presupuesto - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Registro de crear presupuesto con datos ficticios identificados por MANUAL-20261031-025056. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/finanzas</code></p>
+                  <img src="manual_usuario/capturas/124_crear-presupuesto-datos.png" alt="Crear presupuesto - datos" loading="eager" />
+                  <p class="caption">Figura 13.1. Crear presupuesto - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 2</span><h3>Crear presupuesto - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. Presupuesto creado.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/finanzas/10</code></p>
+                  <img src="manual_usuario/capturas/125_crear-presupuesto-resultado.png" alt="Crear presupuesto - resultado" loading="eager" />
+                  <p class="caption">Figura 13.2. Crear presupuesto - resultado</p>
+                </article>
+                
+            </section>
+            
+            <section class="chapter" id="cap-14">
+              <header class="chapter-title"><span>Capítulo 14</span><h2>Alerta</h2>
+              <p>Creación de avisos y recordatorios.</p></header>
+              
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 1</span><h3>Crear alerta - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Registro de crear alerta con datos ficticios identificados por MANUAL-20261031-025056. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/alertas</code></p>
+                  <img src="manual_usuario/capturas/126_crear-alerta-datos.png" alt="Crear alerta - datos" loading="eager" />
+                  <p class="caption">Figura 14.1. Crear alerta - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 2</span><h3>Crear alerta - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/alertas/14</code></p>
+                  <img src="manual_usuario/capturas/127_crear-alerta-resultado.png" alt="Crear alerta - resultado" loading="eager" />
+                  <p class="caption">Figura 14.2. Crear alerta - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 3</span><h3>Agregar seguimiento - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Actualización del registro creado en el paso anterior. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/alertas/14</code></p>
+                  <img src="manual_usuario/capturas/140_agregar-seguimiento-datos.png" alt="Agregar seguimiento - datos" loading="eager" />
+                  <p class="caption">Figura 14.3. Agregar seguimiento - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 4</span><h3>Agregar seguimiento - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/alertas/14</code></p>
+                  <img src="manual_usuario/capturas/141_agregar-seguimiento-resultado.png" alt="Agregar seguimiento - resultado" loading="eager" />
+                  <p class="caption">Figura 14.4. Agregar seguimiento - resultado</p>
+                </article>
+                
+            </section>
+            
+            <section class="chapter" id="cap-15">
+              <header class="chapter-title"><span>Capítulo 15</span><h2>Comunicación interna</h2>
+              <p>Conversaciones internas y mensajes de seguimiento.</p></header>
+              
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 1</span><h3>Crear comunicación interna - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Registro de crear comunicación interna con datos ficticios identificados por MANUAL-20261031-025056. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/comunicaciones</code></p>
+                  <img src="manual_usuario/capturas/128_crear-comunicaci-n-interna-datos.png" alt="Crear comunicación interna - datos" loading="eager" />
+                  <p class="caption">Figura 15.1. Crear comunicación interna - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 2</span><h3>Crear comunicación interna - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. Comunicación iniciada.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/comunicaciones/20</code></p>
+                  <img src="manual_usuario/capturas/129_crear-comunicaci-n-interna-resultado.png" alt="Crear comunicación interna - resultado" loading="eager" />
+                  <p class="caption">Figura 15.2. Crear comunicación interna - resultado</p>
+                </article>
+                
+            </section>
+            
+            <section class="chapter" id="cap-16">
+              <header class="chapter-title"><span>Capítulo 16</span><h2>Extraccion</h2>
+              <p>Procedimiento comprobado en la aplicación.</p></header>
+              
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 1</span><h3>Confirmar extracción - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Actualización del registro creado en el paso anterior. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/extracciones/9</code></p>
+                  <img src="manual_usuario/capturas/134_confirmar-extracci-n-datos.png" alt="Confirmar extracción - datos" loading="eager" />
+                  <p class="caption">Figura 16.1. Confirmar extracción - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 2</span><h3>Confirmar extracción - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. Estado actualizado.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/extracciones/9</code></p>
+                  <img src="manual_usuario/capturas/135_confirmar-extracci-n-resultado.png" alt="Confirmar extracción - resultado" loading="eager" />
+                  <p class="caption">Figura 16.2. Confirmar extracción - resultado</p>
+                </article>
+                
+            </section>
+            
+            <section class="chapter" id="cap-17">
+              <header class="chapter-title"><span>Capítulo 17</span><h2>Produccion</h2>
+              <p>Procedimiento comprobado en la aplicación.</p></header>
+              
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 1</span><h3>Iniciar producción - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Actualización del registro creado en el paso anterior. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/producciones/8</code></p>
+                  <img src="manual_usuario/capturas/136_iniciar-producci-n-datos.png" alt="Iniciar producción - datos" loading="eager" />
+                  <p class="caption">Figura 17.1. Iniciar producción - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 2</span><h3>Iniciar producción - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. Estado actualizado.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/producciones/8</code></p>
+                  <img src="manual_usuario/capturas/137_iniciar-producci-n-resultado.png" alt="Iniciar producción - resultado" loading="eager" />
+                  <p class="caption">Figura 17.2. Iniciar producción - resultado</p>
+                </article>
+                
+            </section>
+            
+            <section class="chapter" id="cap-18">
+              <header class="chapter-title"><span>Capítulo 18</span><h2>Finanzas</h2>
+              <p>Gastos, presupuestos e ingresos.</p></header>
+              
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 1</span><h3>Registrar gasto - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Actualización del registro creado en el paso anterior. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/finanzas/10</code></p>
+                  <img src="manual_usuario/capturas/138_registrar-gasto-datos.png" alt="Registrar gasto - datos" loading="eager" />
+                  <p class="caption">Figura 18.1. Registrar gasto - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 2</span><h3>Registrar gasto - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. Gasto registrado.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/finanzas/10</code></p>
+                  <img src="manual_usuario/capturas/139_registrar-gasto-resultado.png" alt="Registrar gasto - resultado" loading="eager" />
+                  <p class="caption">Figura 18.2. Registrar gasto - resultado</p>
+                </article>
+                
+            </section>
+            
+            <section class="chapter" id="cap-19">
+              <header class="chapter-title"><span>Capítulo 19</span><h2>Comunicacion</h2>
+              <p>Operaciones de conversación sobre registros creados.</p></header>
+              
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 1</span><h3>Responder comunicación - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Actualización del registro creado en el paso anterior. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/comunicaciones/20</code></p>
+                  <img src="manual_usuario/capturas/142_responder-comunicaci-n-datos.png" alt="Responder comunicación - datos" loading="eager" />
+                  <p class="caption">Figura 19.1. Responder comunicación - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 2</span><h3>Responder comunicación - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. Nota interna agregada.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/comunicaciones/20</code></p>
+                  <img src="manual_usuario/capturas/143_responder-comunicaci-n-resultado.png" alt="Responder comunicación - resultado" loading="eager" />
+                  <p class="caption">Figura 19.2. Responder comunicación - resultado</p>
+                </article>
+                
+            </section>
+            
+            <section class="chapter" id="cap-20">
+              <header class="chapter-title"><span>Capítulo 20</span><h2>Maquinaria</h2>
+              <p>Procedimiento comprobado en la aplicación.</p></header>
+              
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 1</span><h3>Programar mantenimiento - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Programación de mantenimiento preventivo del equipo. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/maquinarias/10</code></p>
+                  <img src="manual_usuario/capturas/144_programar-mantenimiento-datos.png" alt="Programar mantenimiento - datos" loading="eager" />
+                  <p class="caption">Figura 20.1. Programar mantenimiento - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 2</span><h3>Programar mantenimiento - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/maquinarias/10</code></p>
+                  <img src="manual_usuario/capturas/145_programar-mantenimiento-resultado.png" alt="Programar mantenimiento - resultado" loading="eager" />
+                  <p class="caption">Figura 20.2. Programar mantenimiento - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 3</span><h3>Reservar maquinaria - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Creación de un contrato de alquiler para el equipo registrado. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/maquinarias/10</code></p>
+                  <img src="manual_usuario/capturas/146_reservar-maquinaria-datos.png" alt="Reservar maquinaria - datos" loading="eager" />
+                  <p class="caption">Figura 20.3. Reservar maquinaria - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 4</span><h3>Reservar maquinaria - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/maquinarias/10</code></p>
+                  <img src="manual_usuario/capturas/147_reservar-maquinaria-resultado.png" alt="Reservar maquinaria - resultado" loading="eager" />
+                  <p class="caption">Figura 20.4. Reservar maquinaria - resultado</p>
+                </article>
+                
+            </section>
+            
+            <section class="chapter" id="cap-21">
+              <header class="chapter-title"><span>Capítulo 21</span><h2>Construcción</h2>
+              <p>Procedimiento comprobado en la aplicación.</p></header>
+              
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 1</span><h3>Iniciar proyecto - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Operación sobre el proyecto de construcción. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/construcciones/11</code></p>
+                  <img src="manual_usuario/capturas/148_iniciar-proyecto-datos.png" alt="Iniciar proyecto - datos" loading="eager" />
+                  <p class="caption">Figura 21.1. Iniciar proyecto - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 2</span><h3>Iniciar proyecto - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/construcciones/11</code></p>
+                  <img src="manual_usuario/capturas/149_iniciar-proyecto-resultado.png" alt="Iniciar proyecto - resultado" loading="eager" />
+                  <p class="caption">Figura 21.2. Iniciar proyecto - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 3</span><h3>Registrar actividad de obra - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Operación sobre el proyecto de construcción. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/construcciones/11</code></p>
+                  <img src="manual_usuario/capturas/150_registrar-actividad-de-obra-datos.png" alt="Registrar actividad de obra - datos" loading="eager" />
+                  <p class="caption">Figura 21.3. Registrar actividad de obra - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 4</span><h3>Registrar actividad de obra - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/construcciones/11</code></p>
+                  <img src="manual_usuario/capturas/151_registrar-actividad-de-obra-resultado.png" alt="Registrar actividad de obra - resultado" loading="eager" />
+                  <p class="caption">Figura 21.4. Registrar actividad de obra - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 5</span><h3>Asignar recurso de obra - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Operación sobre el proyecto de construcción. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/construcciones/11</code></p>
+                  <img src="manual_usuario/capturas/152_asignar-recurso-de-obra-datos.png" alt="Asignar recurso de obra - datos" loading="eager" />
+                  <p class="caption">Figura 21.5. Asignar recurso de obra - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 6</span><h3>Asignar recurso de obra - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/construcciones/11</code></p>
+                  <img src="manual_usuario/capturas/153_asignar-recurso-de-obra-resultado.png" alt="Asignar recurso de obra - resultado" loading="eager" />
+                  <p class="caption">Figura 21.6. Asignar recurso de obra - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 7</span><h3>Registrar avance de obra - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Operación sobre el proyecto de construcción. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/construcciones/11</code></p>
+                  <img src="manual_usuario/capturas/154_registrar-avance-de-obra-datos.png" alt="Registrar avance de obra - datos" loading="eager" />
+                  <p class="caption">Figura 21.7. Registrar avance de obra - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 8</span><h3>Registrar avance de obra - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/construcciones/11</code></p>
+                  <img src="manual_usuario/capturas/155_registrar-avance-de-obra-resultado.png" alt="Registrar avance de obra - resultado" loading="eager" />
+                  <p class="caption">Figura 21.8. Registrar avance de obra - resultado</p>
+                </article>
+                
+            </section>
+            
+            <section class="chapter" id="cap-22">
+              <header class="chapter-title"><span>Capítulo 22</span><h2>Transporte y GPS</h2>
+              <p>Vehículos, conductores, viajes, incidencias y telemetría.</p></header>
+              
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 1</span><h3>Registrar vehículo - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Alta del vehículo que se usará en el viaje de prueba. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/transportes</code></p>
+                  <img src="manual_usuario/capturas/156_registrar-veh-culo-datos.png" alt="Registrar vehículo - datos" loading="eager" />
+                  <p class="caption">Figura 22.1. Registrar vehículo - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 2</span><h3>Registrar vehículo - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/transportes</code></p>
+                  <img src="manual_usuario/capturas/157_registrar-veh-culo-resultado.png" alt="Registrar vehículo - resultado" loading="eager" />
+                  <p class="caption">Figura 22.2. Registrar vehículo - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 3</span><h3>Registrar conductor - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Alta del conductor que se usará en el viaje de prueba. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/transportes</code></p>
+                  <img src="manual_usuario/capturas/158_registrar-conductor-datos.png" alt="Registrar conductor - datos" loading="eager" />
+                  <p class="caption">Figura 22.3. Registrar conductor - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 4</span><h3>Registrar conductor - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/transportes</code></p>
+                  <img src="manual_usuario/capturas/159_registrar-conductor-resultado.png" alt="Registrar conductor - resultado" loading="eager" />
+                  <p class="caption">Figura 22.4. Registrar conductor - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 5</span><h3>Programar viaje - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Programación de un traslado nacional con los recursos creados. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/transportes</code></p>
+                  <img src="manual_usuario/capturas/160_programar-viaje-datos.png" alt="Programar viaje - datos" loading="eager" />
+                  <p class="caption">Figura 22.5. Programar viaje - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 6</span><h3>Programar viaje - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/transportes/11</code></p>
+                  <img src="manual_usuario/capturas/161_programar-viaje-resultado.png" alt="Programar viaje - resultado" loading="eager" />
+                  <p class="caption">Figura 22.6. Programar viaje - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 7</span><h3>Iniciar viaje - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Cambio del viaje programado al estado en ruta. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/transportes/11</code></p>
+                  <img src="manual_usuario/capturas/162_iniciar-viaje-datos.png" alt="Iniciar viaje - datos" loading="eager" />
+                  <p class="caption">Figura 22.7. Iniciar viaje - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 8</span><h3>Iniciar viaje - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/transportes/11</code></p>
+                  <img src="manual_usuario/capturas/163_iniciar-viaje-resultado.png" alt="Iniciar viaje - resultado" loading="eager" />
+                  <p class="caption">Figura 22.8. Iniciar viaje - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 9</span><h3>Registrar incidencia - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Registro de una novedad durante el traslado. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/transportes/11</code></p>
+                  <img src="manual_usuario/capturas/164_registrar-incidencia-datos.png" alt="Registrar incidencia - datos" loading="eager" />
+                  <p class="caption">Figura 22.9. Registrar incidencia - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 10</span><h3>Registrar incidencia - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. La pantalla se actualizó sin un mensaje de error visible.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/transportes/11</code></p>
+                  <img src="manual_usuario/capturas/165_registrar-incidencia-resultado.png" alt="Registrar incidencia - resultado" loading="eager" />
+                  <p class="caption">Figura 22.10. Registrar incidencia - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 11</span><h3>Registrar dispositivo GPS - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Alta de un dispositivo externo sin asociación obligatoria. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/gps</code></p>
+                  <img src="manual_usuario/capturas/166_registrar-dispositivo-gps-datos.png" alt="Registrar dispositivo GPS - datos" loading="eager" />
+                  <p class="caption">Figura 22.11. Registrar dispositivo GPS - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 12</span><h3>Registrar dispositivo GPS - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. Dispositivo registrado.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/gps</code></p>
+                  <img src="manual_usuario/capturas/167_registrar-dispositivo-gps-resultado.png" alt="Registrar dispositivo GPS - resultado" loading="eager" />
+                  <p class="caption">Figura 22.12. Registrar dispositivo GPS - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 13</span><h3>Simular dato GPS externo - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Recepción simulada de latitud y longitud de Ciudad de Guatemala. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/gps</code></p>
+                  <img src="manual_usuario/capturas/168_simular-dato-gps-externo-datos.png" alt="Simular dato GPS externo - datos" loading="eager" />
+                  <p class="caption">Figura 22.13. Simular dato GPS externo - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 14</span><h3>Simular dato GPS externo - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. Dato externo simulado correctamente.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/gps</code></p>
+                  <img src="manual_usuario/capturas/169_simular-dato-gps-externo-resultado.png" alt="Simular dato GPS externo - resultado" loading="eager" />
+                  <p class="caption">Figura 22.14. Simular dato GPS externo - resultado</p>
+                </article>
+                
+            </section>
+            
+            <section class="chapter" id="cap-23">
+              <header class="chapter-title"><span>Capítulo 23</span><h2>Integraciones y finanzas</h2>
+              <p>Simulación REST, Webhook y CSV, además de ingresos manuales.</p></header>
+              
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 1</span><h3>Simular integración Webhook - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Ingreso de un dato externo por el canal Webhook. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/integraciones</code></p>
+                  <img src="manual_usuario/capturas/170_simular-integraci-n-webhook-datos.png" alt="Simular integración Webhook - datos" loading="eager" />
+                  <p class="caption">Figura 23.1. Simular integración Webhook - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 2</span><h3>Simular integración Webhook - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. Dato externo simulado y procesado.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/integraciones/25</code></p>
+                  <img src="manual_usuario/capturas/171_simular-integraci-n-webhook-resultado.png" alt="Simular integración Webhook - resultado" loading="eager" />
+                  <p class="caption">Figura 23.2. Simular integración Webhook - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 3</span><h3>Simular integración REST - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Ingreso de un dato externo por el canal REST. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/integraciones</code></p>
+                  <img src="manual_usuario/capturas/172_simular-integraci-n-rest-datos.png" alt="Simular integración REST - datos" loading="eager" />
+                  <p class="caption">Figura 23.3. Simular integración REST - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 4</span><h3>Simular integración REST - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. Dato externo simulado y procesado.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/integraciones/26</code></p>
+                  <img src="manual_usuario/capturas/173_simular-integraci-n-rest-resultado.png" alt="Simular integración REST - resultado" loading="eager" />
+                  <p class="caption">Figura 23.4. Simular integración REST - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 5</span><h3>Simular integración CSV - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Ingreso de un dato externo por el canal CSV. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/integraciones</code></p>
+                  <img src="manual_usuario/capturas/174_simular-integraci-n-csv-datos.png" alt="Simular integración CSV - datos" loading="eager" />
+                  <p class="caption">Figura 23.5. Simular integración CSV - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 6</span><h3>Simular integración CSV - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. Dato externo simulado y procesado.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/integraciones/27</code></p>
+                  <img src="manual_usuario/capturas/175_simular-integraci-n-csv-resultado.png" alt="Simular integración CSV - resultado" loading="eager" />
+                  <p class="caption">Figura 23.6. Simular integración CSV - resultado</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 7</span><h3>Registrar ingreso - datos</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Registro manual de un ingreso financiero ficticio. Esta captura muestra los datos antes de enviarlos.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/finanzas/ingresos</code></p>
+                  <img src="manual_usuario/capturas/176_registrar-ingreso-datos.png" alt="Registrar ingreso - datos" loading="eager" />
+                  <p class="caption">Figura 23.7. Registrar ingreso - datos</p>
+                </article>
+                
+                <article class="capture-card success">
+                  <div class="capture-heading">
+                    <div><span class="step">Paso 8</span><h3>Registrar ingreso - resultado</h3></div>
+                    <span class="status">Evidencia</span>
+                  </div>
+                  <p>Resultado devuelto por la aplicación. Ingreso registrado.</p>
+                  <p class="route"><strong>Ruta observada:</strong> <code>http://localhost:8080/gestion/finanzas/ingresos</code></p>
+                  <img src="manual_usuario/capturas/177_registrar-ingreso-resultado.png" alt="Registrar ingreso - resultado" loading="eager" />
+                  <p class="caption">Figura 23.8. Registrar ingreso - resultado</p>
+                </article>
+                
+            </section>
+            
+<section class="appendix" id="incidencias"><h2>Apéndice: resultado de las pruebas</h2><div class="summary-grid"><div class="metric"><strong>109</strong>comprobaciones</div><div class="metric"><strong>109</strong>correctas</div><div class="metric"><strong>0</strong>fallidas</div><div class="metric"><strong>177</strong>capturas</div></div>
+<div class="success-note"><strong>Validación completa.</strong> Todos los flujos automatizados finalizaron correctamente y la auditoría no encontró formularios POST sin protección antifalsificación.</div>
+<h3>Flujos fallidos</h3><p>No se registraron fallos en esta ejecución.</p>
+<p>Consulte <code>Reporte_de_pruebas_manual.md</code>, <code>manual_usuario/reporte_ejecucion.json</code> y <code>manual_usuario/auditoria_formularios.json</code> para el detalle reproducible.</p></section>
+</main></body></html>

@@ -6,5 +6,5 @@ public interface IOperacionesRepository
 {
     Task<DashboardDto> ObtenerResumenAsync(CancellationToken ct);
     Task CrearAuditoriaAsync(CrearAuditoriaDto evento, CancellationToken ct);
-    Task<IReadOnlyList<AuditoriaDto>> ListarAuditoriaAsync(int cantidad, CancellationToken ct);
+    Task<AuditoriaPaginaDto> ListarAuditoriaAsync(AuditoriaConsultaDto consulta, CancellationToken ct);
 }

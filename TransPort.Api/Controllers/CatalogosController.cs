@@ -11,7 +11,12 @@ namespace TransPort.Api.Controllers;
 [Authorize(Roles = "AdministradorGeneral")]
 public sealed class CatalogosController(ICatalogoRepository catalogos) : ControllerBase
 {
-    private static bool Valido(string tipo) => tipo is "roles" or "giros" or "sedes";
+    private const string RolAdministrador = "AdministradorGeneral";
+
+    private static bool Valido(string tipo) =>
+        tipo.Equals("roles", StringComparison.OrdinalIgnoreCase) ||
+        tipo.Equals("giros", StringComparison.OrdinalIgnoreCase) ||
+        tipo.Equals("sedes", StringComparison.OrdinalIgnoreCase);
 
     [HttpGet]
     public async Task<IActionResult> Listar(string tipo, CancellationToken ct) =>
@@ -37,6 +42,14 @@ public sealed class CatalogosController(ICatalogoRepository catalogos) : Control
     public async Task<IActionResult> Actualizar(string tipo, int id, GuardarCatalogoRequest request, CancellationToken ct)
     {
         if (!Valido(tipo)) return NotFound();
+        if (tipo.Equals("roles", StringComparison.OrdinalIgnoreCase))
+        {
+            var actual = await catalogos.ObtenerAsync(tipo, id, ct);
+            if (actual is null) return NotFound();
+            if (EsRolAdministrador(actual.Nombre) &&
+                (!request.EsActivo || !EsRolAdministrador(request.Nombre.Trim())))
+                return BadRequest(new MensajeDto("El rol AdministradorGeneral debe conservar su nombre y permanecer activo."));
+        }
         return await catalogos.ActualizarAsync(tipo, id, request, ResponsableId(), ct) ? NoContent() : NotFound();
     }
 
@@ -44,8 +57,18 @@ public sealed class CatalogosController(ICatalogoRepository catalogos) : Control
     public async Task<IActionResult> Eliminar(string tipo, int id, CancellationToken ct)
     {
         if (!Valido(tipo)) return NotFound();
+        if (tipo.Equals("roles", StringComparison.OrdinalIgnoreCase))
+        {
+            var actual = await catalogos.ObtenerAsync(tipo, id, ct);
+            if (actual is null) return NotFound();
+            if (EsRolAdministrador(actual.Nombre))
+                return BadRequest(new MensajeDto("El rol AdministradorGeneral no puede eliminarse."));
+        }
         return await catalogos.EliminarAsync(tipo, id, ResponsableId(), ct) ? NoContent() : NotFound();
     }
+
+    private static bool EsRolAdministrador(string nombre) =>
+        nombre.Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase);
 
     private int ResponsableId() => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 }

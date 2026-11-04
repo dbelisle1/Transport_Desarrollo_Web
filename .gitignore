@@ -42,3 +42,7 @@ coverage/
 *.coveragexml
 packages/
 *.nupkg
+
+# Seguimiento interno del desarrollo (se conserva solo localmente)
+/avance.txt
+/ESTADO_PROYECTO.md
